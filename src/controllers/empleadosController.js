@@ -51,11 +51,14 @@ const getNuevoEmpleado = async (req, res) => {
 };
 
 const postEmpleado = async (req, res) => {
+  // Si multer falló (ej: archivo muy grande), mostrar error amigable
+  if (req.multerError) {
+    const [aptitudes] = await db.query('SELECT * FROM aptitudes ORDER BY nombre ASC');
+    return res.render('empleado_form', { empleado: null, aptitudes, usuario: req.usuario, error: req.multerError });
+  }
+
   const { nombre, apellido, legajo, aptitudes_sel } = req.body;
   const foto = req.file ? req.file.filename : null;
-
-  console.log('[postEmpleado] foto recibida:', foto);
-  console.log('[postEmpleado] req.file:', req.file ? 'presente' : 'null');
 
   try {
     const [result] = await db.query(

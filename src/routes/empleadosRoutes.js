@@ -9,17 +9,15 @@ const {
   getEditarEmpleado, putEmpleado, deleteEmpleado
 } = require('../controllers/empleadosController');
 
-// Usar memoryStorage — evita problemas de permisos en Hostinger
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|webp/;
     cb(null, allowed.test(path.extname(file.originalname).toLowerCase()));
   }
 });
 
-// Middleware que guarda el buffer al disco manualmente
 const guardarFoto = (req, res, next) => {
   if (!req.file) return next();
 
@@ -34,16 +32,32 @@ const guardarFoto = (req, res, next) => {
     req.file.filename = filename;
   } catch (err) {
     console.error('Error guardando foto:', err.message);
-    req.file = null; // Si falla, continúa sin foto
+    req.file = null;
   }
   next();
 };
 
+// Wrapper para capturar MulterError y mostrar mensaje amigable
+const uploadConManejo = (req, res, next) => {
+  upload.single('foto')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        req.multerError = 'La foto es muy grande. El máximo permitido es 5MB.';
+      } else {
+        req.multerError = 'Error al subir la foto: ' + err.message;
+      }
+    } else if (err) {
+      req.multerError = 'Error inesperado al subir la foto.';
+    }
+    next();
+  });
+};
+
 router.get('/empleados',              verificarToken, getEmpleados);
 router.get('/empleados/nuevo',        verificarToken, soloAdmin, getNuevoEmpleado);
-router.post('/empleados',             verificarToken, soloAdmin, upload.single('foto'), guardarFoto, postEmpleado);
+router.post('/empleados',             verificarToken, soloAdmin, uploadConManejo, guardarFoto, postEmpleado);
 router.get('/empleados/:id/editar',   verificarToken, soloAdmin, getEditarEmpleado);
-router.post('/empleados/:id/editar',  verificarToken, soloAdmin, upload.single('foto'), guardarFoto, putEmpleado);
+router.post('/empleados/:id/editar',  verificarToken, soloAdmin, uploadConManejo, guardarFoto, putEmpleado);
 router.post('/empleados/:id/borrar',  verificarToken, soloAdmin, deleteEmpleado);
 
 module.exports = router;
