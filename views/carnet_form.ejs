@@ -130,12 +130,12 @@
           <div class="field">
             <label>Fecha de emisión *</label>
             <input type="date" name="fecha_emision" required
-              value="<%= carnet ? carnet.fecha_emision.toISOString().split('T')[0] : '' %>"/>
+              value="<%= carnet ? carnet.fecha_emision_val : '' %>"/>
           </div>
           <div class="field">
             <label>Fecha de vencimiento *</label>
             <input type="date" name="fecha_vencimiento" required
-              value="<%= carnet ? carnet.fecha_vencimiento.toISOString().split('T')[0] : '' %>"/>
+              value="<%= carnet ? carnet.fecha_vencimiento_val : '' %>"/>
           </div>
         </div>
 

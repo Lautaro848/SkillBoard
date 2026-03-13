@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carnets — SistemaCapacita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --rojo:#C0392B; --rojo2:#E74C3C;
+      --gris:#141414; --gris2:#1e1e1e; --gris3:#2a2a2a; --gris4:#333;
+      --blanco:#F0EFEB; --texto:#888;
+      --verde:#27AE60; --verde2:#2ecc71;
+      --amarillo:#F39C12; --amarillo2:#f1c40f;
+    }
+    body { background:var(--gris); font-family:'Barlow',sans-serif; color:var(--blanco); min-height:100vh; display:flex; }
+
+    /* SIDEBAR */
+    .sidebar { width:240px; min-height:100vh; background:var(--gris2); border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:100; }
+    .sidebar-logo { padding:28px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; }
+    .sidebar-logo .logo-icon { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; }
+    .sidebar-logo .logo-icon svg { width:20px; height:20px; fill:white; }
+    .sidebar-logo .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; line-height:1.2; }
+    .sidebar-logo .logo-text span { display:block; font-size:10px; font-weight:400; color:var(--texto); letter-spacing:2px; margin-top:2px; }
+    .sidebar-nav { flex:1; padding:20px 0; }
+    .nav-section { padding:8px 24px 4px; font-size:10px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:var(--texto); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.15s; border-left:3px solid transparent; }
+    .nav-item:hover { color:var(--blanco); background:rgba(255,255,255,0.04); }
+    .nav-item.active { color:var(--blanco); background:rgba(192,57,43,0.12); border-left-color:var(--rojo); }
+    .nav-item svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+    .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.05); }
+    .user-info { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .user-avatar { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; }
+    .user-name { font-size:13px; font-weight:600; }
+    .user-role { font-size:11px; color:var(--texto); }
+    .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; text-decoration:none; }
+    .btn-logout:hover { background:rgba(192,57,43,0.15); border-color:var(--rojo); color:var(--rojo2); }
+    .btn-logout svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+
+    /* MAIN */
+    .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
+    .topbar { padding:20px 36px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; background:var(--gris2); }
+    .topbar h1 { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .topbar p { font-size:13px; color:var(--texto); margin-top:2px; }
+    .btn-primary { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; background:var(--rojo); color:white; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; text-transform:uppercase; text-decoration:none; border:none; cursor:pointer; transition:background 0.15s; }
+    .btn-primary:hover { background:var(--rojo2); }
+    .btn-primary svg { width:16px; height:16px; stroke:white; fill:none; stroke-width:2.5; stroke-linecap:round; }
+
+    .content { padding:28px 36px; flex:1; }
+
+    /* SUCCESS */
+    .success-msg { background:rgba(39,174,96,0.12); border-left:3px solid var(--verde); color:var(--verde2); font-size:13px; padding:12px 16px; margin-bottom:20px; }
+
+    /* RESUMEN ESTADOS */
+    .estados-bar { display:flex; gap:12px; margin-bottom:24px; }
+    .estado-pill { display:flex; align-items:center; gap:8px; padding:8px 16px; border:1px solid; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; text-decoration:none; transition:opacity 0.15s; cursor:pointer; }
+    .estado-pill:hover { opacity:0.8; }
+    .estado-pill.vigente  { background:rgba(39,174,96,0.1);  border-color:rgba(39,174,96,0.3);  color:var(--verde2); }
+    .estado-pill.proximo  { background:rgba(243,156,18,0.1);  border-color:rgba(243,156,18,0.3);  color:var(--amarillo2); }
+    .estado-pill.vencido  { background:rgba(192,57,43,0.1);  border-color:rgba(192,57,43,0.3);  color:var(--rojo2); }
+    .estado-pill.todos    { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); color:var(--texto); }
+    .estado-pill.active   { opacity:1; }
+    .estado-pill span.num { font-size:18px; }
+
+    /* FILTROS */
+    .filters { display:flex; gap:12px; margin-bottom:24px; align-items:center; }
+    .filter-select { background:var(--gris2); border:1px solid rgba(255,255,255,0.08); color:var(--blanco); font-family:'Barlow',sans-serif; font-size:14px; padding:10px 14px; outline:none; cursor:pointer; }
+    .filter-select:focus { border-color:var(--rojo); }
+    .btn-filter { padding:10px 18px; background:var(--gris3); border:1px solid rgba(255,255,255,0.08); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; text-decoration:none; }
+    .btn-filter:hover { color:var(--blanco); border-color:rgba(255,255,255,0.2); }
+
+    /* TABLA */
+    .tabla-wrap { background:var(--gris2); border:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:12px 20px; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--texto); text-align:left; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); }
+    tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; animation:fadeUp 0.3s ease both; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:rgba(255,255,255,0.03); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    td { padding:14px 20px; font-size:13px; vertical-align:middle; }
+
+    .empleado-cell { display:flex; align-items:center; gap:10px; }
+    .emp-mini-foto { width:32px; height:32px; border-radius:0; object-fit:cover; flex-shrink:0; }
+    .emp-mini-placeholder { width:32px; height:32px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:white; flex-shrink:0; }
+    .emp-mini-nombre { font-weight:600; font-size:13px; }
+
+    .especialidad-cell { font-weight:600; }
+    .numero-cell { color:var(--texto); font-size:12px; font-family:monospace; letter-spacing:1px; }
+
+    .fecha-cell { font-size:12px; color:var(--texto); }
+    .fecha-cell strong { display:block; font-size:13px; color:var(--blanco); font-weight:600; }
+
+    .alerta-cell { font-size:11px; color:var(--texto); }
+
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+    .badge-vigente  { background:rgba(39,174,96,0.12);  color:var(--verde2);    border:1px solid rgba(39,174,96,0.25); }
+    .badge-proximo  { background:rgba(243,156,18,0.12);  color:var(--amarillo2); border:1px solid rgba(243,156,18,0.25); }
+    .badge-vencido  { background:rgba(192,57,43,0.12);  color:var(--rojo2);     border:1px solid rgba(192,57,43,0.25); }
+    .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+    .acciones { display:flex; gap:6px; }
+    .btn-edit { padding:6px 12px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-size:11px; cursor:pointer; transition:all 0.15s; text-decoration:none; font-family:'Barlow',sans-serif; }
+    .btn-edit:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
+    .btn-delete { padding:6px 10px; background:transparent; border:1px solid rgba(192,57,43,0.2); color:rgba(192,57,43,0.6); font-size:11px; cursor:pointer; transition:all 0.15s; font-family:'Barlow',sans-serif; }
+    .btn-delete:hover { background:rgba(192,57,43,0.12); color:var(--rojo2); border-color:var(--rojo); }
+
+    .empty-state { text-align:center; padding:64px 32px; color:var(--texto); }
+    .empty-state svg { width:48px; height:48px; stroke:var(--texto); fill:none; stroke-width:1.2; margin-bottom:16px; display:block; margin-inline:auto; }
+    .empty-state h3 { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:8px; color:var(--gris4); }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg></div>
+    <div class="logo-text">SistemaCapacita<span>Durlock · La Pampa</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="/empleados" class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Empleados</a>
+    <a href="/aptitudes" class="nav-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Aptitudes</a>
+    <a href="/carnets" class="nav-item active"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Carnets</a>
+    <div class="nav-section" style="margin-top:12px">Visualización</div>
+    <a href="/tv" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Vista TV</a>
+    <% if (usuario.nivel === 1) { %>
+    <div class="nav-section" style="margin-top:12px">Administración</div>
+    <a href="/usuarios" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Usuarios</a>
+    <% } %>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><%= usuario.nombre.charAt(0).toUpperCase() %></div>
+      <div><div class="user-name"><%= usuario.nombre %></div><div class="user-role"><%= usuario.nivel === 1 ? 'Administrador' : 'Supervisor' %></div></div>
+    </div>
+    <a href="/logout" class="btn-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>Carnets</h1>
+      <p><%= carnets.length %> carnet<%= carnets.length !== 1 ? 's' : '' %> encontrado<%= carnets.length !== 1 ? 's' : '' %></p>
+    </div>
+    <% if (usuario.nivel === 1) { %>
+    <a href="/carnets/nuevo" class="btn-primary">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo Carnet
+    </a>
+    <% } %>
+  </div>
+
+  <div class="content">
+
+    <% if (success) { %>
+    <div class="success-msg">✓ Carnet guardado correctamente.</div>
+    <% } %>
+
+    <%
+      const totalVigente = carnets.filter(c => c.estado === 'vigente').length;
+      const totalProximo = carnets.filter(c => c.estado === 'proximo').length;
+      const totalVencido = carnets.filter(c => c.estado === 'vencido').length;
+    %>
+
+    <div class="estados-bar">
+      <a href="/carnets" class="estado-pill todos <%= !filtroEstado ? 'active' : '' %>">
+        <span class="num"><%= carnets.length %></span> Todos
+      </a>
+      <a href="/carnets?estado=vigente<%= filtroEmpleado ? '&empleado_id='+filtroEmpleado : '' %>" class="estado-pill vigente <%= filtroEstado==='vigente' ? 'active' : '' %>">
+        <span class="num"><%= totalVigente %></span> Vigentes
+      </a>
+      <a href="/carnets?estado=proximo<%= filtroEmpleado ? '&empleado_id='+filtroEmpleado : '' %>" class="estado-pill proximo <%= filtroEstado==='proximo' ? 'active' : '' %>">
+        <span class="num"><%= totalProximo %></span> Próximos a vencer
+      </a>
+      <a href="/carnets?estado=vencido<%= filtroEmpleado ? '&empleado_id='+filtroEmpleado : '' %>" class="estado-pill vencido <%= filtroEstado==='vencido' ? 'active' : '' %>">
+        <span class="num"><%= totalVencido %></span> Vencidos
+      </a>
+    </div>
+
+    <form method="GET" action="/carnets">
+      <div class="filters">
+        <select name="empleado_id" class="filter-select">
+          <option value="">Todos los empleados</option>
+          <% empleados.forEach(e => { %>
+          <option value="<%= e.id %>" <%= filtroEmpleado == e.id ? 'selected' : '' %>><%= e.apellido %>, <%= e.nombre %></option>
+          <% }) %>
+        </select>
+        <% if (filtroEstado) { %>
+        <input type="hidden" name="estado" value="<%= filtroEstado %>"/>
+        <% } %>
+        <button type="submit" class="btn-filter">Filtrar</button>
+        <% if (filtroEmpleado || filtroEstado) { %>
+        <a href="/carnets" class="btn-filter">Limpiar</a>
+        <% } %>
+      </div>
+    </form>
+
+    <div class="tabla-wrap">
+      <% if (carnets.length === 0) { %>
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <h3>Sin carnets</h3>
+        <p>No hay carnets registrados con esos filtros.</p>
+      </div>
+      <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Especialidad</th>
+            <th>N° Carnet</th>
+            <th>Vencimiento</th>
+            <th>Alerta</th>
+            <th>Estado</th>
+            <% if (usuario.nivel === 1) { %><th></th><% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% carnets.forEach((c, i) => { %>
+          <tr style="animation-delay:<%- i * 0.04 %>s">
+            <td>
+              <div class="empleado-cell">
+                <% if (c.empleado_foto) { %>
+                  <img src="/uploads/<%= c.empleado_foto %>" class="emp-mini-foto"/>
+                <% } else { %>
+                  <div class="emp-mini-placeholder"><%= c.empleado_nombre.charAt(0) %></div>
+                <% } %>
+                <span class="emp-mini-nombre"><%= c.empleado_nombre %></span>
+              </div>
+            </td>
+            <td class="especialidad-cell"><%= c.especialidad %></td>
+            <td class="numero-cell"><%= c.numero_carnet || '—' %></td>
+            <td class="fecha-cell">
+              <strong><%= c.fecha_vencimiento_str %></strong>
+              Emitido: <%= c.fecha_emision_str %>
+            </td>
+            <td class="alerta-cell"><%= c.dias_alerta %> días</td>
+            <td>
+              <span class="badge badge-<%= c.estado %>">
+                <%= c.estado === 'vigente' ? 'Vigente' : c.estado === 'proximo' ? 'Próximo' : 'Vencido' %>
+              </span>
+            </td>
+            <% if (usuario.nivel === 1) { %>
+            <td>
+              <div class="acciones">
+                <a href="/carnets/<%= c.id %>/editar" class="btn-edit">Editar</a>
+                <form method="POST" action="/carnets/<%= c.id %>/borrar" onsubmit="return confirm('¿Eliminar este carnet?')">
+                  <button type="submit" class="btn-delete">✕</button>
+                </form>
+              </div>
+            </td>
+            <% } %>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
