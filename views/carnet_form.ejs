@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= carnet ? 'Editar' : 'Nuevo' %> Carnet — SistemaCapacita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root { --rojo:#C0392B; --rojo2:#E74C3C; --gris:#141414; --gris2:#1e1e1e; --gris3:#2a2a2a; --blanco:#F0EFEB; --texto:#888; }
+    body { background:var(--gris); font-family:'Barlow',sans-serif; color:var(--blanco); min-height:100vh; display:flex; }
+
+    .sidebar { width:240px; min-height:100vh; background:var(--gris2); border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:100; }
+    .sidebar-logo { padding:28px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; }
+    .sidebar-logo .logo-icon { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; }
+    .sidebar-logo .logo-icon svg { width:20px; height:20px; fill:white; }
+    .sidebar-logo .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; line-height:1.2; }
+    .sidebar-logo .logo-text span { display:block; font-size:10px; color:var(--texto); letter-spacing:2px; margin-top:2px; }
+    .sidebar-nav { flex:1; padding:20px 0; }
+    .nav-section { padding:8px 24px 4px; font-size:10px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:var(--texto); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.15s; border-left:3px solid transparent; }
+    .nav-item:hover { color:var(--blanco); background:rgba(255,255,255,0.04); }
+    .nav-item.active { color:var(--blanco); background:rgba(192,57,43,0.12); border-left-color:var(--rojo); }
+    .nav-item svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+    .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.05); }
+    .user-info { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .user-avatar { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; }
+    .user-name { font-size:13px; font-weight:600; }
+    .user-role { font-size:11px; color:var(--texto); }
+    .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; text-decoration:none; }
+    .btn-logout:hover { background:rgba(192,57,43,0.15); border-color:var(--rojo); color:var(--rojo2); }
+    .btn-logout svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+
+    .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
+    .topbar { padding:20px 36px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; background:var(--gris2); }
+    .topbar h1 { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .topbar p { font-size:13px; color:var(--texto); margin-top:2px; }
+    .btn-back { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; text-decoration:none; transition:all 0.15s; }
+    .btn-back:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
+
+    .content { padding:32px 36px; max-width:680px; animation:fadeUp 0.4s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    .form-card { background:var(--gris2); border:1px solid rgba(255,255,255,0.06); padding:36px; }
+    .error-msg { background:rgba(192,57,43,0.15); border-left:3px solid var(--rojo); color:#e07070; font-size:13px; padding:12px 16px; margin-bottom:24px; }
+
+    .field { margin-bottom:22px; }
+    .field label { display:block; font-size:11px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .field input, .field select { width:100%; background:var(--gris3); border:1px solid rgba(255,255,255,0.08); border-bottom:2px solid rgba(255,255,255,0.12); color:var(--blanco); font-family:'Barlow',sans-serif; font-size:14px; padding:12px 14px; outline:none; transition:border-color 0.2s; }
+    .field input:focus, .field select:focus { border-color:var(--rojo); }
+    .field input::placeholder { color:rgba(255,255,255,0.2); }
+    .field .hint { font-size:11px; color:var(--texto); margin-top:6px; }
+    .field select option { background:var(--gris3); }
+
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+    .form-actions { display:flex; gap:12px; margin-top:32px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06); }
+    .btn-submit { flex:1; padding:13px; background:var(--rojo); color:white; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; transition:background 0.15s; }
+    .btn-submit:hover { background:var(--rojo2); }
+    .btn-cancel { padding:13px 24px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; transition:all 0.15s; }
+    .btn-cancel:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg></div>
+    <div class="logo-text">SistemaCapacita<span>Durlock · La Pampa</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="/empleados" class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Empleados</a>
+    <a href="/aptitudes" class="nav-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Aptitudes</a>
+    <a href="/carnets" class="nav-item active"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Carnets</a>
+    <div class="nav-section" style="margin-top:12px">Visualización</div>
+    <a href="/tv" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Vista TV</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><%= usuario.nombre.charAt(0).toUpperCase() %></div>
+      <div><div class="user-name"><%= usuario.nombre %></div><div class="user-role"><%= usuario.nivel === 1 ? 'Administrador' : 'Supervisor' %></div></div>
+    </div>
+    <a href="/logout" class="btn-logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1><%= carnet ? 'Editar Carnet' : 'Nuevo Carnet' %></h1>
+      <p><%= carnet ? carnet.especialidad : 'Completá los datos del carnet' %></p>
+    </div>
+    <a href="/carnets" class="btn-back">← Volver</a>
+  </div>
+
+  <div class="content">
+    <div class="form-card">
+      <% if (error) { %>
+        <div class="error-msg">⚠ <%= error %></div>
+      <% } %>
+
+      <form method="POST" action="<%= carnet ? '/carnets/' + carnet.id + '/editar' : '/carnets' %>">
+
+        <div class="field">
+          <label>Empleado *</label>
+          <select name="empleado_id" required>
+            <option value="">— Seleccionar empleado —</option>
+            <% empleados.forEach(e => { %>
+            <option value="<%= e.id %>" <%= carnet && carnet.empleado_id == e.id ? 'selected' : '' %>>
+              <%= e.apellido %>, <%= e.nombre %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Especialidad *</label>
+          <input type="text" name="especialidad" required placeholder="Ej: Manejo de autoelevador, Trabajo en altura..." value="<%= carnet ? carnet.especialidad : '' %>"/>
+        </div>
+
+        <div class="field">
+          <label>Número de carnet</label>
+          <input type="text" name="numero_carnet" placeholder="Ej: 0001-2024" value="<%= carnet && carnet.numero_carnet ? carnet.numero_carnet : '' %>"/>
+          <div class="hint">Opcional — número o código identificatorio del carnet físico</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Fecha de emisión *</label>
+            <input type="date" name="fecha_emision" required
+              value="<%= carnet ? carnet.fecha_emision.toISOString().split('T')[0] : '' %>"/>
+          </div>
+          <div class="field">
+            <label>Fecha de vencimiento *</label>
+            <input type="date" name="fecha_vencimiento" required
+              value="<%= carnet ? carnet.fecha_vencimiento.toISOString().split('T')[0] : '' %>"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Días de alerta antes del vencimiento *</label>
+          <input type="number" name="dias_alerta" required min="1" max="365"
+            value="<%= carnet ? carnet.dias_alerta : 30 %>"/>
+          <div class="hint">El carnet se marcará como "Próximo a vencer" esta cantidad de días antes del vencimiento</div>
+        </div>
+
+        <div class="form-actions">
+          <a href="/carnets" class="btn-cancel">Cancelar</a>
+          <button type="submit" class="btn-submit"><%= carnet ? 'Guardar cambios' : 'Crear carnet' %></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

@@ -20,11 +20,14 @@ const apiRoutes       = require('./src/routes/apiRoutes');
 const empleadosRoutes = require('./src/routes/empleadosRoutes');
 const aptitudesRoutes = require('./src/routes/aptitudesRoutes');
 const { verificarToken } = require('./src/middlewares/auth');
-
+const carnetsRoutes = require('./src/routes/carnetsRoutes');
+app.use('/', carnetsRoutes);
 app.use('/', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/', empleadosRoutes);
 app.use('/', aptitudesRoutes);
+
+
 
 app.get('/', (req, res) => res.redirect('/login'));
 app.get('/tv', (req, res) => res.render('tv'));
