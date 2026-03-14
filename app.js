@@ -22,6 +22,8 @@ const aptitudesRoutes = require('./src/routes/aptitudesRoutes');
 const { verificarToken } = require('./src/middlewares/auth');
 const carnetsRoutes = require('./src/routes/carnetsRoutes');
 const db = require('./src/config/db');
+const db = require('./src/config/db');
+const dayjs = require('dayjs');
 app.use('/', carnetsRoutes);
 app.use('/', authRoutes);
 app.use('/api', apiRoutes);
