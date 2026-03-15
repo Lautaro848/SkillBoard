@@ -32,4 +32,14 @@ router.get('/carnets/alertas', verificarToken, async (req, res) => {
   }
 });
 
+// Nueva ruta: devuelve todas las aptitudes (para el formulario inline)
+router.get('/aptitudes', verificarToken, async (req, res) => {
+  try {
+    const [aptitudes] = await db.query('SELECT id, nombre FROM aptitudes ORDER BY nombre ASC');
+    res.json(aptitudes);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
