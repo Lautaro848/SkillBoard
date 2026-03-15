@@ -1,0 +1,132 @@
+/* ── SIDEBAR RESPONSIVE ── */
+
+/* Botón hamburguesa - oculto en desktop */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 300;
+  width: 40px;
+  height: 40px;
+  background: var(--rojo);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+}
+
+.hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: white;
+  transition: all 0.25s ease;
+  transform-origin: center;
+}
+
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay oscuro detrás del sidebar en mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  /* Mostrar hamburguesa */
+  .hamburger {
+    display: flex;
+  }
+
+  /* Mostrar overlay */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Sidebar se va fuera de pantalla por defecto */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200;
+  }
+
+  /* Sidebar visible cuando tiene clase .open */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* El contenido principal ocupa todo el ancho */
+  .main {
+    margin-left: 0 !important;
+  }
+
+  /* Topbar con espacio para el hamburguesa */
+  .topbar {
+    padding-left: 68px !important;
+  }
+
+  /* Ajustes de contenido en mobile */
+  .content {
+    padding: 16px !important;
+  }
+
+  /* Stats grid en mobile: 2 columnas */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Bottom grid en mobile: 1 columna */
+  .bottom-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Empleados grid en mobile: 1 columna */
+  .empleados-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tabla horizontal scroll en mobile */
+  .tabla-wrap {
+    overflow-x: auto;
+  }
+
+  /* Form grid en mobile: 1 columna */
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Quick actions en mobile: 1 columna */
+  .quick-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Estados bar en mobile: wrap */
+  .estados-bar {
+    flex-wrap: wrap;
+  }
+
+  /* Nueva aptitud form row en mobile: columna */
+  .form-row {
+    flex-direction: column !important;
+  }
+
+  /* Filters en mobile: wrap */
+  .filters {
+    flex-wrap: wrap;
+  }
+}

@@ -67,6 +67,7 @@
     .btn-cancel { padding:13px 24px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; transition:all 0.15s; }
     .btn-cancel:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
   </style>
+  <link rel="stylesheet" href="/css/sidebar-responsive.css"/>
 </head>
 <body>
 
@@ -250,6 +251,7 @@ document.getElementById('nueva-aptitud-input').addEventListener('keydown', (e) =
   if (e.key === 'Enter') { e.preventDefault(); agregarAptitud(); }
 });
 </script>
+<script src="/js/sidebar-responsive.js"></script>
 
 </body>
 </html>
