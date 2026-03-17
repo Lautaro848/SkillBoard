@@ -1,7 +1,7 @@
 # SistemaCapacita
 
 > Sistema de gestión de capacitaciones y aptitudes para empleados  
-> **Empresa:** Durlock — La Pampa, Argentina
+> **Empresa:** Lautaro Laborda — La Pampa, Argentina
 
 ## Descripción
 
