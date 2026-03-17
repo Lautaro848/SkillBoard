@@ -716,7 +716,7 @@
         <div class="alert-item">
           <div class="alert-dot dot-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}"></div>
           <div class="alert-info">
-            <div class="alert-name">${c.empleado} — ${c.nombre}</div>
+            <div class="alert-name">${c.empleado} — ${c.especialidad}</div>
             <div class="alert-detail">${c.estado === 'vencido' ? 'Vencido' : 'Vence pronto'}</div>
           </div>
           <div class="alert-date date-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}">
@@ -733,8 +733,6 @@
   cargarStats();
   cargarAlertas();
 </script>
-  <script src="/js/sidebar-responsive.js"></script>
-
-  <script src="/js/sidebar-responsive.js"></script>
+<script src="/js/sidebar-responsive.js"></script>
 </body>
 </html>
