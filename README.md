@@ -67,48 +67,6 @@ Capa Tecnología
 - **Carnets** — id, empleado_id, nombre, fecha_emision, fecha_vencimiento, estado
 - **Tareas** — id, nombre, aptitudes_requeridas
 
-## Roadmap de Desarrollo
-
-- [x] Estructura del proyecto y README
-- [ ] Configuración inicial de Node.js y Express
-- [ ] Conexión a base de datos MySQL
-- [ ] Sistema de autenticación y niveles de acceso
-- [ ] ABM de empleados con foto de perfil
-- [ ] Gestión de aptitudes y capacitaciones
-- [ ] Gestión de carnets con control de vencimientos
-- [ ] Vista carrusel para pantalla TV
-- [ ] Calendario de vencimientos con alertas visuales
-- [ ] Buscador de empleados por aptitud
-- [ ] Deploy en Hostinger
-
----
-
-## Instalación Local (próximamente)
-
-```bash
-git clone https://github.com/TU_USUARIO/SistemaCapacita.git
-cd SistemaCapacita
-npm install
-cp .env.example .env
-# Configurar variables de entorno
-npm run dev
-```
-
----
-
-## Variables de Entorno
-
-```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-DB_NAME=sistemaCapacita
-JWT_SECRET=tu_clave_secreta
-```
-
----
-
 ## Desarrollo
 
 Proyecto desarrollado para **Portafolio personal**  
