@@ -5,7 +5,7 @@
 
 ## Descripción
 
-**SistemaCapacita** es una aplicación web desarrollada en **Node.js** que permite gestionar y visualizar las capacitaciones y aptitudes de los empleados de Durlock. El sistema muestra en tiempo real quién está habilitado para realizar determinadas tareas, con alertas de vencimiento de certificaciones y una vista optimizada para pantallas de TV.
+**SistemaCapacita** es una aplicación web desarrollada en **Node.js** que permite gestionar y visualizar las capacitaciones y aptitudes de los empleados de las empresas. El sistema muestra en tiempo real quién está habilitado para realizar determinadas tareas, con alertas de vencimiento de certificaciones y una vista optimizada para pantallas de TV.
 
 ## Objetivo
 
