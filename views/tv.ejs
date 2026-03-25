@@ -14,330 +14,82 @@
       --verde:#27AE60; --verde2:#2ecc71;
       --amarillo:#F39C12;
     }
+    html, body { width:100%; height:100%; background:var(--gris); font-family:'Barlow',sans-serif; color:var(--blanco); overflow:hidden; }
 
-    html, body {
-      width:100%; height:100%;
-      background:var(--gris);
-      font-family:'Barlow',sans-serif;
-      color:var(--blanco);
-      overflow:hidden;
-    }
-
-    /* ── HEADER ── */
-    .header {
-      height:90px;
-      background:var(--gris2);
-      border-bottom:2px solid var(--rojo);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 48px;
-      flex-shrink:0;
-    }
-
-    .header-logo {
-      display:flex;
-      align-items:center;
-      gap:16px;
-    }
-
-    .logo-icon {
-      width:48px; height:48px;
-      background:var(--rojo);
-      display:flex; align-items:center; justify-content:center;
-    }
-
+    .header { height:90px; background:var(--gris2); border-bottom:2px solid var(--rojo); display:flex; align-items:center; justify-content:space-between; padding:0 48px; flex-shrink:0; }
+    .header-logo { display:flex; align-items:center; gap:16px; }
+    .logo-icon { width:48px; height:48px; background:var(--rojo); display:flex; align-items:center; justify-content:center; }
     .logo-icon svg { width:26px; height:26px; fill:white; }
+    .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; letter-spacing:2px; text-transform:uppercase; line-height:1.2; }
+    .logo-text span { display:block; font-size:11px; font-weight:400; color:var(--texto); letter-spacing:3px; margin-top:2px; }
+    .header-center { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--texto); }
+    .header-right { display:flex; align-items:center; gap:20px; }
+    .header-clock { text-align:right; }
+    .clock-time { font-family:'Barlow Condensed',sans-serif; font-size:40px; font-weight:700; line-height:1; color:var(--blanco); letter-spacing:2px; }
+    .clock-date { font-size:12px; color:var(--texto); letter-spacing:1px; margin-top:4px; text-transform:capitalize; }
 
-    .logo-text {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:22px;
-      font-weight:700;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      line-height:1.2;
-    }
+    .btn-fullscreen { width:40px; height:40px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; flex-shrink:0; }
+    .btn-fullscreen:hover { background:rgba(192,57,43,0.2); border-color:var(--rojo); }
+    .btn-fullscreen svg { width:18px; height:18px; stroke:var(--blanco); fill:none; stroke-width:2; stroke-linecap:round; }
 
-    .logo-text span {
-      display:block;
-      font-size:11px;
-      font-weight:400;
-      color:var(--texto);
-      letter-spacing:3px;
-      margin-top:2px;
-    }
+    .carrusel-wrap { height:calc(100vh - 90px); display:flex; flex-direction:column; justify-content:center; padding:32px 48px; position:relative; overflow:hidden; }
+    .carrusel-track { display:flex; gap:24px; transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); will-change:transform; }
 
-    .header-center {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:15px;
-      font-weight:600;
-      letter-spacing:3px;
-      text-transform:uppercase;
-      color:var(--texto);
-    }
-
-    .header-clock {
-      text-align:right;
-    }
-
-    .clock-time {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:40px;
-      font-weight:700;
-      line-height:1;
-      color:var(--blanco);
-      letter-spacing:2px;
-    }
-
-    .clock-date {
-      font-size:12px;
-      color:var(--texto);
-      letter-spacing:1px;
-      margin-top:4px;
-      text-transform:capitalize;
-    }
-
-    /* ── CARRUSEL ── */
-    .carrusel-wrap {
-      height: calc(100vh - 90px);
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      padding:32px 48px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .carrusel-track {
-      display:flex;
-      gap:24px;
-      transition:transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change:transform;
-    }
-
-    /* ── TARJETA ── */
-    .emp-card {
-      background:var(--gris2);
-      border:1px solid rgba(255,255,255,0.06);
-      border-top:3px solid var(--rojo);
-      flex-shrink:0;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      transition:opacity 0.5s, transform 0.5s;
-    }
-
-    .card-top {
-      padding:28px 28px 20px;
-      display:flex;
-      align-items:center;
-      gap:20px;
-      border-bottom:1px solid rgba(255,255,255,0.06);
-    }
-
-    .emp-foto {
-      width:80px; height:80px;
-      object-fit:cover;
-      flex-shrink:0;
-      border:2px solid rgba(255,255,255,0.08);
-    }
-
-    .emp-foto-placeholder {
-      width:80px; height:80px;
-      background:var(--rojo);
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:32px; font-weight:700; color:white;
-      flex-shrink:0;
-    }
-
+    .emp-card { background:var(--gris2); border:1px solid rgba(255,255,255,0.06); border-top:3px solid var(--rojo); flex-shrink:0; display:flex; flex-direction:column; overflow:hidden; }
+    .card-top { padding:28px 28px 20px; display:flex; align-items:center; gap:20px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .emp-foto { width:80px; height:80px; object-fit:cover; flex-shrink:0; border:2px solid rgba(255,255,255,0.08); }
+    .emp-foto-placeholder { width:80px; height:80px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:700; color:white; flex-shrink:0; }
     .emp-info { flex:1; min-width:0; }
-
-    .emp-nombre {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:28px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      line-height:1.1;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .emp-legajo {
-      font-size:12px;
-      color:var(--texto);
-      margin-top:5px;
-      letter-spacing:2px;
-      text-transform:uppercase;
-    }
-
-    .card-section {
-      padding:16px 28px;
-      border-bottom:1px solid rgba(255,255,255,0.04);
-    }
-
+    .emp-nombre { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:800; text-transform:uppercase; letter-spacing:1px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .emp-legajo { font-size:12px; color:var(--texto); margin-top:5px; letter-spacing:2px; text-transform:uppercase; }
+    .card-section { padding:16px 28px; border-bottom:1px solid rgba(255,255,255,0.04); }
     .card-section:last-child { border-bottom:none; }
+    .section-label { font-size:9px; font-weight:700; color:var(--texto); letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+    .apt-tags { display:flex; flex-wrap:wrap; gap:6px; }
+    .apt-tag { background:rgba(192,57,43,0.12); border:1px solid rgba(192,57,43,0.25); color:var(--rojo2); font-size:12px; font-weight:600; padding:4px 12px; letter-spacing:0.5px; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; }
+    .apt-empty { font-size:12px; color:var(--texto); font-style:italic; }
+    .carnets-list { display:flex; flex-direction:column; gap:6px; }
+    .carnet-item { display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); }
+    .carnet-especialidad { font-size:13px; font-weight:600; color:var(--blanco); }
+    .carnet-vence { font-size:11px; color:var(--texto); }
+    .badge-vigente { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 8px; background:rgba(39,174,96,0.12); border:1px solid rgba(39,174,96,0.25); color:var(--verde2); }
+    .badge-proximo { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 8px; background:rgba(243,156,18,0.12); border:1px solid rgba(243,156,18,0.25); color:var(--amarillo); }
+    .no-carnets { font-size:12px; color:var(--texto); font-style:italic; }
 
-    .section-label {
-      font-size:9px;
-      font-weight:700;
-      color:var(--texto);
-      letter-spacing:3px;
-      text-transform:uppercase;
-      margin-bottom:10px;
-    }
+    .dots { display:flex; justify-content:center; gap:8px; margin-top:24px; flex-shrink:0; }
+    .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.15); transition:background 0.3s, transform 0.3s; cursor:pointer; }
+    .dot.active { background:var(--rojo); transform:scale(1.3); }
 
-    .apt-tags {
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-    }
+    .progress-bar { position:fixed; bottom:0; left:0; height:3px; background:var(--rojo); width:0%; z-index:50; }
 
-    .apt-tag {
-      background:rgba(192,57,43,0.12);
-      border:1px solid rgba(192,57,43,0.25);
-      color:var(--rojo2);
-      font-size:12px;
-      font-weight:600;
-      padding:4px 12px;
-      letter-spacing:0.5px;
-      font-family:'Barlow Condensed',sans-serif;
-      text-transform:uppercase;
-    }
+    .empty-tv { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px; color:var(--texto); }
+    .empty-tv svg { width:64px; height:64px; stroke:var(--texto); fill:none; stroke-width:1; }
+    .empty-tv h2 { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; text-transform:uppercase; letter-spacing:2px; }
 
-    .apt-empty {
-      font-size:12px;
-      color:var(--texto);
-      font-style:italic;
-    }
-
-    .carnets-list {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    .carnet-item {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:6px 10px;
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.06);
-    }
-
-    .carnet-especialidad {
-      font-size:13px;
-      font-weight:600;
-      color:var(--blanco);
-    }
-
-    .carnet-vence {
-      font-size:11px;
-      color:var(--texto);
-    }
-
-    .badge-vigente {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:10px;
-      font-weight:700;
-      letter-spacing:1px;
-      padding:2px 8px;
-      background:rgba(39,174,96,0.12);
-      border:1px solid rgba(39,174,96,0.25);
-      color:var(--verde2);
-    }
-
-    .badge-proximo {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:10px;
-      font-weight:700;
-      letter-spacing:1px;
-      padding:2px 8px;
-      background:rgba(243,156,18,0.12);
-      border:1px solid rgba(243,156,18,0.25);
-      color:var(--amarillo);
-    }
-
-    .no-carnets {
-      font-size:12px;
-      color:var(--texto);
-      font-style:italic;
-    }
-
-    /* ── PAGINACIÓN ── */
-    .dots {
-      display:flex;
-      justify-content:center;
-      gap:8px;
-      margin-top:24px;
-      flex-shrink:0;
-    }
-
-    .dot {
-      width:8px; height:8px;
-      border-radius:50%;
-      background:rgba(255,255,255,0.15);
-      transition:background 0.3s, transform 0.3s;
-    }
-
-    .dot.active {
-      background:var(--rojo);
-      transform:scale(1.3);
-    }
-
-    /* ── PANTALLA VACÍA ── */
-    .empty-tv {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      height:100%;
-      gap:16px;
-      color:var(--texto);
-    }
-
-    .empty-tv svg {
-      width:64px; height:64px;
-      stroke:var(--texto);
-      fill:none;
-      stroke-width:1;
-    }
-
-    .empty-tv h2 {
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:28px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:2px;
-    }
+    body.hide-cursor * { cursor:none !important; }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<div class="progress-bar" id="progress-bar"></div>
+
 <div class="header">
   <div class="header-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg>
-    </div>
-    <div class="logo-text">
-      SistemaCapacita
-      <span>Durlock · La Pampa</span>
-    </div>
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg></div>
+    <div class="logo-text">SistemaCapacita<span>Durlock · La Pampa</span></div>
   </div>
-
   <div class="header-center">Personal Habilitado</div>
-
-  <div class="header-clock">
-    <div class="clock-time" id="clock-time">--:--</div>
-    <div class="clock-date" id="clock-date">cargando...</div>
+  <div class="header-right">
+    <div class="header-clock">
+      <div class="clock-time" id="clock-time">--:--</div>
+      <div class="clock-date" id="clock-date">cargando...</div>
+    </div>
+    <button class="btn-fullscreen" id="btn-fullscreen" title="Pantalla completa">
+      <svg id="icon-fullscreen" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    </button>
   </div>
 </div>
 
-<!-- CARRUSEL -->
 <div class="carrusel-wrap">
   <% if (empleados.length === 0) { %>
   <div class="empty-tv">
@@ -345,11 +97,9 @@
     <h2>Sin empleados registrados</h2>
   </div>
   <% } else { %>
-
   <div class="carrusel-track" id="track">
     <% empleados.forEach(emp => { %>
-    <div class="emp-card" id="card-template" style="width:<%= cardWidth %>px">
-
+    <div class="emp-card" style="width:<%= cardWidth %>px">
       <div class="card-top">
         <% if (emp.foto) { %>
           <img src="/uploads/<%= emp.foto %>" class="emp-foto" alt="<%= emp.nombre %>"/>
@@ -361,18 +111,14 @@
           <div class="emp-legajo">Legajo #<%= emp.legajo %></div>
         </div>
       </div>
-
       <% if (emp.aptitudes) { %>
       <div class="card-section">
         <div class="section-label">Aptitudes</div>
         <div class="apt-tags">
-          <% emp.aptitudes.split(', ').forEach(apt => { %>
-            <span class="apt-tag"><%= apt %></span>
-          <% }) %>
+          <% emp.aptitudes.split(', ').forEach(apt => { %><span class="apt-tag"><%= apt %></span><% }) %>
         </div>
       </div>
       <% } %>
-
       <div class="card-section">
         <div class="section-label">Carnets</div>
         <% if (emp.carnets && emp.carnets.length > 0) { %>
@@ -391,82 +137,107 @@
           <span class="no-carnets">Sin carnets registrados</span>
         <% } %>
       </div>
-
     </div>
     <% }) %>
   </div>
-
   <div class="dots" id="dots"></div>
-
   <% } %>
 </div>
 
 <script>
-  // ── RELOJ ──
+  // RELOJ
   function actualizarReloj() {
     const ahora = new Date();
-    const h = String(ahora.getHours()).padStart(2,'0');
-    const m = String(ahora.getMinutes()).padStart(2,'0');
-    document.getElementById('clock-time').textContent = h + ':' + m;
-
-    const fecha = ahora.toLocaleDateString('es-AR', {
-      weekday:'long', day:'numeric', month:'long', year:'numeric'
-    });
-    document.getElementById('clock-date').textContent = fecha;
+    document.getElementById('clock-time').textContent =
+      String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0');
+    document.getElementById('clock-date').textContent =
+      ahora.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   }
   actualizarReloj();
   setInterval(actualizarReloj, 1000);
 
-  // ── CARRUSEL ──
+  // FULLSCREEN
+  const btnFS = document.getElementById('btn-fullscreen');
+  const iconFS = document.getElementById('icon-fullscreen');
+  const EXPAND   = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+  const COMPRESS = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    iconFS.innerHTML = document.fullscreenElement ? COMPRESS : EXPAND;
+  });
+  btnFS.addEventListener('click', toggleFullscreen);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  // OCULTAR CURSOR
+  let cursorTimer;
+  function resetCursor() {
+    document.body.classList.remove('hide-cursor');
+    clearTimeout(cursorTimer);
+    cursorTimer = setTimeout(() => document.body.classList.add('hide-cursor'), 3000);
+  }
+  document.addEventListener('mousemove', resetCursor);
+  resetCursor();
+
+  // CARRUSEL
+  
+  const VISIBLE   = <%= visibleCards %>;
+  const INTERVALO = <%= config.velocidad_seg %> * 1000;
   const empleados = <%- JSON.stringify(empleados) %>;
-  const VISIBLE = <%= visibleCards %>;
-  const INTERVALO = 5000; // ms por tarjeta
 
   if (empleados.length > 0) {
-    const track = document.getElementById('track');
-    const dotsEl = document.getElementById('dots');
-    const cards = track.querySelectorAll('.emp-card');
-    const total = cards.length;
-    let current = 0;
-    let timer;
+    const track       = document.getElementById('track');
+    const dotsEl      = document.getElementById('dots');
+    const progressBar = document.getElementById('progress-bar');
+    const cards       = track.querySelectorAll('.emp-card');
+    const total       = cards.length;
+    let current = 0, timer;
 
-    // Crear dots
     for (let i = 0; i < total; i++) {
       const d = document.createElement('div');
       d.className = 'dot' + (i === 0 ? ' active' : '');
-      d.addEventListener('click', () => goTo(i));
+      d.addEventListener('click', () => { goTo(i); reiniciarTimer(); });
       dotsEl.appendChild(d);
     }
 
     function goTo(idx) {
       current = idx;
-      const cardWidth = cards[0].offsetWidth + 24; // width + gap
-      const maxOffset = (total - VISIBLE) * cardWidth;
-      let offset = idx * cardWidth;
-      if (offset > maxOffset) offset = maxOffset;
-      track.style.transform = `translateX(-${offset}px)`;
-
-      dotsEl.querySelectorAll('.dot').forEach((d, i) => {
-        d.classList.toggle('active', i === idx);
-      });
+      const cw = cards[0].offsetWidth + 24;
+      const maxOff = (total - VISIBLE) * cw;
+      let off = idx * cw;
+      if (off > maxOff) off = maxOff;
+      track.style.transform = `translateX(-${off}px)`;
+      dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+      animarBarra();
     }
 
-    function siguiente() {
-      const next = (current + 1) % total;
-      goTo(next);
+    function animarBarra() {
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        progressBar.style.transition = `width ${INTERVALO}ms linear`;
+        progressBar.style.width = '100%';
+      }));
     }
 
-    function iniciarTimer() {
-      timer = setInterval(siguiente, INTERVALO);
+    function reiniciarTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => goTo((current + 1) % total), INTERVALO);
+      animarBarra();
     }
 
-    iniciarTimer();
-
-    // Pausar al hover
-    track.addEventListener('mouseenter', () => clearInterval(timer));
-    track.addEventListener('mouseleave', iniciarTimer);
+    reiniciarTimer();
+    track.addEventListener('mouseenter', () => { clearInterval(timer); progressBar.style.transition = 'none'; });
+    track.addEventListener('mouseleave', reiniciarTimer);
   }
 </script>
-
 </body>
 </html>

@@ -41,10 +41,12 @@
   z-index: 150;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .sidebar-overlay.open {
   opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-width: 768px) {
