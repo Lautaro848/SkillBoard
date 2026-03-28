@@ -1,6 +1,17 @@
 const db = require('../config/db');
 const path = require('path');
 const fs = require('fs');
+const dayjs = require('dayjs');
+
+const calcularEstadoCarnet = (fechaVencimiento, diasAlerta = 30) => {
+  const hoy = dayjs();
+  const vence = dayjs(fechaVencimiento);
+
+  if (!vence.isValid()) return 'vigente';
+  if (vence.isBefore(hoy, 'day')) return 'vencido';
+  if (vence.diff(hoy, 'day') <= diasAlerta) return 'proximo';
+  return 'vigente';
+};
 
 const getEmpleados = async (req, res) => {
   try {
@@ -47,7 +58,7 @@ const getEmpleados = async (req, res) => {
 
 const getNuevoEmpleado = async (req, res) => {
   const [aptitudes] = await db.query('SELECT * FROM aptitudes ORDER BY nombre ASC');
-  res.render('empleado_form', { empleado: null, aptitudes, usuario: req.usuario, error: null });
+  res.render('empleado_form', { empleado: null, aptitudes, usuario: req.usuario, error: null, carnetsDraft: [] });
 };
 
 const postEmpleado = async (req, res) => {
@@ -57,7 +68,17 @@ const postEmpleado = async (req, res) => {
     return res.render('empleado_form', { empleado: null, aptitudes, usuario: req.usuario, error: req.multerError });
   }
 
-  const { nombre, apellido, legajo, aptitudes_sel } = req.body;
+  const {
+    nombre,
+    apellido,
+    legajo,
+    aptitudes_sel,
+    carnet_especialidad,
+    carnet_numero,
+    carnet_fecha_emision,
+    carnet_fecha_vencimiento,
+    carnet_dias_alerta
+  } = req.body;
   const foto = req.file ? req.file.filename : null;
 
   try {
@@ -78,14 +99,62 @@ const postEmpleado = async (req, res) => {
       }
     }
 
+    const toArray = (value) => (Array.isArray(value) ? value : (value ? [value] : []));
+    const especialidades = toArray(carnet_especialidad);
+    const numeros = toArray(carnet_numero);
+    const emisiones = toArray(carnet_fecha_emision);
+    const vencimientos = toArray(carnet_fecha_vencimiento);
+    const alertas = toArray(carnet_dias_alerta);
+
+    for (let i = 0; i < especialidades.length; i++) {
+      const especialidad = (especialidades[i] || '').trim();
+      const fecha_emision = emisiones[i];
+      const fecha_vencimiento = vencimientos[i];
+
+      // Ignorar filas vacías sin romper el alta de empleado
+      if (!especialidad && !fecha_emision && !fecha_vencimiento) continue;
+      if (!especialidad || !fecha_emision || !fecha_vencimiento) continue;
+
+      const dias_alerta = parseInt(alertas[i], 10) || 30;
+      const estado = calcularEstadoCarnet(fecha_vencimiento, dias_alerta);
+
+      await db.query(
+        `INSERT INTO carnets (empleado_id, especialidad, numero_carnet, fecha_emision, fecha_vencimiento, dias_alerta, estado)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          empleadoId,
+          especialidad,
+          (numeros[i] || '').trim() || null,
+          fecha_emision,
+          fecha_vencimiento,
+          dias_alerta,
+          estado
+        ]
+      );
+    }
+
     res.redirect('/empleados');
   } catch (error) {
     console.error('[postEmpleado] ERROR:', error);
     const [aptitudes] = await db.query('SELECT * FROM aptitudes ORDER BY nombre ASC');
+    const toArray = (value) => (Array.isArray(value) ? value : (value ? [value] : []));
+    const especialidades = toArray(carnet_especialidad);
+    const numeros = toArray(carnet_numero);
+    const emisiones = toArray(carnet_fecha_emision);
+    const vencimientos = toArray(carnet_fecha_vencimiento);
+    const alertas = toArray(carnet_dias_alerta);
+    const carnetsDraft = especialidades.map((especialidad, i) => ({
+      especialidad: especialidad || '',
+      numero: numeros[i] || '',
+      fecha_emision: emisiones[i] || '',
+      fecha_vencimiento: vencimientos[i] || '',
+      dias_alerta: alertas[i] || '30'
+    }));
     res.render('empleado_form', {
       empleado: null,
       aptitudes,
       usuario: req.usuario,
+      carnetsDraft,
       error: error.code === 'ER_DUP_ENTRY' ? 'El legajo ya existe' : ('Error al guardar: ' + error.message)
     });
   }
@@ -100,7 +169,7 @@ const getEditarEmpleado = async (req, res) => {
   const [aptSel] = await db.query('SELECT aptitud_id FROM empleado_aptitudes WHERE empleado_id = ?', [id]);
   empleado.aptitudes_sel = aptSel.map(a => a.aptitud_id);
 
-  res.render('empleado_form', { empleado, aptitudes, usuario: req.usuario, error: null });
+  res.render('empleado_form', { empleado, aptitudes, usuario: req.usuario, error: null, carnetsDraft: [] });
 };
 
 const putEmpleado = async (req, res) => {
