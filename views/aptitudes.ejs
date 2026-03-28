@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aptitudes — SistemaCapacita</title>
+  <title>Puestos/Cargos — SistemaCapacita</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -44,7 +44,7 @@
     .success-msg { background:rgba(39,174,96,0.12); border-left:3px solid var(--verde); color:var(--verde2); font-size:13px; padding:12px 16px; margin-bottom:20px; }
     .error-msg { background:rgba(192,57,43,0.15); border-left:3px solid var(--rojo); color:#e07070; font-size:13px; padding:12px 16px; margin-bottom:20px; }
 
-    /* FORM NUEVA APTITUD */
+    /* FORM NUEVO PUESTO/CARGO */
     .nueva-aptitud-form { background:var(--gris2); border:1px solid rgba(255,255,255,0.06); padding:24px; margin-bottom:28px; }
     .nueva-aptitud-form h3 { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
     .form-row { display:flex; gap:12px; align-items:flex-end; }
@@ -101,7 +101,7 @@
     <div class="nav-section">Principal</div>
     <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
     <a href="/empleados" class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Empleados</a>
-    <a href="/aptitudes" class="nav-item active"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Aptitudes</a>
+    <a href="/aptitudes" class="nav-item active"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Puestos/Cargos</a>
     <a href="/carnets" class="nav-item"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Carnets</a>
     <div class="nav-section" style="margin-top:12px">Visualización</div>
     <a href="/tv" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Vista TV</a>
@@ -122,15 +122,15 @@
 <main class="main">
   <div class="topbar">
     <div>
-      <h1>Aptitudes</h1>
-      <p><%= aptitudes.length %> aptitud<%= aptitudes.length !== 1 ? 'es' : '' %> registrada<%= aptitudes.length !== 1 ? 's' : '' %></p>
+      <h1>Puestos/Cargos</h1>
+      <p><%= aptitudes.length %> puesto/cargo<%= aptitudes.length !== 1 ? 's' : '' %> registrado<%= aptitudes.length !== 1 ? 's' : '' %></p>
     </div>
   </div>
 
   <div class="content">
 
     <% if (success) { %>
-    <div class="success-msg">✓ Aptitud guardada correctamente.</div>
+    <div class="success-msg">✓ Puesto/cargo guardado correctamente.</div>
     <% } %>
     <% if (error) { %>
     <div class="error-msg">⚠ <%= error %></div>
@@ -138,7 +138,7 @@
 
     <% if (usuario.nivel === 1) { %>
     <div class="nueva-aptitud-form">
-      <h3>Nueva Aptitud</h3>
+      <h3>Nuevo Puesto/Cargo</h3>
       <form method="POST" action="/aptitudes">
         <div class="form-row">
           <div class="field">
@@ -159,7 +159,7 @@
       <% if (aptitudes.length === 0) { %>
       <div class="empty-state">
         <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        <p>No hay aptitudes creadas aún. Agregá la primera arriba.</p>
+        <p>No hay puestos/cargos creados aún. Agregá el primero arriba.</p>
       </div>
       <% } else { %>
       <table>
@@ -181,7 +181,7 @@
             <td>
               <div class="acciones">
                 <button class="btn-edit-inline" onclick="abrirEditar(<%= apt.id %>, '<%= apt.nombre.replace(/'/g, "\\'") %>', '<%= (apt.descripcion || '').replace(/'/g, "\\'") %>')">Editar</button>
-                <form method="POST" action="/aptitudes/<%= apt.id %>/borrar" onsubmit="return confirm('¿Eliminar la aptitud <%= apt.nombre %>?')">
+                <form method="POST" action="/aptitudes/<%= apt.id %>/borrar" onsubmit="return confirm('¿Eliminar el puesto/cargo <%= apt.nombre %>?')">
                   <button type="submit" class="btn-delete">✕</button>
                 </form>
               </div>
@@ -200,7 +200,7 @@
 <!-- MODAL EDITAR -->
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
-    <h3>Editar Aptitud</h3>
+    <h3>Editar Puesto/Cargo</h3>
     <form id="form-editar" method="POST">
       <div class="field" style="margin-bottom:16px">
         <label>Nombre *</label>
