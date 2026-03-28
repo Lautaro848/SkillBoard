@@ -30,7 +30,7 @@ const postAptitud = async (req, res) => {
     `);
     res.render('aptitudes', {
       aptitudes, usuario: req.usuario,
-      error: error.code === 'ER_DUP_ENTRY' ? 'Ya existe una aptitud con ese nombre' : 'Error al guardar',
+      error: error.code === 'ER_DUP_ENTRY' ? 'Ya existe una puesto/cargo con ese nombre' : 'Error al guardar',
       success: false
     });
   }
