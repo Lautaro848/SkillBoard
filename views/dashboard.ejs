@@ -3,481 +3,106 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — SistemaCapacita</title>
+  <title>Dashboard — SkillBoard</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
-      --rojo:   #C0392B;
-      --rojo2:  #E74C3C;
-      --gris:   #141414;
-      --gris2:  #1e1e1e;
-      --gris3:  #2a2a2a;
-      --gris4:  #333;
-      --blanco: #F0EFEB;
-      --texto:  #888;
-      --verde:  #27AE60;
-      --amarillo: #F39C12;
+      --rojo:#C0392B; --rojo2:#E74C3C;
+      --gris:#141414; --gris2:#1e1e1e; --gris3:#2a2a2a; --gris4:#333;
+      --blanco:#F0EFEB; --texto:#888;
+      --verde:#27AE60; --amarillo:#F39C12;
     }
 
-    body {
-      background: var(--gris);
-      font-family: 'Barlow', sans-serif;
-      color: var(--blanco);
-      min-height: 100vh;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 240px;
-      min-height: 100vh;
-      background: var(--gris2);
-      border-right: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; left: 0;
-      z-index: 100;
-    }
-
-    .sidebar-logo {
-      padding: 28px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .sidebar-logo .logo-icon {
-      width: 36px; height: 36px;
-      background: var(--rojo);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .sidebar-logo .logo-icon svg {
-      width: 20px; height: 20px; fill: white;
-    }
-
-    .sidebar-logo .logo-text {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      line-height: 1.2;
-    }
-
-    .sidebar-logo .logo-text span {
-      display: block;
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--texto);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 20px 0;
-    }
-
-    .nav-section {
-      padding: 8px 24px 4px;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--texto);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 24px;
-      color: var(--texto);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.15s;
-      border-left: 3px solid transparent;
-      position: relative;
-    }
-
-    .nav-item:hover {
-      color: var(--blanco);
-      background: rgba(255,255,255,0.04);
-    }
-
-    .nav-item.active {
-      color: var(--blanco);
-      background: rgba(192,57,43,0.12);
-      border-left-color: var(--rojo);
-    }
-
-    .nav-item svg {
-      width: 18px; height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
-    }
-
-    .nav-badge {
-      margin-left: auto;
-      background: var(--rojo);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 10px;
-    }
-
-    .sidebar-footer {
-      padding: 20px 24px;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .user-avatar {
-      width: 36px; height: 36px;
-      background: var(--rojo);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .user-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blanco);
-    }
-
-    .user-role {
-      font-size: 11px;
-      color: var(--texto);
-    }
-
-    .btn-logout {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      padding: 9px 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      color: var(--texto);
-      font-family: 'Barlow', sans-serif;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-decoration: none;
-    }
-
-    .btn-logout:hover {
-      background: rgba(192,57,43,0.15);
-      border-color: var(--rojo);
-      color: var(--rojo2);
-    }
-
-    .btn-logout svg {
-      width: 15px; height: 15px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round;
-    }
-
-    .main {
-      margin-left: 240px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    .topbar {
-      padding: 20px 36px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--gris2);
-      animation: slideDown 0.4s ease both;
-    }
-
-    @keyframes slideDown {
-      from { opacity:0; transform: translateY(-10px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-
-    .topbar-title h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .topbar-title p {
-      font-size: 13px;
-      color: var(--texto);
-      margin-top: 2px;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .nivel-badge {
-      padding: 5px 14px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .nivel-1 { background: rgba(192,57,43,0.2); color: var(--rojo2); border: 1px solid rgba(192,57,43,0.4); }
-    .nivel-2 { background: rgba(39,174,96,0.15); color: #2ecc71; border: 1px solid rgba(39,174,96,0.3); }
-
-    .content {
-      padding: 32px 36px;
-      flex: 1;
-      animation: fadeUp 0.5s ease both 0.1s;
-    }
-
-    @keyframes fadeUp {
-      from { opacity:0; transform: translateY(16px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .stat-card {
-      background: var(--gris2);
-      border: 1px solid rgba(255,255,255,0.05);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s;
-    }
-
-    .stat-card:hover { border-color: rgba(255,255,255,0.12); }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 3px; height: 100%;
-      background: var(--rojo);
-    }
-
-    .stat-card.verde::before  { background: var(--verde); }
-    .stat-card.amarillo::before { background: var(--amarillo); }
-    .stat-card.rojo::before   { background: var(--rojo); }
-
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--texto);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .stat-number {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 48px;
-      font-weight: 800;
-      line-height: 1;
-      color: var(--blanco);
-    }
-
-    .stat-sub {
-      font-size: 12px;
-      color: var(--texto);
-      margin-top: 6px;
-    }
-
-    .stat-icon {
-      position: absolute;
-      right: 20px; top: 50%;
-      transform: translateY(-50%);
-      opacity: 0.06;
-    }
-
-    .stat-icon svg {
-      width: 64px; height: 64px;
-      stroke: white; fill: none;
-      stroke-width: 1.5;
-    }
-
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .panel {
-      background: var(--gris2);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .panel-header {
-      padding: 18px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .panel-header h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .panel-link {
-      font-size: 12px;
-      color: var(--rojo2);
-      text-decoration: none;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    .panel-link:hover { text-decoration: underline; }
-
-    .panel-body { padding: 8px 0; }
-
-    .quick-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: rgba(255,255,255,0.04);
-    }
-
-    .quick-action {
-      background: var(--gris2);
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-      color: var(--blanco);
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-
-    .quick-action:hover { background: var(--gris3); }
-
-    .qa-icon {
-      width: 40px; height: 40px;
-      background: rgba(192,57,43,0.15);
-      border: 1px solid rgba(192,57,43,0.25);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .qa-icon svg {
-      width: 20px; height: 20px;
-      stroke: var(--rojo2); fill: none;
-      stroke-width: 1.8; stroke-linecap: round;
-    }
-
-    .qa-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blanco);
-    }
-
-    .qa-desc {
-      font-size: 11px;
-      color: var(--texto);
-      margin-top: 2px;
-    }
-
-    .alert-item {
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      transition: background 0.15s;
-    }
-
-    .alert-item:last-child { border-bottom: none; }
-    .alert-item:hover { background: rgba(255,255,255,0.03); }
-
-    .alert-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot-rojo    { background: var(--rojo); }
-    .dot-amarillo { background: var(--amarillo); }
-
-    .alert-info { flex: 1; }
-
-    .alert-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blanco);
-    }
-
-    .alert-detail {
-      font-size: 11px;
-      color: var(--texto);
-      margin-top: 2px;
-    }
-
-    .alert-date {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 3px 10px;
-    }
-
-    .date-rojo    { color: var(--rojo2); background: rgba(192,57,43,0.12); }
-    .date-amarillo { color: var(--amarillo); background: rgba(243,156,18,0.12); }
-
-    .empty-state {
-      padding: 32px 24px;
-      text-align: center;
-      color: var(--texto);
-      font-size: 13px;
-    }
-
-    .empty-state svg {
-      width: 36px; height: 36px;
-      stroke: var(--texto); fill: none;
-      stroke-width: 1.5;
-      margin-bottom: 10px;
-      display: block;
-      margin-inline: auto;
-    }
+    body { background:var(--gris); font-family:'Barlow',sans-serif; color:var(--blanco); min-height:100vh; display:flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width:240px; min-height:100vh; background:var(--gris2); border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:100; }
+
+    .sidebar-logo { padding:20px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; }
+    .sidebar-logo .logo-img { width:38px; height:38px; object-fit:contain; flex-shrink:0; }
+    .sidebar-logo .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; letter-spacing:2px; text-transform:uppercase; line-height:1.1; color:var(--blanco); }
+    .sidebar-logo .logo-text span { display:block; font-size:9px; font-weight:500; color:var(--texto); letter-spacing:3px; margin-top:2px; }
+
+    .sidebar-nav { flex:1; padding:20px 0; }
+    .nav-section { padding:8px 24px 4px; font-size:10px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:var(--texto); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.15s; border-left:3px solid transparent; }
+    .nav-item:hover { color:var(--blanco); background:rgba(255,255,255,0.04); }
+    .nav-item.active { color:var(--blanco); background:rgba(192,57,43,0.12); border-left-color:var(--rojo); }
+    .nav-item svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+    .nav-badge { margin-left:auto; background:var(--rojo); color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; }
+
+    .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.05); }
+    .user-info { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .user-avatar { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; flex-shrink:0; }
+    .user-name { font-size:13px; font-weight:600; color:var(--blanco); }
+    .user-role { font-size:11px; color:var(--texto); }
+    .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; text-decoration:none; }
+    .btn-logout:hover { background:rgba(192,57,43,0.15); border-color:var(--rojo); color:var(--rojo2); }
+    .btn-logout svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+
+    /* ── MAIN ── */
+    .main { margin-left:240px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+
+    .topbar { padding:20px 36px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; background:var(--gris2); animation:slideDown 0.4s ease both; }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .topbar-title h1 { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .topbar-title p { font-size:13px; color:var(--texto); margin-top:2px; }
+    .nivel-badge { padding:5px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+    .nivel-1 { background:rgba(192,57,43,0.2); color:var(--rojo2); border:1px solid rgba(192,57,43,0.4); }
+    .nivel-2 { background:rgba(39,174,96,0.15); color:#2ecc71; border:1px solid rgba(39,174,96,0.3); }
+
+    .content { padding:32px 36px; flex:1; animation:fadeUp 0.5s ease both 0.1s; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── STATS ── */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+    .stat-card { background:var(--gris2); border:1px solid rgba(255,255,255,0.05); padding:24px; position:relative; overflow:hidden; transition:border-color 0.2s, transform 0.2s; }
+    .stat-card:hover { border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--rojo); }
+    .stat-card.verde::before { background:var(--verde); }
+    .stat-card.amarillo::before { background:var(--amarillo); }
+    .stat-card.rojo::before { background:var(--rojo); }
+    .stat-label { font-size:11px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+    .stat-number { font-family:'Barlow Condensed',sans-serif; font-size:48px; font-weight:800; line-height:1; color:var(--blanco); }
+    .stat-sub { font-size:12px; color:var(--texto); margin-top:6px; }
+    .stat-icon { position:absolute; right:20px; top:50%; transform:translateY(-50%); opacity:0.06; }
+    .stat-icon svg { width:64px; height:64px; stroke:white; fill:none; stroke-width:1.5; }
+
+    /* ── BOTTOM GRID ── */
+    .bottom-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .panel { background:var(--gris2); border:1px solid rgba(255,255,255,0.05); }
+    .panel-header { padding:18px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; }
+    .panel-header h3 { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .panel-link { font-size:12px; color:var(--rojo2); text-decoration:none; font-weight:500; }
+    .panel-link:hover { text-decoration:underline; }
+    .panel-body { padding:8px 0; }
+
+    /* ACCESOS RÁPIDOS */
+    .quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(255,255,255,0.04); }
+    .quick-action { background:var(--gris2); padding:20px 24px; display:flex; align-items:center; gap:14px; text-decoration:none; color:var(--blanco); transition:background 0.15s; }
+    .quick-action:hover { background:var(--gris3); }
+    .qa-icon { width:40px; height:40px; background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .qa-icon svg { width:20px; height:20px; stroke:var(--rojo2); fill:none; stroke-width:1.8; stroke-linecap:round; }
+    .qa-label { font-size:13px; font-weight:600; }
+    .qa-desc { font-size:11px; color:var(--texto); margin-top:2px; }
+
+    /* ALERTAS */
+    .alert-item { padding:14px 24px; display:flex; align-items:center; gap:14px; border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
+    .alert-item:last-child { border-bottom:none; }
+    .alert-item:hover { background:rgba(255,255,255,0.03); }
+    .alert-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .dot-rojo { background:var(--rojo); }
+    .dot-amarillo { background:var(--amarillo); }
+    .alert-info { flex:1; }
+    .alert-name { font-size:13px; font-weight:600; }
+    .alert-detail { font-size:11px; color:var(--texto); margin-top:2px; }
+    .alert-date { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; padding:3px 10px; }
+    .date-rojo { color:var(--rojo2); background:rgba(192,57,43,0.12); }
+    .date-amarillo { color:var(--amarillo); background:rgba(243,156,18,0.12); }
+
+    .empty-state { padding:32px 24px; text-align:center; color:var(--texto); font-size:13px; }
+    .empty-state svg { width:36px; height:36px; stroke:var(--texto); fill:none; stroke-width:1.5; margin-bottom:10px; display:block; margin-inline:auto; }
   </style>
   <link rel="stylesheet" href="/css/sidebar-responsive.css"/>
 </head>
@@ -485,41 +110,31 @@
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg>
-    </div>
-    <div class="logo-text">
-      SistemaCapacita
-      <span>Durlock · La Pampa</span>
-    </div>
+    <img src="/img/logo.png" class="logo-img" alt="SkillBoard"/>
+    <div class="logo-text">SkillBoard<span>Gestión de Personal</span></div>
   </div>
 
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
-
     <a href="/dashboard" class="nav-item active">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
     </a>
-
     <a href="/empleados" class="nav-item">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Empleados
     </a>
-
     <a href="/aptitudes" class="nav-item">
       <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       Puestos/Cargos
     </a>
-
     <a href="/carnets" class="nav-item">
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
       Carnets
-      <span class="nav-badge" id="badge-vencidos">0</span>
+      <span class="nav-badge" id="badge-vencidos" style="display:none">0</span>
     </a>
 
     <div class="nav-section" style="margin-top:12px">Visualización</div>
-
     <a href="/tv" class="nav-item" target="_blank">
       <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       Vista TV
@@ -527,6 +142,10 @@
 
     <% if (usuario.nivel === 1) { %>
     <div class="nav-section" style="margin-top:12px">Administración</div>
+    <a href="/tv/config" class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Config TV
+    </a>
     <a href="/usuarios" class="nav-item">
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Usuarios
@@ -555,11 +174,9 @@
       <h1>Panel de Control</h1>
       <p>Bienvenido, <%= usuario.nombre %> — <%= new Date().toLocaleDateString('es-AR', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) %></p>
     </div>
-    <div class="topbar-right">
-      <span class="nivel-badge nivel-<%= usuario.nivel %>">
-        <%= usuario.nivel === 1 ? 'Administrador' : 'Supervisor' %>
-      </span>
-    </div>
+    <span class="nivel-badge nivel-<%= usuario.nivel %>">
+      <%= usuario.nivel === 1 ? 'Administrador' : 'Supervisor' %>
+    </span>
   </div>
 
   <div class="content">
@@ -569,92 +186,54 @@
         <div class="stat-label">Empleados activos</div>
         <div class="stat-number" id="stat-empleados">—</div>
         <div class="stat-sub">registrados en el sistema</div>
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       </div>
-
       <div class="stat-card">
         <div class="stat-label">Puestos/Cargos</div>
         <div class="stat-number" id="stat-aptitudes">—</div>
         <div class="stat-sub">tipos registrados</div>
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
       </div>
-
       <div class="stat-card amarillo">
         <div class="stat-label">Próximos a vencer</div>
         <div class="stat-number" id="stat-proximos">—</div>
         <div class="stat-sub">carnets en 30 días</div>
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </div>
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
       </div>
-
       <div class="stat-card rojo">
         <div class="stat-label">Vencidos</div>
         <div class="stat-number" id="stat-vencidos">—</div>
         <div class="stat-sub">carnets expirados</div>
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        </div>
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
       </div>
     </div>
 
     <div class="bottom-grid">
 
       <div class="panel">
-        <div class="panel-header">
-          <h3>Accesos Rápidos</h3>
-        </div>
+        <div class="panel-header"><h3>Accesos Rápidos</h3></div>
         <div class="quick-actions">
           <% if (usuario.nivel === 1) { %>
           <a href="/empleados/nuevo" class="quick-action">
-            <div class="qa-icon">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </div>
-            <div>
-              <div class="qa-label">Nuevo empleado</div>
-              <div class="qa-desc">Agregar al sistema</div>
-            </div>
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div><div class="qa-label">Nuevo empleado</div><div class="qa-desc">Agregar al sistema</div></div>
           </a>
           <a href="/carnets/nuevo" class="quick-action">
-            <div class="qa-icon">
-              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            </div>
-            <div>
-              <div class="qa-label">Nuevo carnet</div>
-              <div class="qa-desc">Registrar certificación</div>
-            </div>
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <div><div class="qa-label">Nuevo carnet</div><div class="qa-desc">Registrar certificación</div></div>
           </a>
           <a href="/aptitudes" class="quick-action">
-            <div class="qa-icon">
-              <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </div>
-            <div>
-              <div class="qa-label">Nuevo puesto/cargo</div>
-              <div class="qa-desc">Crear tipo de puesto/cargo</div>
-            </div>
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div><div class="qa-label">Nuevo puesto</div><div class="qa-desc">Crear tipo de puesto/cargo</div></div>
           </a>
           <% } %>
           <a href="/empleados" class="quick-action">
-            <div class="qa-icon">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </div>
-            <div>
-              <div class="qa-label">Buscar empleado</div>
-              <div class="qa-desc">Filtrar por puesto/cargo</div>
-            </div>
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <div><div class="qa-label">Buscar empleado</div><div class="qa-desc">Filtrar por puesto/cargo</div></div>
           </a>
           <a href="/tv" target="_blank" class="quick-action">
-            <div class="qa-icon">
-              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            </div>
-            <div>
-              <div class="qa-label">Vista TV</div>
-              <div class="qa-desc">Abrir carrusel</div>
-            </div>
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <div><div class="qa-label">Vista TV</div><div class="qa-desc">Abrir carrusel</div></div>
           </a>
         </div>
       </div>
@@ -677,61 +256,56 @@
 </main>
 
 <script>
-  async function cargarStats() {
-    try {
-      const res = await fetch('/api/stats');
-      const data = await res.json();
+async function cargarStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    document.getElementById('stat-empleados').textContent = data.empleados ?? '0';
+    document.getElementById('stat-aptitudes').textContent = data.aptitudes ?? '0';
+    document.getElementById('stat-proximos').textContent  = data.proximos  ?? '0';
+    document.getElementById('stat-vencidos').textContent  = data.vencidos  ?? '0';
 
-      document.getElementById('stat-empleados').textContent  = data.empleados  ?? '0';
-      document.getElementById('stat-aptitudes').textContent  = data.aptitudes  ?? '0';
-      document.getElementById('stat-proximos').textContent   = data.proximos   ?? '0';
-      document.getElementById('stat-vencidos').textContent   = data.vencidos   ?? '0';
+    const badge = document.getElementById('badge-vencidos');
+    const total = (data.proximos || 0) + (data.vencidos || 0);
+    if (total > 0) { badge.textContent = total; badge.style.display = 'inline-block'; }
+  } catch(e) { console.error('Error stats:', e); }
+}
 
-      const badge = document.getElementById('badge-vencidos');
-      const total = (data.proximos || 0) + (data.vencidos || 0);
-      badge.textContent = total;
-      badge.style.display = total > 0 ? 'inline-block' : 'none';
+async function cargarAlertas() {
+  try {
+    const res = await fetch('/api/carnets/alertas');
+    const data = await res.json();
+    const container = document.getElementById('alertas-container');
 
-    } catch (e) {
-      console.error('Error cargando stats:', e);
+    if (!data.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Sin alertas pendientes
+        </div>`;
+      return;
     }
-  }
 
-  async function cargarAlertas() {
-    try {
-      const res = await fetch('/api/carnets/alertas');
-      const data = await res.json();
-      const container = document.getElementById('alertas-container');
-
-      if (!data.length) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            Sin alertas pendientes
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = data.slice(0, 6).map(c => `
-        <div class="alert-item">
-          <div class="alert-dot dot-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}"></div>
-          <div class="alert-info">
-            <div class="alert-name">${c.empleado} — ${c.especialidad}</div>
-            <div class="alert-detail">${c.estado === 'vencido' ? 'Vencido' : 'Vence pronto'}</div>
-          </div>
-          <div class="alert-date date-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}">
-            ${new Date(c.fecha_vencimiento).toLocaleDateString('es-AR')}
-          </div>
+    container.innerHTML = data.slice(0, 6).map(c => `
+      <div class="alert-item">
+        <div class="alert-dot dot-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}"></div>
+        <div class="alert-info">
+          <div class="alert-name">${c.empleado} — ${c.especialidad}</div>
+          <div class="alert-detail">${c.estado === 'vencido' ? 'Vencido' : 'Vence pronto'}</div>
         </div>
-      `).join('');
-    } catch (e) {
-      document.getElementById('alertas-container').innerHTML =
-        '<div class="empty-state">Sin alertas por ahora</div>';
-    }
+        <div class="alert-date date-${c.estado === 'vencido' ? 'rojo' : 'amarillo'}">
+          ${new Date(c.fecha_vencimiento).toLocaleDateString('es-AR')}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('alertas-container').innerHTML =
+      '<div class="empty-state">Sin alertas por ahora</div>';
   }
+}
 
-  cargarStats();
-  cargarAlertas();
+cargarStats();
+cargarAlertas();
 </script>
 <script src="/js/sidebar-responsive.js"></script>
 </body>

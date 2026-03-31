@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Puestos/Cargos — SistemaCapacita</title>
+  <title>Puestos/Cargos — SkillBoard</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -14,12 +14,13 @@
       --verde:#27AE60; --verde2:#2ecc71;
     }
     body { background:var(--gris); font-family:'Barlow',sans-serif; color:var(--blanco); min-height:100vh; display:flex; }
+
+    /* ── SIDEBAR ── */
     .sidebar { width:240px; min-height:100vh; background:var(--gris2); border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:100; }
-    .sidebar-logo { padding:28px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; }
-    .sidebar-logo .logo-icon { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; }
-    .sidebar-logo .logo-icon svg { width:20px; height:20px; fill:white; }
-    .sidebar-logo .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; line-height:1.2; }
-    .sidebar-logo .logo-text span { display:block; font-size:10px; font-weight:400; color:var(--texto); letter-spacing:2px; margin-top:2px; }
+    .sidebar-logo { padding:20px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; }
+    .sidebar-logo .logo-img { width:38px; height:38px; object-fit:contain; flex-shrink:0; }
+    .sidebar-logo .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; letter-spacing:2px; text-transform:uppercase; line-height:1.1; color:var(--blanco); }
+    .sidebar-logo .logo-text span { display:block; font-size:9px; font-weight:500; color:var(--texto); letter-spacing:3px; margin-top:2px; }
     .sidebar-nav { flex:1; padding:20px 0; }
     .nav-section { padding:8px 24px 4px; font-size:10px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; }
     .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:var(--texto); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.15s; border-left:3px solid transparent; }
@@ -28,65 +29,90 @@
     .nav-item svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
     .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.05); }
     .user-info { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-    .user-avatar { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; }
-    .user-name { font-size:13px; font-weight:600; }
+    .user-avatar { width:36px; height:36px; background:var(--rojo); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:white; flex-shrink:0; }
+    .user-name { font-size:13px; font-weight:600; color:var(--blanco); }
     .user-role { font-size:11px; color:var(--texto); }
     .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; text-decoration:none; }
     .btn-logout:hover { background:rgba(192,57,43,0.15); border-color:var(--rojo); color:var(--rojo2); }
     .btn-logout svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+
+    /* ── MAIN ── */
     .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
     .topbar { padding:20px 36px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; background:var(--gris2); }
     .topbar h1 { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
     .topbar p { font-size:13px; color:var(--texto); margin-top:2px; }
+
     .content { padding:28px 36px; flex:1; }
 
-    /* SUCCESS / ERROR */
-    .success-msg { background:rgba(39,174,96,0.12); border-left:3px solid var(--verde); color:var(--verde2); font-size:13px; padding:12px 16px; margin-bottom:20px; }
-    .error-msg { background:rgba(192,57,43,0.15); border-left:3px solid var(--rojo); color:#e07070; font-size:13px; padding:12px 16px; margin-bottom:20px; }
+    /* MENSAJES */
+    .success-msg { display:flex; align-items:center; gap:10px; background:rgba(39,174,96,0.1); border-left:3px solid var(--verde); color:var(--verde2); font-size:13px; padding:12px 16px; margin-bottom:20px; }
+    .success-msg svg { width:15px; height:15px; stroke:var(--verde2); fill:none; stroke-width:2; flex-shrink:0; }
+    .error-msg { display:flex; align-items:center; gap:10px; background:rgba(192,57,43,0.12); border-left:3px solid var(--rojo); color:#e07070; font-size:13px; padding:12px 16px; margin-bottom:20px; }
+    .error-msg svg { width:15px; height:15px; stroke:#e07070; fill:none; stroke-width:2; flex-shrink:0; }
 
-    /* FORM NUEVO PUESTO/CARGO */
-    .nueva-aptitud-form { background:var(--gris2); border:1px solid rgba(255,255,255,0.06); padding:24px; margin-bottom:28px; }
-    .nueva-aptitud-form h3 { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
-    .form-row { display:flex; gap:12px; align-items:flex-end; }
-    .field { flex:1; }
-    .field label { display:block; font-size:11px; font-weight:600; color:var(--texto); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-    .field input { width:100%; background:var(--gris3); border:1px solid rgba(255,255,255,0.08); border-bottom:2px solid rgba(255,255,255,0.12); color:var(--blanco); font-family:'Barlow',sans-serif; font-size:14px; padding:11px 14px; outline:none; transition:border-color 0.2s; }
+    /* FORM NUEVO */
+    .nueva-form { background:var(--gris2); border:1px solid rgba(255,255,255,0.06); padding:28px; margin-bottom:28px; }
+    .nueva-form h3 { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--texto); margin-bottom:18px; }
+    .form-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+    .field { flex:1; min-width:160px; }
+    .field label { display:block; font-size:10px; font-weight:700; color:var(--texto); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .field input {
+      width:100%; background:var(--gris3);
+      border:1px solid rgba(255,255,255,0.07);
+      border-bottom:2px solid rgba(255,255,255,0.14);
+      color:var(--blanco); font-family:'Barlow',sans-serif; font-size:14px;
+      padding:12px 14px; outline:none; transition:border-color 0.2s;
+    }
     .field input:focus { border-color:var(--rojo); }
-    .field input::placeholder { color:rgba(255,255,255,0.2); }
-    .btn-primary { display:inline-flex; align-items:center; gap:8px; padding:11px 20px; background:var(--rojo); color:white; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:none; cursor:pointer; transition:background 0.15s; white-space:nowrap; }
+    .field input::placeholder { color:rgba(255,255,255,0.18); }
+    .btn-primary { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; background:var(--rojo); color:white; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:none; cursor:pointer; transition:background 0.15s; white-space:nowrap; }
     .btn-primary:hover { background:var(--rojo2); }
 
     /* TABLA */
     .tabla-wrap { background:var(--gris2); border:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+    .tabla-header { padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; }
+    .tabla-header h3 { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+    .tabla-count { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:var(--texto); }
+
     table { width:100%; border-collapse:collapse; }
-    thead th { padding:12px 20px; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--texto); text-align:left; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); }
+    thead th { padding:12px 24px; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--texto); text-align:left; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); }
     tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; animation:fadeUp 0.3s ease both; }
     tbody tr:last-child { border-bottom:none; }
     tbody tr:hover { background:rgba(255,255,255,0.03); }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    td { padding:14px 20px; font-size:13px; vertical-align:middle; }
-    .apt-nombre { font-weight:600; }
-    .apt-desc { color:var(--texto); font-size:12px; }
-    .apt-count { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:var(--rojo2); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    td { padding:14px 24px; font-size:13px; vertical-align:middle; }
 
-    .acciones { display:flex; gap:6px; align-items:center; }
-    .btn-edit-inline { padding:6px 12px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-size:11px; cursor:pointer; transition:all 0.15s; font-family:'Barlow',sans-serif; }
+    .apt-nombre { font-weight:600; font-size:14px; }
+    .apt-desc { color:var(--texto); font-size:12px; margin-top:2px; }
+    .apt-count {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:22px; font-weight:700; color:var(--rojo2);
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .apt-count span { font-size:11px; font-weight:400; color:var(--texto); font-family:'Barlow',sans-serif; }
+
+    .acciones { display:flex; gap:6px; align-items:center; justify-content:flex-end; }
+    .btn-edit-inline { padding:6px 14px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-size:12px; cursor:pointer; transition:all 0.15s; font-family:'Barlow',sans-serif; }
     .btn-edit-inline:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
-    .btn-delete { padding:6px 10px; background:transparent; border:1px solid rgba(192,57,43,0.2); color:rgba(192,57,43,0.6); font-size:11px; cursor:pointer; transition:all 0.15s; font-family:'Barlow',sans-serif; }
+    .btn-delete { padding:6px 10px; background:transparent; border:1px solid rgba(192,57,43,0.2); color:rgba(192,57,43,0.5); font-size:12px; cursor:pointer; transition:all 0.15s; font-family:'Barlow',sans-serif; }
     .btn-delete:hover { background:rgba(192,57,43,0.12); color:var(--rojo2); border-color:var(--rojo); }
 
-    /* MODAL EDITAR */
+    /* EMPTY */
+    .empty-state { padding:56px 32px; text-align:center; color:var(--texto); }
+    .empty-state svg { width:44px; height:44px; stroke:var(--texto); fill:none; stroke-width:1.2; margin-bottom:14px; display:block; margin-inline:auto; }
+    .empty-state p { font-size:14px; }
+
+    /* MODAL */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
-    .modal { background:var(--gris2); border:1px solid rgba(255,255,255,0.1); padding:32px; width:440px; max-width:90vw; animation:fadeUp 0.2s ease; }
-    .modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; }
-    .modal-actions { display:flex; gap:10px; margin-top:24px; }
-    .btn-cancel { padding:11px 20px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; }
+    .modal { background:var(--gris2); border:1px solid rgba(255,255,255,0.1); padding:36px; width:460px; max-width:90vw; animation:fadeUp 0.2s ease; }
+    .modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:24px; }
+    .modal .field { margin-bottom:18px; }
+    .modal-actions { display:flex; gap:10px; margin-top:28px; }
+    .btn-cancel { padding:12px 22px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--texto); font-family:'Barlow',sans-serif; font-size:13px; cursor:pointer; transition:all 0.15s; }
     .btn-cancel:hover { color:var(--blanco); border-color:rgba(255,255,255,0.25); }
-
-    .empty-state { text-align:center; padding:48px 32px; color:var(--texto); }
-    .empty-state svg { width:48px; height:48px; stroke:var(--texto); fill:none; stroke-width:1.2; margin-bottom:16px; display:block; margin-inline:auto; }
-    .empty-state p { font-size:14px; }
+    .btn-save { flex:1; padding:12px; background:var(--rojo); color:white; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; transition:background 0.15s; }
+    .btn-save:hover { background:var(--rojo2); }
   </style>
   <link rel="stylesheet" href="/css/sidebar-responsive.css"/>
 </head>
@@ -94,8 +120,8 @@
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg></div>
-    <div class="logo-text">SistemaCapacita<span>Durlock · La Pampa</span></div>
+    <img src="/img/logo.png" class="logo-img" alt="SkillBoard"/>
+    <div class="logo-text">SkillBoard<span>Gestión de Personal</span></div>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
@@ -107,6 +133,7 @@
     <a href="/tv" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Vista TV</a>
     <% if (usuario.nivel === 1) { %>
     <div class="nav-section" style="margin-top:12px">Administración</div>
+    <a href="/tv/config" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Config TV</a>
     <a href="/usuarios" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Usuarios</a>
     <% } %>
   </nav>
@@ -123,27 +150,33 @@
   <div class="topbar">
     <div>
       <h1>Puestos/Cargos</h1>
-      <p><%= aptitudes.length %> puesto/cargo<%= aptitudes.length !== 1 ? 's' : '' %> registrado<%= aptitudes.length !== 1 ? 's' : '' %></p>
+      <p><%= aptitudes.length %> puesto<%= aptitudes.length !== 1 ? 's' : '' %> registrado<%= aptitudes.length !== 1 ? 's' : '' %></p>
     </div>
   </div>
 
   <div class="content">
 
     <% if (success) { %>
-    <div class="success-msg">✓ Puesto/cargo guardado correctamente.</div>
+    <div class="success-msg">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Puesto/cargo guardado correctamente.
+    </div>
     <% } %>
     <% if (error) { %>
-    <div class="error-msg">⚠ <%= error %></div>
+    <div class="error-msg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <%= error %>
+    </div>
     <% } %>
 
     <% if (usuario.nivel === 1) { %>
-    <div class="nueva-aptitud-form">
+    <div class="nueva-form">
       <h3>Nuevo Puesto/Cargo</h3>
       <form method="POST" action="/aptitudes">
         <div class="form-row">
           <div class="field">
             <label>Nombre *</label>
-            <input type="text" name="nombre" required placeholder="Ej: Manejo de autoelevador, Trabajo en altura..."/>
+            <input type="text" name="nombre" required placeholder="Ej: Operador de grúa, Electricista..."/>
           </div>
           <div class="field">
             <label>Descripción (opcional)</label>
@@ -156,6 +189,11 @@
     <% } %>
 
     <div class="tabla-wrap">
+      <div class="tabla-header">
+        <h3>Lista de Puestos/Cargos</h3>
+        <span class="tabla-count"><%= aptitudes.length %> registrado<%= aptitudes.length !== 1 ? 's' : '' %></span>
+      </div>
+
       <% if (aptitudes.length === 0) { %>
       <div class="empty-state">
         <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -167,21 +205,32 @@
           <tr>
             <th>Nombre</th>
             <th>Descripción</th>
-            <th>Empleados</th>
+            <th style="text-align:center">Empleados</th>
             <% if (usuario.nivel === 1) { %><th></th><% } %>
           </tr>
         </thead>
         <tbody>
           <% aptitudes.forEach((apt, i) => { %>
           <tr style="animation-delay:<%- i * 0.04 %>s">
-            <td class="apt-nombre"><%= apt.nombre %></td>
+            <td>
+              <div class="apt-nombre"><%= apt.nombre %></div>
+            </td>
             <td class="apt-desc"><%= apt.descripcion || '—' %></td>
-            <td class="apt-count"><%= apt.total_empleados %></td>
+            <td style="text-align:center">
+              <div class="apt-count">
+                <%= apt.total_empleados %>
+                <span>empleado<%= apt.total_empleados !== 1 ? 's' : '' %></span>
+              </div>
+            </td>
             <% if (usuario.nivel === 1) { %>
             <td>
               <div class="acciones">
-                <button class="btn-edit-inline" onclick="abrirEditar(<%= apt.id %>, '<%= apt.nombre.replace(/'/g, "\\'") %>', '<%= (apt.descripcion || '').replace(/'/g, "\\'") %>')">Editar</button>
-                <form method="POST" action="/aptitudes/<%= apt.id %>/borrar" onsubmit="return confirm('¿Eliminar el puesto/cargo <%= apt.nombre %>?')">
+                <button class="btn-edit-inline"
+                  onclick="abrirEditar(<%= apt.id %>, '<%= apt.nombre.replace(/'/g, "\\'") %>', '<%= (apt.descripcion||'').replace(/'/g, "\\'") %>')">
+                  Editar
+                </button>
+                <form method="POST" action="/aptitudes/<%= apt.id %>/borrar"
+                  onsubmit="return confirm('¿Eliminar el puesto/cargo «<%= apt.nombre %>»?')">
                   <button type="submit" class="btn-delete">✕</button>
                 </form>
               </div>
@@ -202,17 +251,21 @@
   <div class="modal">
     <h3>Editar Puesto/Cargo</h3>
     <form id="form-editar" method="POST">
-      <div class="field" style="margin-bottom:16px">
-        <label>Nombre *</label>
-        <input type="text" id="edit-nombre" name="nombre" required/>
-      </div>
       <div class="field">
+        <label>Nombre *</label>
+        <input type="text" id="edit-nombre" name="nombre" required
+          style="width:100%;background:var(--gris3);border:1px solid rgba(255,255,255,0.07);border-bottom:2px solid rgba(255,255,255,0.14);color:var(--blanco);font-family:'Barlow',sans-serif;font-size:14px;padding:12px 14px;outline:none;margin-bottom:0;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--rojo)'" onblur="this.style.borderColor='rgba(255,255,255,0.14)'"/>
+      </div>
+      <div class="field" style="margin-top:18px">
         <label>Descripción</label>
-        <input type="text" id="edit-descripcion" name="descripcion" placeholder="Opcional"/>
+        <input type="text" id="edit-descripcion" name="descripcion" placeholder="Opcional"
+          style="width:100%;background:var(--gris3);border:1px solid rgba(255,255,255,0.07);border-bottom:2px solid rgba(255,255,255,0.14);color:var(--blanco);font-family:'Barlow',sans-serif;font-size:14px;padding:12px 14px;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--rojo)'" onblur="this.style.borderColor='rgba(255,255,255,0.14)'"/>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
-        <button type="submit" class="btn-primary">Guardar cambios</button>
+        <button type="submit" class="btn-save">Guardar</button>
       </div>
     </form>
   </div>
@@ -231,8 +284,8 @@ function cerrarModal() {
 document.getElementById('modal-editar').addEventListener('click', function(e) {
   if (e.target === this) cerrarModal();
 });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
 </script>
 <script src="/js/sidebar-responsive.js"></script>
-
 </body>
 </html>

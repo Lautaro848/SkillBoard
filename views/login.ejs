@@ -1,325 +1,246 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema de capacitaciones — LautaroLB </title>
+  <title>SkillBoard — Acceso</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
-      --rojo:    #C0392B;
-      --rojo2:   #E74C3C;
-      --gris:    #1a1a1a;
-      --gris2:   #242424;
-      --gris3:   #2f2f2f;
-      --blanco:  #F0EFEB;
-      --texto:   #999;
+      --rojo:#C0392B; --rojo2:#E74C3C;
+      --gris:#141414; --gris2:#1e1e1e; --gris3:#2a2a2a;
+      --blanco:#F0EFEB; --texto:#888;
     }
 
     body {
-      min-height: 100vh;
-      background-color: var(--gris);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Barlow', sans-serif;
-      overflow: hidden;
+      min-height:100vh;
+      background:var(--gris);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:'Barlow',sans-serif;
+      overflow:hidden;
     }
 
+    /* Grid sutil de fondo */
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
+      content:'';
+      position:fixed; inset:0;
       background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 60px,
-          rgba(255,255,255,0.02) 60px,
-          rgba(255,255,255,0.02) 61px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 60px,
-          rgba(255,255,255,0.02) 60px,
-          rgba(255,255,255,0.02) 61px
-        );
-      pointer-events: none;
-      z-index: 0;
+        repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,255,255,0.025) 60px,rgba(255,255,255,0.025) 61px),
+        repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,0.025) 60px,rgba(255,255,255,0.025) 61px);
+      pointer-events:none; z-index:0;
     }
 
+    /* Glow rojo esquina */
     body::after {
-      content: '';
-      position: fixed;
-      top: -200px;
-      right: -100px;
-      width: 500px;
-      height: 800px;
-      background: linear-gradient(135deg, var(--rojo) 0%, transparent 60%);
-      opacity: 0.12;
-      transform: rotate(15deg);
-      pointer-events: none;
-      z-index: 0;
+      content:'';
+      position:fixed;
+      top:-150px; right:-80px;
+      width:400px; height:600px;
+      background:radial-gradient(ellipse at center, rgba(192,57,43,0.18) 0%, transparent 70%);
+      pointer-events:none; z-index:0;
     }
 
     .wrapper {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      width: 860px;
-      max-width: 95vw;
-      min-height: 520px;
-      border: 1px solid rgba(255,255,255,0.07);
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-      animation: fadeUp 0.6s ease both;
+      position:relative; z-index:1;
+      display:flex;
+      width:900px; max-width:95vw;
+      min-height:540px;
+      border:1px solid rgba(255,255,255,0.07);
+      box-shadow:0 40px 100px rgba(0,0,0,0.7);
+      animation:fadeUp 0.5s ease both;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
+    /* PANEL IZQUIERDO */
     .brand-panel {
-      width: 42%;
-      background: var(--rojo);
-      background-image: 
-        repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 20px,
-          rgba(0,0,0,0.08) 20px,
-          rgba(0,0,0,0.08) 21px
-        );
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 48px 40px;
-      position: relative;
-      overflow: hidden;
+      width:42%;
+      background:linear-gradient(160deg, #1a0a08 0%, #2a0d08 40%, var(--rojo) 100%);
+      display:flex; flex-direction:column; justify-content:space-between;
+      padding:52px 44px;
+      position:relative; overflow:hidden;
     }
 
+    /* Patrón diagonal */
+    .brand-panel::before {
+      content:'';
+      position:absolute; inset:0;
+      background-image:repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(0,0,0,0.06) 24px,rgba(0,0,0,0.06) 25px);
+      pointer-events:none;
+    }
+
+    /* Letra S gigante decorativa */
     .brand-panel::after {
-      content: 'D';
-      position: absolute;
-      bottom: -40px;
-      right: -20px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 220px;
-      font-weight: 800;
-      color: rgba(0,0,0,0.12);
-      line-height: 1;
-      pointer-events: none;
+      content:'S';
+      position:absolute;
+      bottom:-60px; right:-30px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:260px; font-weight:800;
+      color:rgba(0,0,0,0.15);
+      line-height:1; pointer-events:none;
+      user-select:none;
     }
 
     .brand-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display:flex; align-items:center; gap:14px;
+      position:relative; z-index:1;
     }
 
-    .brand-logo .icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(0,0,0,0.2);
-      border: 2px solid rgba(255,255,255,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .brand-logo img {
+      width:50px; height:50px;
+      object-fit:contain;
+      filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));
     }
 
-    .brand-logo .icon svg {
-      width: 24px;
-      height: 24px;
-      fill: white;
+    .brand-logo-text {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:24px; font-weight:800;
+      color:white; letter-spacing:2px; text-transform:uppercase;
+      line-height:1.1;
+    }
+    .brand-logo-text span {
+      display:block; font-size:10px; font-weight:400;
+      color:rgba(255,255,255,0.55); letter-spacing:3px; margin-top:3px;
     }
 
-    .brand-logo span {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
+    .brand-info { position:relative; z-index:1; }
     .brand-info h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 42px;
-      font-weight: 800;
-      color: white;
-      line-height: 1.05;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:46px; font-weight:800;
+      color:white; line-height:1.05;
+      text-transform:uppercase; letter-spacing:1px;
+      margin-bottom:16px;
     }
-
+    .brand-info h1 em {
+      font-style:normal;
+      color:rgba(255,255,255,0.4);
+      font-size:36px;
+    }
     .brand-info p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.75);
-      line-height: 1.6;
-      font-weight: 300;
+      font-size:14px; color:rgba(255,255,255,0.65);
+      line-height:1.7; font-weight:300;
+      max-width:280px;
     }
 
     .brand-tag {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 3px;
-      text-transform: uppercase;
+      position:relative; z-index:1;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:10px; font-weight:600;
+      color:rgba(255,255,255,0.35);
+      letter-spacing:3px; text-transform:uppercase;
     }
 
+    /* PANEL DERECHO */
     .form-panel {
-      flex: 1;
-      background: var(--gris2);
-      padding: 52px 48px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      flex:1;
+      background:var(--gris2);
+      padding:56px 52px;
+      display:flex; flex-direction:column; justify-content:center;
+      border-left:1px solid rgba(255,255,255,0.05);
     }
 
     .form-panel h2 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--blanco);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:30px; font-weight:700;
+      color:var(--blanco); text-transform:uppercase; letter-spacing:1px;
+      margin-bottom:6px;
     }
 
-    .form-panel .subtitle {
-      font-size: 13px;
-      color: var(--texto);
-      margin-bottom: 36px;
-    }
+    .form-panel .subtitle { font-size:13px; color:var(--texto); margin-bottom:36px; }
 
-    .field {
-      margin-bottom: 20px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--texto);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
+    .field { margin-bottom:22px; }
+    .field label { display:block; font-size:10px; font-weight:700; color:var(--texto); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:10px; }
     .field input {
-      width: 100%;
-      background: var(--gris3);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-bottom: 2px solid rgba(255,255,255,0.12);
-      color: var(--blanco);
-      font-family: 'Barlow', sans-serif;
-      font-size: 15px;
-      padding: 13px 16px;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      width:100%;
+      background:var(--gris3);
+      border:1px solid rgba(255,255,255,0.07);
+      border-bottom:2px solid rgba(255,255,255,0.14);
+      color:var(--blanco);
+      font-family:'Barlow',sans-serif; font-size:15px;
+      padding:14px 16px; outline:none;
+      transition:border-color 0.2s, background 0.2s;
     }
-
-    .field input:focus {
-      border-color: var(--rojo);
-      background: #2a2a2a;
-    }
-
-    .field input::placeholder {
-      color: rgba(255,255,255,0.2);
-    }
+    .field input:focus { border-color:var(--rojo); background:#2a2a2a; }
+    .field input::placeholder { color:rgba(255,255,255,0.18); }
 
     .error-msg {
-      background: rgba(192, 57, 43, 0.15);
-      border-left: 3px solid var(--rojo);
-      color: #e07070;
-      font-size: 13px;
-      padding: 10px 14px;
-      margin-bottom: 20px;
+      display:flex; align-items:center; gap:10px;
+      background:rgba(192,57,43,0.12);
+      border-left:3px solid var(--rojo);
+      color:#e07070; font-size:13px;
+      padding:12px 16px; margin-bottom:24px;
     }
+    .error-msg svg { width:15px; height:15px; stroke:#e07070; fill:none; stroke-width:2; flex-shrink:0; }
 
     .btn-login {
-      width: 100%;
-      background: var(--rojo);
-      color: white;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border: none;
-      padding: 15px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 8px;
+      width:100%;
+      background:var(--rojo); color:white;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+      border:none; padding:16px; cursor:pointer;
+      transition:background 0.2s, transform 0.1s;
+      margin-top:8px;
     }
+    .btn-login:hover { background:var(--rojo2); }
+    .btn-login:active { transform:scale(0.99); }
 
-    .btn-login:hover  { background: var(--rojo2); }
-    .btn-login:active { transform: scale(0.99); }
+    .form-footer { margin-top:32px; font-size:11px; color:rgba(255,255,255,0.18); letter-spacing:1px; }
 
-    .form-footer {
-      margin-top: 28px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.2);
-      letter-spacing: 1px;
-    }
-
-    @media (max-width: 640px) {
-      .brand-panel { display: none; }
-      .form-panel  { padding: 40px 28px; }
+    @media (max-width:640px) {
+      .brand-panel { display:none; }
+      .form-panel { padding:40px 28px; }
     }
   </style>
 </head>
 <body>
-
 <div class="wrapper">
 
   <div class="brand-panel">
     <div class="brand-logo">
-      <div class="icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/>
-        </svg>
+      <img src="img\logo.png" alt="SkillBoard"/>
+      <div class="brand-logo-text">
+        SkillBoard
+        <span>Gestión de Personal</span>
       </div>
-      <span>Empresa</span>
     </div>
 
     <div class="brand-info">
-      <h1>Sistema<br/>Capacita</h1>
-      <p>Gestión de puestos/cargos y capacitaciones del personal. Identificá al empleado correcto para cada tarea.</p>
+      <h1>Gestión<br/><em>de</em><br/>Personal</h1>
+      <p>Controlá puestos, aptitudes y certificaciones del equipo. Sabé quién está habilitado para cada tarea en todo momento.</p>
     </div>
 
-    <div class="brand-tag">La Pampa — Argentina</div>
+    <div class="brand-tag">SkillBoard v1.0</div>
   </div>
 
   <div class="form-panel">
-    <h2>Acceso al sistema</h2>
-    <p class="subtitle">Ingresá tus credenciales para continuar</p>
+    <h2>Iniciar sesión</h2>
+    <p class="subtitle">Ingresá tus credenciales para acceder al sistema</p>
 
     <% if (error) { %>
-      <div class="error-msg">⚠ <%= error %></div>
+    <div class="error-msg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <%= error %>
+    </div>
     <% } %>
 
     <form action="/login" method="POST">
       <div class="field">
         <label>Correo electrónico</label>
-        <input type="email" name="email" placeholder="usuario@durlock.com" required autocomplete="off"/>
+        <input type="email" name="email" placeholder="usuario@empresa.com" required autocomplete="off"/>
       </div>
       <div class="field">
         <label>Contraseña</label>
         <input type="password" name="password" placeholder="••••••••" required/>
       </div>
-      <button type="submit" class="btn-login">Ingresar</button>
+      <button type="submit" class="btn-login">Ingresar al sistema</button>
     </form>
 
-    <div class="form-footer">SistemaCapacita v1.0 &nbsp;·&nbsp; Uso interno</div>
+    <div class="form-footer">SkillBoard v1.0 &nbsp;·&nbsp; Uso interno</div>
   </div>
 
 </div>
-
 </body>
 </html>
