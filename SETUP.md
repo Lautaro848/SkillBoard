@@ -33,10 +33,38 @@ porque necesitan credenciales tuyas— faltan para tener un link real.
   paginación; perfil (`/empleados/:id`) con pestañas Datos, Aptitudes,
   Certificados, Historial y Actividad (esta última lee la tabla
   `auditoria` real); borrado lógico con confirmación por nombre completo.
-  **Quedó afuera de esta pasada** (no implementado todavía): importación
-  masiva de Excel/CSV y las acciones en lote del listado — son la parte
-  más grande de la Fase 1 según `docs/03-modulos-y-alcance.md` y no
-  entraron en esta sesión.
+- **Importación masiva** (`/empleados/importar`): asistente de 5 pasos —
+  plantilla descargable, mapeo de columnas con detección automática,
+  previsualización con errores por celda y detección de ID interno
+  duplicado *dentro del propio archivo*, importación en lotes de 100 con
+  reintento fila por fila si un lote falla, y reporte de errores
+  descargable. El parseo de .xlsx/.csv corre **enteramente en el
+  navegador** (nunca llega al Worker) para no competir por el presupuesto
+  de CPU de Cloudflare.
+- **Acciones en lote** en `/empleados`: seleccionar filas y cambiar
+  departamento o estado con el resumen previo obligatorio ("Vas a cambiar
+  el departamento de N empleados a X"), o exportar la selección a Excel.
+
+  **Simplificaciones deliberadas de esta pasada** (para que quede anotado,
+  no porque no importen):
+  - Sin edición de celdas inline en la previsualización — si hay errores,
+    se corrige en el archivo original y se vuelve a subir.
+  - Sin separación automática de una columna combinada "Apellido y
+    Nombre" en dos campos — hay que mapear columnas ya separadas.
+  - La barra de progreso de la importación es un spinner indeterminado,
+    no un conteo de filas en vivo (la acción del servidor procesa todos
+    los lotes y responde recién al final).
+
+  **Vulnerabilidad conocida sin parche en npm:** el paquete `xlsx`
+  (SheetJS) tiene dos advisories abiertos sin fix publicado en el
+  registro de npm (`GHSA-4r6h-8v6p-xvw6`, `GHSA-5pgg-2g8v-p4x9`,
+  prototype pollution y ReDoS). Se usa **solo del lado del cliente**
+  (nunca se importa desde código `.server.ts`, así que no forma parte del
+  bundle del Worker), lo que acota el impacto a la pestaña del propio
+  usuario que sube su archivo — pero seguí siendo consciente de esto.
+  La build oficial parcheada de SheetJS se publica en su propio CDN
+  (`https://cdn.sheetjs.com`), no en npm; si esto te preocupa, es la
+  alternativa a evaluar.
 
 ## Por qué no hay un link todavía
 

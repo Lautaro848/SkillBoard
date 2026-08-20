@@ -1,4 +1,5 @@
-import { Form, Link } from "react-router";
+import { useState } from "react";
+import { Form, Link, useFetcher } from "react-router";
 import { requireSesion } from "~/lib/sesion.server";
 import { Avatar } from "~/components/avatar";
 import { urlFirmada } from "~/lib/storage.server";
@@ -120,6 +121,21 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   };
 }
 
+export async function action({ request, context }: Route.ActionArgs) {
+  const { supabase, empresaId } = await requireSesion(request, context);
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const ids = (formData.get("ids") as string).split(",").filter(Boolean);
+
+  if (intent === "bulk-departamento") {
+    await supabase.from("empleados").update({ departamento_id: formData.get("valor") }).in("id", ids).eq("empresa_id", empresaId);
+  } else if (intent === "bulk-estado") {
+    await supabase.from("empleados").update({ estado: formData.get("valor") }).in("id", ids).eq("empresa_id", empresaId);
+  }
+
+  return { ok: true, cantidad: ids.length };
+}
+
 const ETIQUETAS_ANTIGUEDAD: Record<string, string> = {
   "menos-1": "Menos de 1 año",
   "1-3": "1 a 3 años",
@@ -138,6 +154,22 @@ const ETIQUETAS_ESTADO: Record<string, string> = { activo: "Activo", licencia: "
 export default function Empleados({ loaderData }: Route.ComponentProps) {
   const { empleados, total, indicadorPorEmpleado, puestos, departamentos, filtros } = loaderData;
   const totalPaginas = Math.max(1, Math.ceil(total / filtros.porPagina));
+  const [seleccion, setSeleccion] = useState<Set<string>>(new Set());
+
+  function alternarSeleccion(id: string) {
+    setSeleccion((actual) => {
+      const nueva = new Set(actual);
+      if (nueva.has(id)) nueva.delete(id);
+      else nueva.add(id);
+      return nueva;
+    });
+  }
+
+  function alternarTodos() {
+    setSeleccion((actual) => (actual.size === empleados.length ? new Set() : new Set(empleados.map((e: any) => e.id))));
+  }
+
+  const empleadosSeleccionados = empleados.filter((e: any) => seleccion.has(e.id));
 
   const chips: { clave: string; texto: string }[] = [];
   if (filtros.puesto) chips.push({ clave: "puesto", texto: puestos.find((p: any) => p.id === filtros.puesto)?.nombre ?? "" });
@@ -168,9 +200,14 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-[var(--color-text)]">Empleados</h1>
-        <Link to="/empleados/nuevo" className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]">
-          Nuevo empleado
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/empleados/importar" className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+            Importar planilla
+          </Link>
+          <Link to="/empleados/nuevo" className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]">
+            Nuevo empleado
+          </Link>
+        </div>
       </div>
 
       <Form method="get" className="flex flex-wrap items-end gap-3">
@@ -230,6 +267,15 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
         </div>
       )}
 
+      {seleccion.size > 0 && (
+        <BarraAcciones
+          seleccionados={empleadosSeleccionados}
+          puestos={puestos}
+          departamentos={departamentos}
+          onTerminar={() => setSeleccion(new Set())}
+        />
+      )}
+
       {empleados.length === 0 ? (
         <p className="rounded-lg border border-dashed border-[var(--color-border)] p-8 text-center text-sm text-[var(--color-text-muted)]">
           {total === 0 && chips.length === 0 && !filtros.q
@@ -241,6 +287,9 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           <table className="w-full text-sm">
             <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface)] text-left text-xs uppercase text-[var(--color-text-muted)]">
               <tr>
+                <th className="px-4 py-2">
+                  <input type="checkbox" checked={seleccion.size > 0 && seleccion.size === empleados.length} onChange={alternarTodos} aria-label="Seleccionar todos" />
+                </th>
                 <th className="px-4 py-2"></th>
                 <th className="px-4 py-2">Nombre</th>
                 <th className="px-4 py-2">ID interno</th>
@@ -254,6 +303,9 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
             <tbody>
               {empleados.map((e: any) => (
                 <tr key={e.id} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-bg)]">
+                  <td className="px-4 py-2">
+                    <input type="checkbox" checked={seleccion.has(e.id)} onChange={() => alternarSeleccion(e.id)} aria-label={`Seleccionar a ${e.nombre} ${e.apellido}`} />
+                  </td>
                   <td className="px-4 py-2">
                     <Avatar nombre={e.nombre} apellido={e.apellido} idInterno={e.id_interno} fotoUrl={e.fotoUrlFirmada} size={32} />
                   </td>
@@ -303,6 +355,128 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
     params.set("pagina", String(pagina));
     return `?${params.toString()}`;
   }
+}
+
+type AccionLote = "" | "departamento" | "estado" | "exportar";
+
+// "Toda acción en lote muestra un resumen previo... antes de aplicarse"
+// (03-modulos-y-alcance.md módulo 2): por eso hay un paso de confirmación
+// intermedio en vez de aplicar apenas se elige el valor.
+function BarraAcciones({
+  seleccionados,
+  puestos,
+  departamentos,
+  onTerminar,
+}: {
+  seleccionados: any[];
+  puestos: { id: string; nombre: string }[];
+  departamentos: { id: string; nombre: string }[];
+  onTerminar: () => void;
+}) {
+  const [accion, setAccion] = useState<AccionLote>("");
+  const [valor, setValor] = useState("");
+  const [confirmando, setConfirmando] = useState(false);
+  const fetcher = useFetcher();
+
+  const nombreValor =
+    accion === "departamento"
+      ? departamentos.find((d) => d.id === valor)?.nombre
+      : accion === "estado"
+        ? ETIQUETAS_ESTADO[valor]
+        : undefined;
+
+  function aplicar() {
+    fetcher.submit(
+      { intent: accion === "departamento" ? "bulk-departamento" : "bulk-estado", ids: seleccionados.map((e) => e.id).join(","), valor },
+      { method: "post" },
+    );
+    setConfirmando(false);
+    onTerminar();
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm">
+      <span className="font-medium">{seleccionados.length} seleccionados</span>
+
+      {!confirmando ? (
+        <>
+          <select
+            value={accion}
+            onChange={(e) => {
+              setAccion(e.target.value as AccionLote);
+              setValor("");
+            }}
+            className="rounded-md border border-[var(--color-border)] px-2 py-1"
+          >
+            <option value="">Elegir acción...</option>
+            <option value="departamento">Cambiar departamento</option>
+            <option value="estado">Cambiar estado</option>
+            <option value="exportar">Exportar a Excel</option>
+          </select>
+
+          {accion === "departamento" && (
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-md border border-[var(--color-border)] px-2 py-1">
+              <option value="">Elegir...</option>
+              {departamentos.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.nombre}
+                </option>
+              ))}
+            </select>
+          )}
+          {accion === "estado" && (
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-md border border-[var(--color-border)] px-2 py-1">
+              <option value="">Elegir...</option>
+              {Object.entries(ETIQUETAS_ESTADO).map(([v, t]) => (
+                <option key={v} value={v}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {accion === "exportar" ? (
+            <button
+              type="button"
+              onClick={async () => {
+                const { exportarEmpleados } = await import("~/lib/exportar-empleados.client");
+                exportarEmpleados(seleccionados, puestos, departamentos);
+              }}
+              className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)]"
+            >
+              Descargar
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!accion || !valor}
+              onClick={() => setConfirmando(true)}
+              className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)] disabled:opacity-50"
+            >
+              Continuar
+            </button>
+          )}
+        </>
+      ) : (
+        <>
+          <span>
+            Vas a cambiar el {accion === "departamento" ? "departamento" : "estado"} de {seleccionados.length} empleados a{" "}
+            <strong>{nombreValor}</strong>.
+          </span>
+          <button type="button" onClick={() => setConfirmando(false)} className="rounded-md px-3 py-1">
+            Cancelar
+          </button>
+          <button type="button" onClick={aplicar} disabled={fetcher.state !== "idle"} className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)]">
+            Confirmar
+          </button>
+        </>
+      )}
+
+      <button type="button" onClick={onTerminar} className="ml-auto text-[var(--color-text-muted)] underline">
+        Cancelar selección
+      </button>
+    </div>
+  );
 }
 
 function FiltroSelect({ label, name, valor, opciones }: { label: string; name: string; valor: string; opciones: { id: string; nombre: string }[] }) {

@@ -12,6 +12,7 @@ export default [
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
     route("empleados", "routes/app/empleados/index.tsx"),
     route("empleados/nuevo", "routes/app/empleados/nuevo.tsx"),
+    route("empleados/importar", "routes/app/empleados/importar.tsx"),
     route("empleados/:id/editar", "routes/app/empleados/editar.tsx"),
     route("empleados/:id", "routes/app/empleados/perfil.tsx"),
   ]),
