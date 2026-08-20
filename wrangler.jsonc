@@ -10,12 +10,13 @@
   "observability": {
     "enabled": true
   },
-  // Filled in once the Supabase project exists (see SETUP.md).
+  // Proyecto real: https://supabase.com/dashboard/project/bdufwbssueduudhbwzim
+  // Son claves públicas (protegidas por RLS), está bien que estén acá.
   // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, STORAGE_SIGNING_SECRET)
-  // are set with `wrangler secret put`, never committed here.
+  // se cargan con `wrangler secret put`, nunca se committean.
   "vars": {
-    "SUPABASE_URL": "",
-    "SUPABASE_ANON_KEY": ""
+    "SUPABASE_URL": "https://bdufwbssueduudhbwzim.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ3YnNzdWVkdXVkaGJ3emltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTc0ODMsImV4cCI6MjEwMjgzMzQ4M30.tbm6hVRmzBNzhaIm0ml7RHg4-jGIv6k0-WOgGRG0thg"
   },
   // Bucket creado con `wrangler r2 bucket create skillboard-archivos` (ver SETUP.md).
   "r2_buckets": [
