@@ -5,8 +5,14 @@ export default [
   route("registro", "routes/registro.tsx"),
   route("iniciar-sesion", "routes/iniciar-sesion.tsx"),
   route("cerrar-sesion", "routes/cerrar-sesion.tsx"),
+  route("storage/*", "routes/storage.tsx"),
 
   layout("routes/app/layout.tsx", [
     route("panel", "routes/app/panel.tsx"),
+    route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
+    route("empleados", "routes/app/empleados/index.tsx"),
+    route("empleados/nuevo", "routes/app/empleados/nuevo.tsx"),
+    route("empleados/:id/editar", "routes/app/empleados/editar.tsx"),
+    route("empleados/:id", "routes/app/empleados/perfil.tsx"),
   ]),
 ] satisfies RouteConfig;

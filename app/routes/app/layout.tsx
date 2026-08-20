@@ -20,7 +20,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 const NAV = [
   { to: "/panel", label: "Panel" },
-  // Los siguientes se habilitan a medida que avanzan las fases 1-5.
+  { to: "/empleados", label: "Empleados" },
+  { to: "/configuracion/catalogos", label: "Configuración" },
+  // Certificados, Objetivos, Tukson y Modo carrusel se habilitan en las
+  // fases 2 a 5.
 ] as const;
 
 export default function AppLayout({ loaderData }: Route.ComponentProps) {

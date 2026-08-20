@@ -5,4 +5,6 @@ interface Env {
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   RESEND_API_KEY: string;
+  STORAGE_SIGNING_SECRET: string;
+  ARCHIVOS: R2Bucket;
 }

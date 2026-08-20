@@ -11,10 +11,17 @@
     "enabled": true
   },
   // Filled in once the Supabase project exists (see SETUP.md).
-  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) are set with
-  // `wrangler secret put`, never committed here.
+  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, STORAGE_SIGNING_SECRET)
+  // are set with `wrangler secret put`, never committed here.
   "vars": {
     "SUPABASE_URL": "",
     "SUPABASE_ANON_KEY": ""
-  }
+  },
+  // Bucket creado con `wrangler r2 bucket create skillboard-archivos` (ver SETUP.md).
+  "r2_buckets": [
+    {
+      "binding": "ARCHIVOS",
+      "bucket_name": "skillboard-archivos"
+    }
+  ]
 }
