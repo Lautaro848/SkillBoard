@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-border: #e4e4e0;
+  --color-text: #1c1c1a;
+  --color-text-muted: #5c5c57;
+  --color-primary: #1f3a3d;
+  --color-primary-contrast: #ffffff;
+  --color-danger: #a3291d;
+  --color-warning: #92600a;
+  --color-success: #1e5c3a;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    "Manrope",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+}

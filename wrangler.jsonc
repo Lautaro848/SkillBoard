@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "skillboard",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./workers/app.ts",
+  "assets": {
+    "directory": "./build/client"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // Filled in once the Supabase project exists (see SETUP.md).
+  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) are set with
+  // `wrangler secret put`, never committed here.
+  "vars": {
+    "SUPABASE_URL": "",
+    "SUPABASE_ANON_KEY": ""
+  }
+}
