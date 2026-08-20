@@ -2,6 +2,42 @@
 
 Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
+---
+
+## ⏭️ Lo primero que hay que hacer (retomar acá)
+
+**Estado:** el backend está vivo y probado; falta **desplegar el frontend a
+Cloudflare Workers**. No se hizo porque el entorno de ejecución remota
+anterior tenía una política de red que bloqueaba `api.cloudflare.com` y
+`dash.cloudflare.com` (403 de política, no de credenciales). El código está
+completo, tipado, compilado y probado contra la base real.
+
+**Pasos, en orden:**
+
+```bash
+npm install
+npx wrangler login
+npx wrangler r2 bucket create skillboard-archivos
+npx wrangler secret put STORAGE_SIGNING_SECRET   # openssl rand -hex 32
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY # Supabase → Project Settings → API
+npm run deploy
+```
+
+`SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc`, así que no
+hay que configurarlas. `RESEND_API_KEY` recién hace falta en la Fase 2
+(avisos de vencimiento por email).
+
+Después del deploy, entrar con la **cuenta de prueba** (más abajo) y recorrer:
+`/panel` → `/empleados` → perfil de un empleado → `/empleados/importar` →
+`/configuracion/catalogos`.
+
+**Pendiente de la Fase 0 que solo se puede hacer ya desplegado:** medir el
+tiempo de CPU por ruta con una empresa de 200 empleados, y anotar el número
+en `docs/01-arquitectura-y-stack.md` §4 — es lo que decide si el hosting
+cuesta 0 o 5 USD/mes.
+
+---
+
 ## El backend de Supabase ya está vivo
 
 Proyecto real: **`Skillboard`**, ref `bdufwbssueduudhbwzim`, región `sa-east-1`
