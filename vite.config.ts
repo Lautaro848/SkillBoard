@@ -4,15 +4,16 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-// DEPLOY_TARGET decide para qué plataforma se buildea:
-//   (sin definir) → Cloudflare Workers, el destino de docs/01-arquitectura-y-stack.md
-//   vercel        → Node/Vercel, para tener un preview navegable
+// Para qué plataforma se buildea:
+//   por defecto            → Cloudflare Workers (docs/01-arquitectura-y-stack.md)
+//   DEPLOY_TARGET=vercel   → Node/Vercel, para un preview navegable
+//   VERCEL=1               → idem, lo setea Vercel solo en su build
 //
 // La única diferencia real es el plugin del runtime: el código de la app es
 // el mismo en los dos casos porque las variables se leen por getEnv() y los
 // archivos viven en Supabase Storage, no en un binding de Cloudflare.
-const target = process.env.DEPLOY_TARGET;
-const esCloudflare = target !== "vercel";
+const esVercel = process.env.DEPLOY_TARGET === "vercel" || Boolean(process.env.VERCEL);
+const esCloudflare = !esVercel;
 
 export default defineConfig({
   plugins: [
