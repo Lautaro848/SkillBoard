@@ -51,3 +51,24 @@ export async function urlFirmada(
   if (error) return null;
   return data.signedUrl;
 }
+
+// Varias claves en una sola llamada. Firmar de a una las fotos de un
+// carrusel serían N pedidos HTTP para armar una pantalla; esto es uno solo.
+// Las claves que fallan simplemente no entran al mapa.
+export async function urlesFirmadas(
+  supabase: SupabaseClient,
+  keys: string[],
+  ttlSegundos = 600,
+): Promise<Map<string, string>> {
+  const unicas = [...new Set(keys.filter(Boolean))];
+  if (unicas.length === 0) return new Map();
+
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls(unicas, ttlSegundos);
+  if (error || !data) return new Map();
+
+  return new Map(
+    data
+      .filter((d) => d.signedUrl && !d.error)
+      .map((d) => [d.path as string, d.signedUrl as string]),
+  );
+}

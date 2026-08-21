@@ -6,6 +6,11 @@ export default [
   route("iniciar-sesion", "routes/iniciar-sesion.tsx"),
   route("cerrar-sesion", "routes/cerrar-sesion.tsx"),
 
+  // Fuera del layout de la aplicación a propósito: la TV no tiene menú, ni
+  // sesión, ni forma de navegar a otra parte (03-modulos-y-alcance.md §6).
+  route("tv/:token", "routes/tv.tsx"),
+  route("tv/:token/datos", "routes/tv-datos.tsx"),
+
   layout("routes/app/layout.tsx", [
     route("panel", "routes/app/panel.tsx"),
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
@@ -18,5 +23,6 @@ export default [
     route("empleados/:id", "routes/app/empleados/perfil.tsx"),
     route("certificados", "routes/app/certificados/index.tsx"),
     route("objetivos", "routes/app/objetivos/index.tsx"),
+    route("carrusel", "routes/app/carrusel/index.tsx"),
   ]),
 ] satisfies RouteConfig;
