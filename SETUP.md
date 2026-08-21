@@ -4,37 +4,58 @@ Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
 ---
 
-## ⏭️ Lo primero que hay que hacer (retomar acá)
+## 🔗 Está en línea
 
-**Estado:** el backend está vivo y probado; falta **desplegar el frontend a
-Cloudflare Workers**. No se hizo porque el entorno de ejecución remota
-anterior tenía una política de red que bloqueaba `api.cloudflare.com` y
-`dash.cloudflare.com` (403 de política, no de credenciales). El código está
-completo, tipado, compilado y probado contra la base real.
+**https://skillboard-phi.vercel.app**
 
-**Pasos, en orden:**
+Entrá con la cuenta de prueba de más abajo. Se despliega solo con cada push
+a la rama del repo.
+
+**Supabase** (base, auth, archivos) — en producción, con datos reales.
+**Vercel** — preview navegable, para *ver* el producto mientras se desarrolla.
+**Cloudflare Workers** — destino previsto para producción comercial; el
+proyecto sigue pudiendo buildear para ahí (ver abajo).
+
+### El hosting es una decisión reversible
+
+El proyecto buildea para dos plataformas desde el mismo código:
+
+```bash
+npm run build                      # Cloudflare Workers (por defecto)
+DEPLOY_TARGET=vercel npm run build # Node / Vercel / Hostinger
+```
+
+Vercel además se autodetecta (expone `VERCEL=1` en su build), así que su
+preview no necesita configuración.
+
+Esto se logró sacando la única atadura dura que había a Cloudflare: los
+archivos ya no van a R2 sino a **Supabase Storage** (migración 0007), que
+funciona igual en cualquier hosting. Lo único que sabe en qué plataforma
+corre es `app/lib/env.server.ts`.
+
+**Sobre monetizar:** el plan gratuito de Vercel prohíbe uso comercial, así
+que sirve para probar y mostrar, no para vender. Cloudflare Workers **sí**
+permite uso comercial en su plan gratuito (ver `docs/01-arquitectura-y-stack.md` §4),
+y Hostinger también con su plan Node.js pago. La decisión se puede tomar
+cuando el producto esté listo, no antes.
+
+### Para desplegar a Cloudflare cuando llegue el momento
 
 ```bash
 npm install
 npx wrangler login
-npx wrangler r2 bucket create skillboard-archivos
-npx wrangler secret put STORAGE_SIGNING_SECRET   # openssl rand -hex 32
-npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY # Supabase → Project Settings → API
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY  # Supabase → Project Settings → API
 npm run deploy
 ```
 
-`SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc`, así que no
-hay que configurarlas. `RESEND_API_KEY` recién hace falta en la Fase 2
-(avisos de vencimiento por email).
+`SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc`. Ya no hace
+falta crear un bucket de R2 ni un secreto de firma: eso lo cubre Supabase
+Storage. `RESEND_API_KEY` recién se necesita en la Fase 2 (avisos por email).
 
-Después del deploy, entrar con la **cuenta de prueba** (más abajo) y recorrer:
-`/panel` → `/empleados` → perfil de un empleado → `/empleados/importar` →
-`/configuracion/catalogos`.
-
-**Pendiente de la Fase 0 que solo se puede hacer ya desplegado:** medir el
-tiempo de CPU por ruta con una empresa de 200 empleados, y anotar el número
-en `docs/01-arquitectura-y-stack.md` §4 — es lo que decide si el hosting
-cuesta 0 o 5 USD/mes.
+**Pendiente de la Fase 0 que solo se puede medir ya desplegado:** el tiempo
+de CPU por ruta con una empresa de 200 empleados, para anotarlo en
+`docs/01-arquitectura-y-stack.md` §4 — es lo que decide si Cloudflare cuesta
+0 o 5 USD/mes.
 
 ---
 
