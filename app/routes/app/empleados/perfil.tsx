@@ -55,12 +55,12 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 
   if (!empleado) throw new Response("No encontrado", { status: 404 });
 
-  const fotoUrlFirmada = empleado.foto_url ? await urlFirmada(context, empleado.foto_url) : null;
+  const fotoUrlFirmada = empleado.foto_url ? await urlFirmada(supabase, empleado.foto_url) : null;
 
   const certificadosConUrl = await Promise.all(
     (certificados ?? []).map(async (c: any) => ({
       ...c,
-      archivoUrlFirmada: c.archivo_url ? await urlFirmada(context, c.archivo_url) : null,
+      archivoUrlFirmada: c.archivo_url ? await urlFirmada(supabase, c.archivo_url) : null,
     })),
   );
   certificadosConUrl.sort((a: any, b: any) => (ORDEN_ESTADO_CERT[a.estado] ?? 9) - (ORDEN_ESTADO_CERT[b.estado] ?? 9));

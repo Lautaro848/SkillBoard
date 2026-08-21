@@ -1,59 +1,53 @@
-import type { AppLoadContext } from "react-router";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Los objetos en R2 se guardan por su clave, nunca por una URL completa
-// (02-modelo-de-datos.md §6): así una filtración de enlace deja de servir
-// sola y el proveedor se puede cambiar sin migrar datos. Servimos los
-// archivos por una ruta propia (`/storage/*`) firmada con HMAC y vencimiento
-// corto, en vez de URLs presignadas nativas de R2/S3, para no sumar una
-// dependencia solo para eso.
+// Archivos en Supabase Storage (bucket privado `archivos`, migración 0007).
+//
+// Antes esto era Cloudflare R2 con una ruta propia `/storage/*` firmada con
+// HMAC a mano. Se cambió por dos motivos: R2 ataba el proyecto a Cloudflare
+// (Supabase Storage anda igual en Vercel, Hostinger o Workers), y Supabase
+// ya trae URLs firmadas de vida corta, así que se borró código de firma
+// propio en vez de mantenerlo.
+//
+// Se guarda siempre la CLAVE del objeto en la base, nunca una URL completa
+// (02-modelo-de-datos.md §6): un enlace filtrado vence solo y el proveedor
+// se puede cambiar sin migrar datos.
+//
+// El cliente que se pasa es el de la sesión del usuario, así que las
+// políticas por empresa del bucket se aplican solas — igual que con las
+// tablas. Nunca usar el cliente de service_role acá.
 
-async function firmar(env: Env, key: string, exp: number): Promise<string> {
-  const secretKey = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(env.STORAGE_SIGNING_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const firma = await crypto.subtle.sign("HMAC", secretKey, new TextEncoder().encode(`${key}:${exp}`));
-  return btoa(String.fromCharCode(...new Uint8Array(firma)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
+const BUCKET = "archivos";
 
 export async function subirObjeto(
-  context: AppLoadContext,
+  supabase: SupabaseClient,
   key: string,
   data: ArrayBuffer | Uint8Array,
   contentType: string,
-) {
-  await context.cloudflare.env.ARCHIVOS.put(key, data, {
-    httpMetadata: { contentType },
+): Promise<string> {
+  const { error } = await supabase.storage.from(BUCKET).upload(key, data, {
+    contentType,
+    upsert: true,
   });
+  if (error) throw error;
   return key;
 }
 
-export async function borrarObjeto(context: AppLoadContext, key: string) {
-  await context.cloudflare.env.ARCHIVOS.delete(key);
+export async function borrarObjeto(supabase: SupabaseClient, key: string): Promise<void> {
+  const { error } = await supabase.storage.from(BUCKET).remove([key]);
+  if (error) throw error;
 }
 
 // Vencimiento corto por defecto: 10 minutos, suficiente para que cargue una
 // pantalla sin dejar el enlace utilizable indefinidamente si se comparte.
 export async function urlFirmada(
-  context: AppLoadContext,
+  supabase: SupabaseClient,
   key: string,
   ttlSegundos = 600,
-): Promise<string> {
-  const env = context.cloudflare.env;
-  const exp = Math.floor(Date.now() / 1000) + ttlSegundos;
-  const sig = await firmar(env, key, exp);
-  return `/storage/${key}?exp=${exp}&sig=${sig}`;
-}
-
-export async function verificarFirma(env: Env, key: string, exp: string | null, sig: string | null) {
-  if (!exp || !sig) return false;
-  if (Number(exp) < Math.floor(Date.now() / 1000)) return false;
-  const esperada = await firmar(env, key, Number(exp));
-  return esperada === sig;
+): Promise<string | null> {
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(key, ttlSegundos);
+  // Un archivo que no está (borrado a mano, clave vieja) no debe romper la
+  // pantalla entera: se devuelve null y el componente cae al avatar/estado
+  // vacío que ya maneja ese caso.
+  if (error) return null;
+  return data.signedUrl;
 }

@@ -1,4 +1,4 @@
-import type { AppLoadContext } from "react-router";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { subirObjeto } from "~/lib/storage.server";
 import { esImagenValida, FOTO_MAX_BYTES } from "~/lib/validation/empleados";
 
@@ -8,11 +8,13 @@ export interface ResultadoFoto {
   key?: string;
 }
 
-// Valida tamaño y contenido real del archivo (no la extensión) y lo sube a
-// R2 con una clave nueva por empresa/empleado. Devuelve error=null cuando no
-// se adjuntó ninguna foto: es un campo opcional.
+// Valida tamaño y contenido real del archivo (no la extensión) y lo sube al
+// bucket con una clave nueva por empresa/empleado. El primer segmento de la
+// clave es el empresa_id, que es lo que usan las políticas del bucket para
+// aislar los archivos entre empresas (migración 0007). Devuelve ok sin key
+// cuando no se adjuntó ninguna foto: es un campo opcional.
 export async function procesarYSubirFoto(
-  context: AppLoadContext,
+  supabase: SupabaseClient,
   empresaId: string,
   empleadoId: string,
   foto: File | null,
@@ -33,6 +35,6 @@ export async function procesarYSubirFoto(
   }
 
   const key = `${empresaId}/empleados/${empleadoId}/foto-${Date.now()}.webp`;
-  await subirObjeto(context, key, bytes, foto.type || "image/webp");
+  await subirObjeto(supabase, key, bytes, foto.type || "image/webp");
   return { ok: true, key };
 }

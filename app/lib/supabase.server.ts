@@ -1,14 +1,15 @@
 import { createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
 import type { AppLoadContext } from "react-router";
+import { getEnv } from "~/lib/env.server";
 
-// One Supabase client per request, built from the session cookie. PostgREST
-// receives the user's JWT and Postgres resolves auth.uid() with it, so the
-// RLS policies from 02-modelo-de-datos.md apply on their own — see
-// 01-arquitectura-y-stack.md §5 for why this is the only path allowed
-// (no direct TCP/Hyperdrive connection for general data access).
-export function createSupabaseServerClient(request: Request, context: AppLoadContext) {
+// Un cliente de Supabase por request, construido desde la cookie de sesión.
+// PostgREST recibe el JWT del usuario y Postgres resuelve auth.uid() con él,
+// así que las políticas RLS de 02-modelo-de-datos.md se aplican solas — ver
+// 01-arquitectura-y-stack.md §5 para por qué este es el único camino
+// permitido (nada de conexión TCP/Hyperdrive directa para datos generales).
+export function createSupabaseServerClient(request: Request, context?: AppLoadContext) {
   const headers = new Headers();
-  const env = context.cloudflare.env;
+  const env = getEnv(context);
 
   const supabase = createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
     cookies: {
@@ -26,10 +27,10 @@ export function createSupabaseServerClient(request: Request, context: AppLoadCon
   return { supabase, headers };
 }
 
-// Only for the expiration cron and the bulk importer, run in server code that
-// is never reachable from the browser. Bypasses RLS — treat as a scalpel.
-export function createSupabaseServiceClient(context: AppLoadContext) {
-  const env = context.cloudflare.env;
+// Solo para el cron de vencimientos y el importador, en código de servidor
+// que nunca es alcanzable desde el navegador. Saltea RLS — usar como bisturí.
+export function createSupabaseServiceClient(context?: AppLoadContext) {
+  const env = getEnv(context);
   return createServerClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
     cookies: { getAll: () => [], setAll: () => {} },
   });

@@ -91,7 +91,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   const foto = formData.get("foto");
   if (foto instanceof File && foto.size > 0) {
-    const resultado = await procesarYSubirFoto(context, empresaId, empleado.id, foto);
+    const resultado = await procesarYSubirFoto(supabase, empresaId, empleado.id, foto);
     if (!resultado.ok) {
       return { errores: { foto: [resultado.error!] } as Errores, valoresEnviados, empleadoIdCreado: empleado.id };
     }

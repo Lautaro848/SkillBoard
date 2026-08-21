@@ -5,5 +5,3 @@ SUPABASE_URL=https://xxxxxxxx.supabase.co
 SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
-# Cualquier cadena larga y aleatoria sirve en desarrollo (openssl rand -hex 32).
-STORAGE_SIGNING_SECRET=

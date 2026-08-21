@@ -12,17 +12,14 @@
   },
   // Proyecto real: https://supabase.com/dashboard/project/bdufwbssueduudhbwzim
   // Son claves públicas (protegidas por RLS), está bien que estén acá.
-  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, STORAGE_SIGNING_SECRET)
-  // se cargan con `wrangler secret put`, nunca se committean.
+  // Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) se cargan con
+  // `wrangler secret put`, nunca se committean.
+  //
+  // Ya no hay binding de R2: los archivos viven en Supabase Storage
+  // (migración 0007), que funciona igual desde Workers, Vercel o Hostinger.
+  // Eso deja al hosting como una decisión reversible.
   "vars": {
     "SUPABASE_URL": "https://bdufwbssueduudhbwzim.supabase.co",
     "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdWZ3YnNzdWVkdXVkaGJ3emltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTc0ODMsImV4cCI6MjEwMjgzMzQ4M30.tbm6hVRmzBNzhaIm0ml7RHg4-jGIv6k0-WOgGRG0thg"
-  },
-  // Bucket creado con `wrangler r2 bucket create skillboard-archivos` (ver SETUP.md).
-  "r2_buckets": [
-    {
-      "binding": "ARCHIVOS",
-      "bucket_name": "skillboard-archivos"
-    }
-  ]
+  }
 }

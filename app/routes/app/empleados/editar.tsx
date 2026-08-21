@@ -21,7 +21,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 
   if (!empleado) throw new Response("No encontrado", { status: 404 });
 
-  const fotoUrlActual = empleado.foto_url ? await urlFirmada(context, empleado.foto_url) : null;
+  const fotoUrlActual = empleado.foto_url ? await urlFirmada(supabase, empleado.foto_url) : null;
 
   return {
     empleado,
@@ -98,7 +98,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 
   const foto = formData.get("foto");
   if (foto instanceof File && foto.size > 0) {
-    const resultado = await procesarYSubirFoto(context, empresaId, empleadoId, foto);
+    const resultado = await procesarYSubirFoto(supabase, empresaId, empleadoId, foto);
     if (!resultado.ok) {
       return { errores: { foto: [resultado.error!] } as Errores, valoresEnviados };
     }

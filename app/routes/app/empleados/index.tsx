@@ -102,7 +102,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const empleadosConFoto = await Promise.all(
     (empleados ?? []).map(async (e: any) => ({
       ...e,
-      fotoUrlFirmada: e.foto_url ? await urlFirmada(context, e.foto_url, 300) : null,
+      fotoUrlFirmada: e.foto_url ? await urlFirmada(supabase, e.foto_url, 300) : null,
     })),
   );
 

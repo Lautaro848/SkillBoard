@@ -5,7 +5,6 @@ export default [
   route("registro", "routes/registro.tsx"),
   route("iniciar-sesion", "routes/iniciar-sesion.tsx"),
   route("cerrar-sesion", "routes/cerrar-sesion.tsx"),
-  route("storage/*", "routes/storage.tsx"),
 
   layout("routes/app/layout.tsx", [
     route("panel", "routes/app/panel.tsx"),
