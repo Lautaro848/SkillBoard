@@ -1,0 +1,23 @@
+-- Aislamiento: la vista tiene que aplicar las políticas de QUIEN CONSULTA.
+--
+-- En Postgres una vista corre, por defecto, con los permisos de su dueño. Acá
+-- el dueño es `postgres`, que saltea RLS. Resultado: las políticas de
+-- `certificados` se aplicaban perfecto en la tabla y no se aplicaban nada al
+-- consultar `v_certificados`.
+--
+-- Se comprobó contra la base real: un usuario autenticado sin ninguna
+-- membresía veía 0 filas en `certificados` y 2 en `v_certificados`. Es decir,
+-- cualquier cuenta podía leer los certificados de todas las empresas pidiendo
+-- /rest/v1/v_certificados. La aplicación no lo hacía —siempre filtra por
+-- empresa_id— pero la API está expuesta y no hace falta pasar por la
+-- aplicación.
+--
+-- `security_invoker` hace que la vista se evalúe con el rol que consulta, así
+-- que hereda las políticas de las tablas de abajo. Es la corrección que pide
+-- el linter (lint 0010_security_definer_view).
+--
+-- Las funciones SECURITY DEFINER que usan la vista (app.resumen_vencimientos,
+-- app.datos_carrusel) siguen funcionando: adentro de ellas el rol efectivo es
+-- el dueño, que sí puede ver todo, y el filtro por empresa lo hacen ellas
+-- mismas de forma explícita.
+alter view public.v_certificados set (security_invoker = on);
