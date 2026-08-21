@@ -4,6 +4,8 @@ import { requireSesion } from "~/lib/sesion.server";
 import { Avatar } from "~/components/avatar";
 import { urlFirmada } from "~/lib/storage.server";
 import { NIVEL_ETIQUETAS } from "~/lib/validation/empleados";
+import { EstadoCert } from "~/components/estado-certificado";
+import { ESTADO_CERTIFICADO } from "~/lib/validation/certificados";
 import type { Route } from "./+types/perfil";
 
 const ETIQUETAS_ESTADO: Record<string, string> = { activo: "Activo", licencia: "Licencia", baja: "Baja" };
@@ -15,14 +17,9 @@ function antiguedad(fechaIngreso: string): string {
   return `${anios} ${anios === 1 ? "año" : "años"}`;
 }
 
-const ORDEN_ESTADO_CERT: Record<string, number> = { vencido: 0, vence_hoy: 1, por_vencer: 2, vigente: 3, sin_vencimiento: 4 };
-const ETIQUETAS_ESTADO_CERT: Record<string, string> = {
-  vencido: "Vencido",
-  vence_hoy: "Vence hoy",
-  por_vencer: "Por vencer",
-  vigente: "Vigente",
-  sin_vencimiento: "Sin vencimiento",
-};
+// El orden (vencidos primero) sale de la misma fuente que las etiquetas e
+// íconos, para que el perfil y la vista de vencimientos no se desincronicen.
+const ordenEstado = (estado: string) => ESTADO_CERTIFICADO[estado as keyof typeof ESTADO_CERTIFICADO]?.orden ?? 9;
 
 export async function loader({ request, context, params }: Route.LoaderArgs) {
   const { supabase, empresaId } = await requireSesion(request, context);
@@ -63,7 +60,7 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
       archivoUrlFirmada: c.archivo_url ? await urlFirmada(supabase, c.archivo_url) : null,
     })),
   );
-  certificadosConUrl.sort((a: any, b: any) => (ORDEN_ESTADO_CERT[a.estado] ?? 9) - (ORDEN_ESTADO_CERT[b.estado] ?? 9));
+  certificadosConUrl.sort((a: any, b: any) => ordenEstado(a.estado) - ordenEstado(b.estado));
 
   return {
     empleado,
@@ -76,6 +73,19 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const { supabase, empresaId, rol } = await requireSesion(request, context);
+  const formData = await request.formData();
+
+  // Borrado lógico de un certificado: el historial se conserva para
+  // auditoría, igual que con los empleados (02-modelo-de-datos.md).
+  if (formData.get("intent") === "borrar-certificado") {
+    await supabase
+      .from("certificados")
+      .update({ eliminado_en: new Date().toISOString() })
+      .eq("id", formData.get("certificadoId") as string)
+      .eq("empresa_id", empresaId);
+    return { ok: true };
+  }
+
   if (rol !== "propietario" && rol !== "administrador") {
     return { error: "No tenés permiso para eliminar empleados." };
   }
@@ -103,6 +113,7 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
   const { empleado, fotoUrlFirmada, aptitudes, certificados, auditoria } = loaderData;
   const [searchParams] = useSearchParams();
   const pestania = (searchParams.get("tab") as Pestania) ?? "datos";
+  const fetcher = useFetcher();
 
   return (
     <div className="flex flex-col gap-6">
@@ -190,47 +201,60 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
       )}
 
       {pestania === "certificados" && (
-        <>
+        <div className="flex flex-col gap-3">
+          <Link
+            to={`/empleados/${empleado.id}/certificados/nuevo`}
+            className="w-fit rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+          >
+            Cargar certificado
+          </Link>
+
           {certificados.length === 0 ? (
-            <EstadoVacio texto="Todavía no se cargaron certificados. (La carga se habilita en la Fase 2.)" />
+            <EstadoVacio texto="Todavía no se cargaron certificados para este empleado." />
           ) : (
             <ul className="flex flex-col gap-3">
               {certificados.map((c: any) => (
                 <li
                   key={c.id}
                   className={`rounded-lg border p-3 ${
-                    c.estado === "vencido" ? "border-[var(--color-danger)]/40 bg-[var(--color-danger)]/5" : "border-[var(--color-border)]"
+                    c.estado === "vencido" || c.estado === "vence_hoy"
+                      ? "border-[var(--color-danger)]/40 bg-[var(--color-danger)]/5"
+                      : "border-[var(--color-border)]"
                   }`}
                 >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{c.tipos_certificado?.nombre}</span>
-                    <span
-                      className={
-                        c.estado === "vencido"
-                          ? "text-[var(--color-danger)]"
-                          : c.estado === "por_vencer" || c.estado === "vence_hoy"
-                            ? "text-[var(--color-warning)]"
-                            : "text-[var(--color-success)]"
-                      }
-                    >
-                      {ETIQUETAS_ESTADO_CERT[c.estado]}
-                      {c.dias_restantes != null && c.estado !== "vigente" && ` (${Math.abs(c.dias_restantes)} días)`}
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm font-medium">{c.tipos_certificado?.nombre}</span>
+                    <EstadoCert estado={c.estado} diasRestantes={c.dias_restantes} />
                   </div>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                    N.° {c.numero ?? "—"} · Emitido {formatearFecha(c.fecha_emision)}
+                    N.° {c.numero ?? "—"}
+                    {c.entidad_emisora && ` · ${c.entidad_emisora}`} · Emitido {formatearFecha(c.fecha_emision)}
                     {c.fecha_vencimiento && ` · Vence ${formatearFecha(c.fecha_vencimiento)}`}
                   </p>
-                  {c.archivoUrlFirmada && (
-                    <a href={c.archivoUrlFirmada} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-[var(--color-primary)] underline">
-                      Ver archivo
-                    </a>
-                  )}
+                  <div className="mt-1 flex items-center gap-3">
+                    {c.archivoUrlFirmada && (
+                      <a
+                        href={c.archivoUrlFirmada}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-[var(--color-primary)] underline"
+                      >
+                        Ver archivo
+                      </a>
+                    )}
+                    <fetcher.Form method="post">
+                      <input type="hidden" name="intent" value="borrar-certificado" />
+                      <input type="hidden" name="certificadoId" value={c.id} />
+                      <button type="submit" className="text-xs text-[var(--color-text-muted)] underline">
+                        Eliminar
+                      </button>
+                    </fetcher.Form>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
-        </>
+        </div>
       )}
 
       {pestania === "historial" && (

@@ -6,6 +6,10 @@
     "**/.client/**/*.ts",
     ".react-router/types/**/*"
   ],
+  // Las Edge Functions corren en Deno, con sus propios globals e imports por
+  // URL. Typecheckearlas con la config de la app da falsos errores; Supabase
+  // las valida al desplegarlas.
+  "exclude": ["node_modules", "build", "supabase/functions"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@cloudflare/workers-types", "vite/client"],

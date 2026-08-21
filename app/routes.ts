@@ -9,10 +9,13 @@ export default [
   layout("routes/app/layout.tsx", [
     route("panel", "routes/app/panel.tsx"),
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
+    route("configuracion/avisos", "routes/app/configuracion/avisos.tsx"),
     route("empleados", "routes/app/empleados/index.tsx"),
     route("empleados/nuevo", "routes/app/empleados/nuevo.tsx"),
     route("empleados/importar", "routes/app/empleados/importar.tsx"),
     route("empleados/:id/editar", "routes/app/empleados/editar.tsx"),
+    route("empleados/:id/certificados/nuevo", "routes/app/empleados/certificado-nuevo.tsx"),
     route("empleados/:id", "routes/app/empleados/perfil.tsx"),
+    route("certificados", "routes/app/certificados/index.tsx"),
   ]),
 ] satisfies RouteConfig;
