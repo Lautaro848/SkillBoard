@@ -8,6 +8,6 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: "node",
-    include: ["app/**/*.test.ts", "supabase/tests/**/*.test.ts"],
+    include: ["app/**/*.test.ts", "app/**/*.test.tsx", "supabase/tests/**/*.test.ts"],
   },
 });

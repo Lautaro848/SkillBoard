@@ -261,7 +261,8 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
             </Link>
           </div>
           <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-            Ordenados por lo que más atrasado está respecto del ritmo esperado.
+            Ordenados por lo que más atrasado está respecto del ritmo esperado. 100 es ir al ritmo previsto; la
+            marca vertical en cada barra es dónde debería estar hoy.
           </p>
           <ul className="mt-4 flex flex-col gap-4">
             {objetivos.map((o) => (
@@ -348,12 +349,13 @@ function Indice({
   return (
     <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
       <h2 className="text-sm font-semibold text-[var(--color-text)]">Índice de cumplimiento</h2>
-      {/* Figura protagonista: el número es el gráfico. */}
-      <p className="mt-3 flex items-baseline gap-1">
+      {/* Figura protagonista: el número es el gráfico. Sin "/100": el índice
+          puede pasarse de 100 cuando se va adelantado, así que esa escala
+          mentiría. Qué significa 100 lo explica el pie de la tarjeta. */}
+      <p className="mt-3">
         <span className="text-6xl font-semibold tabular-nums leading-none" style={{ color }}>
           {indice}
         </span>
-        <span className="text-lg text-[var(--color-text-muted)]">/100</span>
       </p>
       <p className="mt-2 text-sm font-medium" style={{ color }}>
         {estado}
@@ -370,8 +372,9 @@ function Indice({
       </p>
       <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs text-[var(--color-text-muted)]">
         Promedio ponderado de {medibles} {medibles === 1 ? "objetivo medido" : "objetivos medidos"}. Compara el
-        avance real contra el que correspondería al tiempo transcurrido; los objetivos sin mediciones quedan fuera
-        en lugar de contar como cero.
+        avance real contra el que correspondería al tiempo transcurrido: 100 es ir exactamente al ritmo previsto y
+        se puede pasar de 100 si se va adelantado (se topea en 125). Los objetivos sin mediciones quedan fuera en
+        lugar de contar como cero.
       </p>
     </section>
   );
@@ -396,7 +399,7 @@ function FilaObjetivo({ o }: { o: ObjetivoCalculado }) {
         <span className="text-sm font-medium text-[var(--color-text)]">{o.nombre}</span>
         <span className="text-sm" style={{ color }}>
           {estado}
-          {pct !== null && <span className="ml-2 tabular-nums font-semibold">{Math.round(pct)}/100</span>}
+          {pct !== null && <span className="ml-2 tabular-nums font-semibold">{Math.round(pct)}</span>}
         </span>
       </div>
       {/* Barra doble: lo avanzado y, encima, la marca de dónde debería ir hoy. */}
