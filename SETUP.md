@@ -1,4 +1,4 @@
-# Puesta en marcha (Fase 0 + Fase 1)
+# Puesta en marcha (Fases 0, 1 y 2)
 
 Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
@@ -6,10 +6,14 @@ Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
 ## 🔗 Está en línea
 
-**https://skillboard-phi.vercel.app**
+**https://skillboard-git-claude-skillboard-ov-bfd149-lautaro848s-projects.vercel.app**
 
-Entrá con la cuenta de prueba de más abajo. Se despliega solo con cada push
-a la rama del repo.
+Entrá con la cuenta de prueba de más abajo. Se actualiza solo con cada push
+a la rama de desarrollo.
+
+> La URL corta (`skillboard-phi.vercel.app`) apunta a la rama `main`, que
+> todavía no tiene el trabajo — está todo en `claude/skillboard-overview-uopw0a`.
+> Al mergear a `main`, la URL corta pasa a servir la versión actual.
 
 **Supabase** (base, auth, archivos) — en producción, con datos reales.
 **Vercel** — preview navegable, para *ver* el producto mientras se desarrolla.
@@ -50,7 +54,7 @@ npm run deploy
 
 `SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc`. Ya no hace
 falta crear un bucket de R2 ni un secreto de firma: eso lo cubre Supabase
-Storage. `RESEND_API_KEY` recién se necesita en la Fase 2 (avisos por email).
+Storage. `RESEND_API_KEY` se carga como secreto de Supabase, no de Cloudflare (ver más abajo).
 
 **Pendiente de la Fase 0 que solo se puede medir ya desplegado:** el tiempo
 de CPU por ruta con una empresa de 200 empleados, para anotarlo en
@@ -64,7 +68,7 @@ de CPU por ruta con una empresa de 200 empleados, para anotarlo en
 Proyecto real: **`Skillboard`**, ref `bdufwbssueduudhbwzim`, región `sa-east-1`
 (São Paulo) — https://supabase.com/dashboard/project/bdufwbssueduudhbwzim
 
-- Las 6 migraciones de `supabase/migrations/` están aplicadas.
+- Las 11 migraciones de `supabase/migrations/` están aplicadas.
 - RLS probado con una sesión real: login funciona, `buscar_empleados` y la
   vista `v_certificados` (con el embedding de `tipos_certificado`) devuelven
   los datos correctos con las políticas aplicadas.
@@ -74,7 +78,7 @@ Proyecto real: **`Skillboard`**, ref `bdufwbssueduudhbwzim`, región `sa-east-1`
 - `SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc` (son
   claves públicas, protegidas por RLS: no hace falta ocultarlas).
 
-### Tres bugs reales que aparecieron recién al probar contra la base real
+### Cuatro bugs reales que aparecieron recién al probar contra la base real
 
 Ninguno se veía en `tsc`/`build` porque son de configuración de Postgres, no
 de TypeScript. Quedaron corregidos en migraciones nuevas:
@@ -94,13 +98,18 @@ de TypeScript. Quedaron corregidos en migraciones nuevas:
    substring de "perez" (difieren en la última letra). Hacía falta el
    operador de similitud por trigramas (`%` de `pg_trgm`), no solo ILIKE.
 
+4. **`0010_grants_service_role.sql`** — la 0004 dio los grants a
+   `authenticated` pero no a `service_role`, así que el cron de avisos no
+   podía leer ni una tabla. `service_role` saltea RLS, pero el GRANT de
+   acceso a la tabla es una capa distinta y se exige igual.
+
 Y de paso, el linter de seguridad de Supabase (`0003_fix_search_path.sql`)
 marcó que dos funciones no tenían `search_path` fijo.
 
 ## Cuenta de prueba
 
 ```
-URL de login: (ver "Cómo probarlo" abajo — todavía no hay un link público)
+URL:          ver el enlace de arriba
 Email:        demo@skillboard.app
 Contraseña:   Demo-SkillBoard-2026!
 Empresa:      ACME Demo (plan prueba, 25 empleados, vence en 30 días)
@@ -119,56 +128,45 @@ Supabase no la expone). Podés borrarla desde el dashboard → Edge Functions
 cuando quieras; solo sabe crear/confirmar esta única cuenta fija, no es un
 endpoint genérico de alta de usuarios.
 
-## Por qué todavía no hay un link público
-
-Sí puedo llegar a Supabase (vía el conector MCP, que usa su propio canal de
-red). **No puedo llegar a Cloudflare**: el proxy de red de este sandbox
-bloquea `api.cloudflare.com` y `dash.cloudflare.com` con un 403 de política,
-no de configuración — no es algo que pueda resolver desde acá. Así que el
-código está listo, tipado, compilado y ahora **probado contra una base de
-datos real**, pero el despliegue a Cloudflare Workers lo tenés que hacer vos.
-
-## Cómo probarlo (5-10 minutos)
+## Cómo probarlo en local
 
 ```bash
-git clone <tu-repo> && cd SkillBoard
 npm install
 npm run dev
 ```
 
 Abrí `http://localhost:5173/iniciar-sesion` y entrá con la cuenta de prueba
-de arriba. `SUPABASE_URL`/`SUPABASE_ANON_KEY` ya están en `wrangler.jsonc`,
-así que no hace falta crear ningún `.dev.vars` para probar login, catálogos,
-empleados, importación y acciones en lote.
+de arriba. No hace falta configurar nada: la URL y la anon key de Supabase
+tienen valores por defecto en `app/lib/env.server.ts`, así que login,
+catálogos, empleados, importación, certificados y avisos funcionan de una.
 
-Solo necesitás un `.dev.vars` (copiá `.dev.vars.example`) si querés probar
-**fotos de empleados o archivos de certificados**, porque `STORAGE_SIGNING_SECRET`
-no está en el repo (no hace falta que sea un valor real de Supabase, cualquier
-cadena larga sirve: `openssl rand -hex 32`).
+Copiá `.dev.vars.example` a `.dev.vars` solo si vas a tocar algo que use
+`SUPABASE_SERVICE_ROLE_KEY` (el cron de avisos) o `RESEND_API_KEY`.
 
-Si algo falla en `npm run dev`, `npm run build && wrangler dev` reproduce el
-entorno de Workers exacto (R2 se emula solo, no hace falta el bucket real
-para probar local).
+`npm run build && wrangler dev` reproduce el entorno de Workers exacto.
 
-## Para tener un link público de verdad
+## Avisos de vencimiento: falta un paso para que salgan los emails
 
-1. Cuenta de Cloudflare (gratis) en https://dash.cloudflare.com/sign-up.
-2. Bucket de R2 para fotos/certificados:
-   ```bash
-   npx wrangler login
-   npx wrangler r2 bucket create skillboard-archivos
-   ```
-3. Desplegar:
-   ```bash
-   npm run deploy
-   ```
-   Te da la URL pública (`https://skillboard.<tu-cuenta>.workers.dev`).
-4. Cargar los secretos que faltan (nunca van en `wrangler.jsonc`):
-   ```bash
-   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY   # Project Settings → API
-   npx wrangler secret put RESEND_API_KEY               # cuando integres avisos por email
-   npx wrangler secret put STORAGE_SIGNING_SECRET       # openssl rand -hex 32
-   ```
+El pipeline entero está desplegado y probado — la Edge Function corre, arma
+el email y registra cada corrida — pero **falta cargar la API key de Resend**,
+sin la cual no se envía nada (queda anotado en `avisos_enviados` con el
+motivo).
+
+1. Crear una cuenta gratis en https://resend.com (3.000 emails/mes, tope de
+   100 por día) y generar una API key.
+2. Cargarla como secreto del proyecto de Supabase:
+   **Dashboard → Project Settings → Edge Functions → Secrets**, con el nombre
+   `RESEND_API_KEY`.
+3. Opcional: `AVISOS_REMITENTE` (por defecto usa el dominio de prueba de
+   Resend, que solo puede enviarte a vos mismo; para mandar a clientes hay
+   que verificar un dominio propio en Resend).
+
+Para probarlo sin esperar a mañana, invocá la función a mano desde el
+dashboard de Supabase (Edge Functions → avisar-vencimientos → Invoke), o
+mirá el resultado de la última corrida en `/configuracion/avisos`.
+
+El cron ya está programado: `avisar-vencimientos-diario`, todos los días a
+las 11:00 UTC (08:00 en Argentina).
 
 ## Verificar el aislamiento entre empresas (test automatizado)
 
@@ -183,11 +181,12 @@ npx vitest run supabase/tests/aislamiento.test.ts
 Esto corre contra Postgres local, no contra el proyecto real — no hace falta
 tocar datos de producción para validar RLS.
 
-## Lo que falta después de esto (fuera de la Fase 0/1)
+## Lo que falta
 
 - Medir el tiempo de CPU por ruta con datos realistas — solo se puede hacer
   contra un Worker desplegado de verdad en Cloudflare.
 - Copia de seguridad diaria (`pg_dump`) vía GitHub Action.
-- Certificados (carga y vencimientos), Panel, Carrusel, Tukson, y recién en
-  la Fase 6 la página pública con precios, planes y legales que
-  mencionaste — hoy `/` es un placeholder deliberado.
+- Cargar `RESEND_API_KEY` para que los avisos salgan de verdad (ver arriba).
+- Panel de rendimiento (Fase 3), Modo carrusel (4), Tukson (5), y recién en
+  la Fase 6 la página pública con precios, planes y legales — hoy `/` es un
+  placeholder deliberado.
