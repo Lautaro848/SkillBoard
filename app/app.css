@@ -11,6 +11,11 @@
   --color-danger: #a3291d;
   --color-warning: #92600a;
   --color-success: #1e5c3a;
+  /* Color de dato para gráficos de una sola serie: la magnitud la lleva el
+     largo de la barra, no el tono. Validado (banda de luminosidad, piso de
+     croma y contraste ≥3:1 contra la superficie) en claro y en oscuro. */
+  --color-dato: #00929e;
+  --color-dato-fondo: #e8f2f3;
 }
 
 body {

@@ -119,6 +119,7 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
       ) : (
         <>
           <Bloque
+            id="vencidos"
             titulo="Vencidos"
             cantidad={vencidos.length}
             tono="danger"
@@ -130,6 +131,7 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
           </Bloque>
 
           <Bloque
+            id="por-vencer"
             titulo="Por vencer"
             cantidad={porVencer.length}
             tono="warning"
@@ -142,6 +144,7 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
 
           {faltantes.length > 0 && (
             <Bloque
+              id="faltantes"
               titulo="Obligatorios sin cargar"
               cantidad={faltantes.length}
               tono="danger"
@@ -205,6 +208,7 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
 }
 
 function Bloque({
+  id,
   titulo,
   cantidad,
   tono,
@@ -212,6 +216,8 @@ function Bloque({
   descripcion,
   children,
 }: {
+  // Ancla para que las tarjetas del panel caigan directo en el bloque.
+  id?: string;
   titulo: string;
   cantidad: number;
   tono: "danger" | "warning";
@@ -221,7 +227,7 @@ function Bloque({
 }) {
   const color = tono === "danger" ? "var(--color-danger)" : "var(--color-warning)";
   return (
-    <section className="rounded-lg border border-[var(--color-border)]">
+    <section id={id} className="scroll-mt-6 rounded-lg border border-[var(--color-border)]">
       <header
         className="flex flex-col gap-0.5 border-b border-[var(--color-border)] px-4 py-3"
         style={{ borderLeft: `3px solid ${color}` }}

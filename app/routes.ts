@@ -17,5 +17,6 @@ export default [
     route("empleados/:id/certificados/nuevo", "routes/app/empleados/certificado-nuevo.tsx"),
     route("empleados/:id", "routes/app/empleados/perfil.tsx"),
     route("certificados", "routes/app/certificados/index.tsx"),
+    route("objetivos", "routes/app/objetivos/index.tsx"),
   ]),
 ] satisfies RouteConfig;

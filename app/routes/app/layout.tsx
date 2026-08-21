@@ -22,8 +22,9 @@ const NAV = [
   { to: "/panel", label: "Panel" },
   { to: "/empleados", label: "Empleados" },
   { to: "/certificados", label: "Certificados" },
+  { to: "/objetivos", label: "Objetivos" },
   { to: "/configuracion/catalogos", label: "Configuración" },
-  // Objetivos, Tukson y Modo carrusel se habilitan en las fases 3 a 5.
+  // Tukson y Modo carrusel se habilitan en las fases 4 y 5.
 ] as const;
 
 export default function AppLayout({ loaderData }: Route.ComponentProps) {

@@ -13,7 +13,11 @@ const URL = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
-const admin = createClient(URL, SERVICE_ROLE_KEY);
+// Sin credenciales no hay instancia contra la cual probar. Se saltea en vez
+// de fallar: una suite siempre roja tapa las fallas que sí importan.
+const HAY_INSTANCIA = Boolean(ANON_KEY && SERVICE_ROLE_KEY);
+
+const admin = createClient(URL, SERVICE_ROLE_KEY || "sin-clave");
 
 async function crearEmpresaConUsuario(nombreEmpresa: string, email: string) {
   const password = "Prueba-Aislamiento-9!";
@@ -43,7 +47,7 @@ async function crearEmpresaConUsuario(nombreEmpresa: string, email: string) {
   };
 }
 
-describe("Aislamiento multiempresa (RLS)", () => {
+describe.skipIf(!HAY_INSTANCIA)("Aislamiento multiempresa (RLS)", () => {
   let empresaA: Awaited<ReturnType<typeof crearEmpresaConUsuario>>;
   let empresaB: Awaited<ReturnType<typeof crearEmpresaConUsuario>>;
   let empleadoDeB: string;
