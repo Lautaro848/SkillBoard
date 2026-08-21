@@ -1,0 +1,35 @@
+{
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/.server/**/*.ts",
+    "**/.client/**/*.ts",
+    ".react-router/types/**/*"
+  ],
+  // Las Edge Functions corren en Deno, con sus propios globals e imports por
+  // URL. Typecheckearlas con la config de la app da falsos errores; Supabase
+  // las valida al desplegarlas.
+  "exclude": ["node_modules", "build", "supabase/functions"],
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["@cloudflare/workers-types", "vite/client"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
+    "ignoreDeprecations": "6.0",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    "skipLibCheck": true,
+    "noEmit": true,
+    "rootDirs": [".", "./.react-router/types"]
+  }
+}

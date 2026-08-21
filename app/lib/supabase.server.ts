@@ -1,0 +1,37 @@
+import { createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
+import type { AppLoadContext } from "react-router";
+import { getEnv } from "~/lib/env.server";
+
+// Un cliente de Supabase por request, construido desde la cookie de sesión.
+// PostgREST recibe el JWT del usuario y Postgres resuelve auth.uid() con él,
+// así que las políticas RLS de 02-modelo-de-datos.md se aplican solas — ver
+// 01-arquitectura-y-stack.md §5 para por qué este es el único camino
+// permitido (nada de conexión TCP/Hyperdrive directa para datos generales).
+export function createSupabaseServerClient(request: Request, context?: AppLoadContext) {
+  const headers = new Headers();
+  const env = getEnv(context);
+
+  const supabase = createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return parseCookieHeader(request.headers.get("Cookie") ?? "");
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          headers.append("Set-Cookie", serializeCookieHeader(name, value, options));
+        });
+      },
+    },
+  });
+
+  return { supabase, headers };
+}
+
+// Solo para el cron de vencimientos y el importador, en código de servidor
+// que nunca es alcanzable desde el navegador. Saltea RLS — usar como bisturí.
+export function createSupabaseServiceClient(context?: AppLoadContext) {
+  const env = getEnv(context);
+  return createServerClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    cookies: { getAll: () => [], setAll: () => {} },
+  });
+}
