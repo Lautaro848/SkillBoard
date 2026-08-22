@@ -24,5 +24,6 @@ export default [
     route("certificados", "routes/app/certificados/index.tsx"),
     route("objetivos", "routes/app/objetivos/index.tsx"),
     route("carrusel", "routes/app/carrusel/index.tsx"),
+    route("tukson", "routes/app/tukson/index.tsx"),
   ]),
 ] satisfies RouteConfig;

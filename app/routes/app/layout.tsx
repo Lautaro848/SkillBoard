@@ -23,9 +23,9 @@ const NAV = [
   { to: "/empleados", label: "Empleados" },
   { to: "/certificados", label: "Certificados" },
   { to: "/objetivos", label: "Objetivos" },
+  { to: "/tukson", label: "Tukson" },
   { to: "/carrusel", label: "Modo carrusel" },
   { to: "/configuracion/catalogos", label: "Configuración" },
-  // Tukson se habilita en la fase 5.
 ] as const;
 
 // Sale del package.json en el build; acá se declara una sola vez para que el
