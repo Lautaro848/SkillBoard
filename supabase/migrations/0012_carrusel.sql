@@ -68,12 +68,18 @@ begin
         'fechaIngreso', case when coalesce((v_campos ->> 'antiguedad')::boolean, true) then e.fecha_ingreso end,
         'certificados', case
           when coalesce((v_campos ->> 'certificados')::boolean, false) then (
-            -- Solo el tipo, nunca el número, y solo lo que está vigente.
+            -- Solo el tipo, nunca el número, y nada vencido.
+            --
+            -- Se excluye `vencido` y nada más. Un certificado en estado
+            -- `por_vencer` sigue siendo válido hoy: sacarlo de la TV
+            -- mostraría como no capacitada a alguien que sí lo está, y el
+            -- aviso de renovación es un asunto interno, no de la pantalla
+            -- del comedor.
             select coalesce(jsonb_agg(distinct t.nombre), '[]'::jsonb)
             from v_certificados vc
             join tipos_certificado t on t.id = vc.tipo_id
             where vc.empleado_id = e.id
-              and vc.estado in ('vigente', 'sin_vencimiento')
+              and vc.estado <> 'vencido'
           )
           else '[]'::jsonb
         end
