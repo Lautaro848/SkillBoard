@@ -152,21 +152,21 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-[var(--color-text)]">Catálogos</h1>
-        <p className="text-sm text-[var(--color-text-muted)]">
+        <h1 className="text-seccion font-semibold text-texto">Catálogos</h1>
+        <p className="text-menor text-secundario">
           Puestos, departamentos, aptitudes y tipos de certificado que usa toda la empresa.
         </p>
       </div>
 
-      <nav className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)]">
+      <nav className="flex flex-wrap items-center gap-1 border-b border-borde-decorativo">
         {TIPOS.map((t) => (
           <a
             key={t}
             href={`?tipo=${t}`}
-            className={`px-3 py-2 text-sm ${
+            className={`px-3 py-2 text-menor ${
               t === tipo
-                ? "border-b-2 border-[var(--color-primary)] font-medium text-[var(--color-primary)]"
-                : "text-[var(--color-text-muted)]"
+                ? "border-b-2 border-primario font-medium text-primario"
+                : "text-secundario"
             }`}
           >
             {ETIQUETAS[t]}
@@ -174,41 +174,41 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
         ))}
         <a
           href="/configuracion/avisos"
-          className="ml-auto px-3 py-2 text-sm text-[var(--color-text-muted)]"
+          className="ml-auto px-3 py-2 text-menor text-secundario"
         >
           Avisos de vencimiento →
         </a>
       </nav>
 
       {actionData?.error && (
-        <p className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-sm text-[var(--color-danger)]">
+        <p className="rounded-control border border-error/30 bg-error/5 p-3 text-menor text-error">
           {actionData.error}
         </p>
       )}
 
-      <Form method="post" className="flex flex-wrap items-end gap-3 rounded-lg border border-[var(--color-border)] p-4">
+      <Form method="post" className="flex flex-wrap items-end gap-3 rounded-tarjeta border border-borde-decorativo p-4">
         <input type="hidden" name="tipo" value={tipo} />
         <div>
-          <label className="text-sm font-medium" htmlFor="nombre">
+          <label className="text-menor font-medium" htmlFor="nombre">
             Nombre *
           </label>
           <input
             id="nombre"
             name="nombre"
             required
-            className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+            className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
           />
         </div>
 
         {tipo === "puestos" && (
           <div>
-            <label className="text-sm font-medium" htmlFor="departamentoId">
+            <label className="text-menor font-medium" htmlFor="departamentoId">
               Departamento
             </label>
             <select
               id="departamentoId"
               name="departamentoId"
-              className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+              className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
             >
               <option value="">Sin asignar</option>
               {departamentos.map((d: { id: string; nombre: string }) => (
@@ -222,14 +222,14 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
 
         {tipo === "aptitudes" && (
           <div>
-            <label className="text-sm font-medium" htmlFor="categoria">
+            <label className="text-menor font-medium" htmlFor="categoria">
               Categoría *
             </label>
             <select
               id="categoria"
               name="categoria"
               required
-              className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+              className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
             >
               <option value="tecnica">Técnica</option>
               <option value="operativa">Operativa</option>
@@ -241,12 +241,12 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
 
         {tipo === "tipos_certificado" && (
           <>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-menor">
               <input type="checkbox" name="requiereVencimiento" value="true" defaultChecked />
               Vence
             </label>
             <div>
-              <label className="text-sm font-medium" htmlFor="diasAlerta">
+              <label className="text-menor font-medium" htmlFor="diasAlerta">
                 Días de alerta
               </label>
               <input
@@ -256,7 +256,7 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
                 min={1}
                 max={365}
                 defaultValue={30}
-                className="mt-1 block w-24 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                className="mt-1 block w-24 rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
               />
             </div>
           </>
@@ -264,32 +264,32 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
 
         <button
           type="submit"
-          className="rounded-md bg-[var(--color-primary)] px-4 py-1.5 text-sm font-medium text-[var(--color-primary-contrast)]"
+          className="rounded-control bg-primario px-4 py-1.5 text-menor font-medium text-white"
         >
           Agregar
         </button>
       </Form>
 
       {items.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-[var(--color-border)] p-6 text-center text-sm text-[var(--color-text-muted)]">
+        <p className="rounded-tarjeta border border-dashed border-borde-decorativo p-6 text-center text-menor text-secundario">
           Todavía no cargaste {ETIQUETAS[tipo].toLowerCase()}.
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)]">
+        <ul className="divide-y divide-borde-decorativo rounded-tarjeta border border-borde-decorativo">
           {items.map((item: any) => (
-            <li key={item.id} className="px-4 py-2 text-sm">
+            <li key={item.id} className="px-4 py-2 text-menor">
               <div className="flex items-center justify-between">
                 <span>
                   {item.nombre}
                   {tipo === "tipos_certificado" && !item.requiere_vencimiento && (
-                    <span className="ml-2 text-xs text-[var(--color-text-muted)]">(no vence)</span>
+                    <span className="ml-2 text-auxiliar text-secundario">(no vence)</span>
                   )}
                 </span>
                 <Form method="post">
                   <input type="hidden" name="tipo" value={tipo} />
                   <input type="hidden" name="intent" value="eliminar" />
                   <input type="hidden" name="id" value={item.id} />
-                  <button type="submit" className="text-[var(--color-text-muted)] underline">
+                  <button type="submit" className="text-secundario underline">
                     Eliminar
                   </button>
                 </Form>
@@ -323,20 +323,20 @@ function Obligatoriedad({
       <button
         type="button"
         onClick={() => setAbierto((v) => !v)}
-        className="text-xs text-[var(--color-text-muted)] underline"
+        className="text-auxiliar text-secundario underline"
         aria-expanded={abierto}
       >
         Obligatorio para {marcados.length === 0 ? "ningún puesto" : `${marcados.length} puesto${marcados.length === 1 ? "" : "s"}`}
       </button>
 
       {abierto && (
-        <Form method="post" className="mt-2 rounded-md bg-[var(--color-bg)] p-3">
+        <Form method="post" className="mt-2 rounded-control bg-fondo p-3">
           <input type="hidden" name="tipo" value="tipos_certificado" />
           <input type="hidden" name="intent" value="obligatoriedad" />
           <input type="hidden" name="id" value={item.id} />
           <div className="flex flex-wrap gap-3">
             {puestos.map((p) => (
-              <label key={p.id} className="flex items-center gap-1.5 text-xs">
+              <label key={p.id} className="flex items-center gap-1.5 text-auxiliar">
                 <input
                   type="checkbox"
                   name="puestoObligatorio"
@@ -349,7 +349,7 @@ function Obligatoriedad({
           </div>
           <button
             type="submit"
-            className="mt-3 rounded-md bg-[var(--color-primary)] px-3 py-1 text-xs font-medium text-[var(--color-primary-contrast)]"
+            className="mt-3 rounded-control bg-primario px-3 py-1 text-auxiliar font-medium text-white"
           >
             Guardar
           </button>

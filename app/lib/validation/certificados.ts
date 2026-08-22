@@ -72,15 +72,20 @@ export type EstadoCertificado =
 
 // Ícono + texto además del color: el estado tiene que distinguirse sin
 // depender de ver color (criterio de accesibilidad del módulo 4).
+export type TonoEstado = "error" | "advertencia" | "exito" | "neutro";
+
+// El estado se lleva como un tono con nombre, no como un color: el color sale
+// del sistema de diseño en el componente, y así ningún archivo de lógica
+// escribe un valor visual (05-sistema-de-diseno.md §9).
 export const ESTADO_CERTIFICADO: Record<
   EstadoCertificado,
-  { etiqueta: string; icono: string; color: string; orden: number }
+  { etiqueta: string; tono: TonoEstado; orden: number }
 > = {
-  vencido: { etiqueta: "Vencido", icono: "⨯", color: "var(--color-danger)", orden: 0 },
-  vence_hoy: { etiqueta: "Vence hoy", icono: "!", color: "var(--color-danger)", orden: 1 },
-  por_vencer: { etiqueta: "Por vencer", icono: "!", color: "var(--color-warning)", orden: 2 },
-  vigente: { etiqueta: "Vigente", icono: "✓", color: "var(--color-success)", orden: 3 },
-  sin_vencimiento: { etiqueta: "Sin vencimiento", icono: "∞", color: "var(--color-text-muted)", orden: 4 },
+  vencido: { etiqueta: "Vencido", tono: "error", orden: 0 },
+  vence_hoy: { etiqueta: "Vence hoy", tono: "error", orden: 1 },
+  por_vencer: { etiqueta: "Por vencer", tono: "advertencia", orden: 2 },
+  vigente: { etiqueta: "Vigente", tono: "exito", orden: 3 },
+  sin_vencimiento: { etiqueta: "Sin vencimiento", tono: "neutro", orden: 4 },
 };
 
 // "Vencido hace 3 días" / "Vence en 12 días" / "Vence hoy": el texto explica

@@ -1,30 +1,327 @@
 @import "tailwindcss";
 
-:root {
-  --color-bg: #f7f7f5;
-  --color-surface: #ffffff;
-  --color-border: #e4e4e0;
-  --color-text: #1c1c1a;
-  --color-text-muted: #5c5c57;
-  --color-primary: #1f3a3d;
-  --color-primary-contrast: #ffffff;
-  --color-danger: #a3291d;
-  --color-warning: #92600a;
-  --color-success: #1e5c3a;
-  /* Color de dato para gráficos de una sola serie: la magnitud la lleva el
-     largo de la barra, no el tono. Validado (banda de luminosidad, piso de
-     croma y contraste ≥3:1 contra la superficie) en claro y en oscuro. */
-  --color-dato: #00929e;
-  --color-dato-fondo: #e8f2f3;
+/* =========================================================================
+   SkillBoard — sistema de diseño (05-sistema-de-diseno.md)
+   =========================================================================
+
+   Fuente única de verdad visual. Todo color, tamaño o espacio que no esté
+   acá, no se usa. La regla de ESLint (eslint.config.js) bloquea los valores
+   arbitrarios de Tailwind para que esto se sostenga solo y no dependa de que
+   alguien se acuerde.
+
+   Los contrastes están tomados del documento, donde fueron calculados con la
+   fórmula WCAG 2.1, no estimados a ojo.
+   ========================================================================= */
+
+/* Tipografías propias, no el CDN de Google: no hay llamada a un tercero con
+   la IP del usuario, y como recurso estático no consume cupo de solicitudes.
+   `swap` para que el texto se lea desde el primer cuadro. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/manrope-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/manrope-latin-700-normal.woff2") format("woff2");
 }
 
+@theme {
+  /* --- Marca ------------------------------------------------------------ */
+  --color-primario: #1d4ed8; /* 6,70:1 sobre blanco — AA */
+  --color-primario-oscuro: #1e40af; /* 8,72:1 — AAA */
+  --color-primario-claro: #eff6ff; /* fondo de seleccionado */
+  --color-acento: #0f766e; /* 5,47:1 — AA */
+
+  /* --- Estado ----------------------------------------------------------- */
+  --color-exito: #15803d; /* 5,02:1 */
+  --color-advertencia: #b45309; /* 5,02:1 */
+  --color-error: #b91c1c; /* 6,47:1 */
+  --color-info: #1d4ed8;
+
+  --color-exito-fondo: #f0fdf4;
+  --color-advertencia-fondo: #fffbeb;
+  --color-error-fondo: #fef2f2;
+  --color-info-fondo: #eff6ff;
+
+  /* --- Neutrales -------------------------------------------------------- */
+  --color-texto: #0f172a; /* 17,85:1 */
+  --color-secundario: #475569; /* 7,58:1 */
+
+  /* Borde de controles interactivos: campos, casillas, botones secundarios.
+     WCAG 1.4.11 exige 3:1 y este da 4,76:1. El gris claro habitual (1,23:1)
+     deja un campo prácticamente invisible para quien tiene visión reducida. */
+  --color-borde: #64748b;
+  /* Separadores y líneas de tabla: no comunican nada, pueden ser claros. */
+  --color-borde-decorativo: #e2e8f0;
+
+  --color-fondo: #f8fafc;
+  --color-superficie: #ffffff;
+  --color-deshabilitado: #f1f5f9;
+
+  /* Fondo del modo carrusel: la TV se ve a oscuras en un comedor. */
+  --color-tv-fondo: #0f172a;
+
+  /* --- Series de gráficos ----------------------------------------------- */
+  /* Distinguibles en escala de grises y con las formas más comunes de
+     daltonismo. Nunca rojo y verde como las dos primeras de un gráfico. */
+  --color-serie-1: #1d4ed8;
+  --color-serie-2: #0f766e;
+  --color-serie-3: #b45309;
+  --color-serie-4: #7c3aed;
+  --color-serie-5: #be185d;
+  --color-serie-6: #4d7c0f;
+
+  /* --- Tipografía ------------------------------------------------------- */
+  --font-titulo: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-cuerpo: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Se borra la escala que trae Tailwind por defecto. Si `text-xs` (12 px)
+     sigue existiendo, alguien la va a usar, y el mínimo absoluto es 13: el
+     usuario objetivo puede tener más de 45 años. Nada de 11 px "porque queda
+     prolijo". */
+  --text-*: initial;
+
+  --text-pantalla: 30px;
+  --text-pantalla--line-height: 36px;
+  --text-seccion: 24px;
+  --text-seccion--line-height: 32px;
+  --text-tarjeta: 18px;
+  --text-tarjeta--line-height: 28px;
+  --text-cuerpo: 16px;
+  --text-cuerpo--line-height: 24px;
+  --text-menor: 14px;
+  --text-menor--line-height: 20px;
+  --text-auxiliar: 13px;
+  --text-auxiliar--line-height: 18px;
+
+  /* Cifra protagonista del panel: el índice de cumplimiento es la figura
+     principal de esa pantalla, no un título. Fuera de la escala de texto a
+     propósito, igual que la del carrusel. */
+  --text-figura: 60px;
+  --text-figura--line-height: 60px;
+
+  /* --- Radios ----------------------------------------------------------- */
+  --radius-control: 6px; /* botones, campos, etiquetas */
+  --radius-tarjeta: 10px; /* tarjetas y modales */
+  /* Extremo de las barras de un gráfico: más redondeo que esto y la barra
+     deja de leerse contra su riel. */
+  --radius-dato: 4px;
+
+  /* --- Sombras ---------------------------------------------------------- */
+  /* Dos niveles y ninguno más. Nada de sombras de colores ni resplandores. */
+  --shadow-tarjeta: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-flotante: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+/* El espaciado usa la escala por defecto de Tailwind, que ya es múltiplos de
+   4 px: 1=4 · 2=8 · 3=12 · 4=16 · 6=24 · 8=32 · 12=48 · 16=64 · 24=96. No
+   hace falta redefinirla; sí no usar valores intermedios. */
+
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family:
-    "Manrope",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--font-cuerpo);
+  font-size: var(--text-cuerpo);
+  line-height: var(--text-cuerpo--line-height);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-titulo);
+}
+
+/* Cifras tabulares en todo dato numérico: las columnas de una tabla tienen
+   que alinearse aunque cambien los dígitos. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Indicador de foco visible en todo elemento enfocable. `outline: none` sin
+   reemplazo está prohibido, así que se define una sola vez acá. */
+:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+/* Objetivos táctiles de 44×44 como mínimo en pantallas táctiles. */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a[href],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+}
+
+/* =========================================================================
+   Componentes
+   =========================================================================
+   Los valores exactos del documento viven acá y no en el JSX. Así los
+   componentes de React solo se ocupan de la disposición, y cambiar el alto
+   de todos los botones del producto es editar una línea.
+   ========================================================================= */
+
+@layer components {
+  /* --- Botones ---------------------------------------------------------- */
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: var(--radius-control);
+    font-family: var(--font-cuerpo);
+    font-size: var(--text-menor);
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  @media (pointer: coarse) {
+    .boton {
+      height: 44px;
+    }
+  }
+
+  .boton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* Una sola acción principal por pantalla. */
+  .boton-principal {
+    background: var(--color-primario);
+    color: #ffffff;
+  }
+  .boton-principal:hover:not(:disabled) {
+    background: var(--color-primario-oscuro);
+  }
+
+  .boton-secundario {
+    background: var(--color-superficie);
+    color: var(--color-texto);
+    border-color: var(--color-borde);
+  }
+  .boton-secundario:hover:not(:disabled) {
+    background: var(--color-fondo);
+  }
+
+  .boton-terciario {
+    background: transparent;
+    color: var(--color-primario);
+    padding: 0 8px;
+  }
+  .boton-terciario:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  /* Nunca es el botón principal de una pantalla. */
+  .boton-destructivo {
+    background: var(--color-error);
+    color: #ffffff;
+  }
+
+  /* --- Campos ----------------------------------------------------------- */
+  .campo {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    color: var(--color-texto);
+    font-family: var(--font-cuerpo);
+    font-size: var(--text-menor);
+    line-height: var(--text-menor--line-height);
+  }
+
+  .campo:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px var(--color-primario-claro);
+  }
+
+  .campo[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+
+  .campo:disabled {
+    background: var(--color-deshabilitado);
+    cursor: not-allowed;
+  }
+
+  /* Zona de ayuda o error debajo de un campo. Reserva su alto aunque esté
+     vacía, para que el formulario no salte al validar. */
+  .pie-campo {
+    min-height: var(--text-auxiliar--line-height);
+  }
+
+  /* --- Tarjetas --------------------------------------------------------- */
+  .tarjeta {
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde-decorativo);
+    border-radius: var(--radius-tarjeta);
+    box-shadow: var(--shadow-tarjeta);
+  }
+
+  /* --- Enlace de salto -------------------------------------------------- */
+  /* Primer elemento enfocable de la aplicación. Invisible hasta que alguien
+     llega con el tabulador, y ahí sí bien visible. */
+  .saltar {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    z-index: 50;
+  }
+  .saltar:focus {
+    left: 8px;
+    padding: 8px 16px;
+    background: var(--color-superficie);
+    border: 1px solid var(--color-primario);
+    border-radius: var(--radius-control);
+  }
+}
+
+/* Quien prefiere menos movimiento no debería recibir el fundido del
+   carrusel ni ninguna otra transición. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

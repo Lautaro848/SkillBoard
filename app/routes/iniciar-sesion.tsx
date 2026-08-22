@@ -44,17 +44,17 @@ export default function IniciarSesion({ actionData }: Route.ComponentProps) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <h1 className="text-2xl font-semibold text-[var(--color-text)]">Iniciar sesión</h1>
+      <h1 className="text-seccion font-semibold text-texto">Iniciar sesión</h1>
 
       {actionData?.errors?._form && (
-        <p className="mt-4 rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-sm text-[var(--color-danger)]">
+        <p className="mt-4 rounded-control border border-error/30 bg-error/5 p-3 text-menor text-error">
           {actionData.errors._form[0]}
         </p>
       )}
 
       <Form method="post" className="mt-6 flex flex-col gap-4" noValidate>
         <div>
-          <label className="text-sm font-medium text-[var(--color-text)]" htmlFor="email">
+          <label className="text-menor font-medium text-texto" htmlFor="email">
             Email
           </label>
           <input
@@ -63,11 +63,11 @@ export default function IniciarSesion({ actionData }: Route.ComponentProps) {
             type="email"
             required
             defaultValue={values?.email}
-            className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-[var(--color-text)]" htmlFor="password">
+          <label className="text-menor font-medium text-texto" htmlFor="password">
             Contraseña
           </label>
           <input
@@ -75,24 +75,24 @@ export default function IniciarSesion({ actionData }: Route.ComponentProps) {
             name="password"
             type="password"
             required
-            className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
           />
         </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="mt-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] disabled:opacity-60"
+          className="mt-2 rounded-control bg-primario px-4 py-2 text-menor font-medium text-white disabled:opacity-60"
         >
           {submitting ? "Ingresando..." : "Ingresar"}
         </button>
       </Form>
 
-      <p className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
-        ¿No tenés cuenta? <Link to="/registro" className="text-[var(--color-primary)] underline">Registrate</Link>
+      <p className="mt-6 text-center text-menor text-secundario">
+        ¿No tenés cuenta? <Link to="/registro" className="text-primario underline">Registrate</Link>
       </p>
 
-      <footer className="mt-12 text-center text-xs text-[var(--color-text-muted)]">
+      <footer className="mt-12 text-center text-auxiliar text-secundario">
         SkillBoard · v0.1 (Fase 0) ·{" "}
         <a href="mailto:soporte@skillboard.app" className="underline">
           soporte@skillboard.app

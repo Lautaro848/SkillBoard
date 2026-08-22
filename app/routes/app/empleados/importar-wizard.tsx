@@ -74,7 +74,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
     // El payload es JSON plano en tiempo de ejecución; el cast evita que TS
     // exija una firma de índice explícita en DatosEmpleadoResueltos solo
     // para satisfacer el tipo JsonValue de fetcher.submit.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     fetcher.submit({ filas: validas } as any, {
       method: "post" as const,
       encType: "application/json" as const,
@@ -88,46 +88,46 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
 
   return (
     <div className="flex flex-col gap-6">
-      <ol className="flex gap-4 text-sm text-[var(--color-text-muted)]">
+      <ol className="flex gap-4 text-menor text-secundario">
         {(["subir", "mapear", "previsualizar", "resultado"] as Paso[]).map((p, i) => (
-          <li key={p} className={p === paso ? "font-medium text-[var(--color-primary)]" : ""}>
+          <li key={p} className={p === paso ? "font-medium text-primario" : ""}>
             {i + 1}. {{ subir: "Subir", mapear: "Mapear columnas", previsualizar: "Previsualizar", resultado: "Resultado" }[p]}
           </li>
         ))}
       </ol>
 
       {paso === "subir" && (
-        <div className="flex flex-col gap-4 rounded-lg border border-[var(--color-border)] p-6">
-          <p className="text-sm text-[var(--color-text-muted)]">
+        <div className="flex flex-col gap-4 rounded-tarjeta border border-borde-decorativo p-6">
+          <p className="text-menor text-secundario">
             Subí un archivo .xlsx o .csv con tus empleados. Si no tenés uno armado, descargá la plantilla con las
             columnas correctas y una fila de ejemplo.
           </p>
-          <button type="button" onClick={descargarPlantilla} className="w-fit rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+          <button type="button" onClick={descargarPlantilla} className="w-fit rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
             Descargar plantilla
           </button>
           <div>
-            <input type="file" accept=".xlsx,.csv" onChange={onArchivo} disabled={leyendo} className="text-sm" />
-            {leyendo && <p className="mt-1 text-sm text-[var(--color-text-muted)]">Leyendo archivo...</p>}
-            {errorLectura && <p className="mt-1 text-sm text-[var(--color-danger)]">{errorLectura}</p>}
+            <input type="file" accept=".xlsx,.csv" onChange={onArchivo} disabled={leyendo} className="text-menor" />
+            {leyendo && <p className="mt-1 text-menor text-secundario">Leyendo archivo...</p>}
+            {errorLectura && <p className="mt-1 text-menor text-error">{errorLectura}</p>}
           </div>
         </div>
       )}
 
       {paso === "mapear" && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-[var(--color-text-muted)]">
+          <p className="text-menor text-secundario">
             Detectamos estas columnas en tu archivo. Corregí la correspondencia donde haga falta.
           </p>
           <div className="grid grid-cols-2 gap-3">
             {COLUMNAS.map((c) => (
               <div key={c.clave}>
-                <label className="text-sm font-medium">
+                <label className="text-menor font-medium">
                   {c.etiqueta} {c.requerido && "*"}
                 </label>
                 <select
                   value={mapeo[c.clave] ?? ""}
                   onChange={(e) => setMapeo((m) => ({ ...m, [c.clave]: e.target.value || null }))}
-                  className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
                 >
                   <option value="">No importar</option>
                   {encabezados.map((h) => (
@@ -140,19 +140,19 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
             ))}
           </div>
           {columnasFaltantes.length > 0 && (
-            <p className="text-sm text-[var(--color-danger)]">
+            <p className="text-menor text-error">
               Falta mapear: {columnasFaltantes.map((c) => c.etiqueta).join(", ")}.
             </p>
           )}
           <div className="flex gap-3">
-            <button type="button" onClick={() => setPaso("subir")} className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+            <button type="button" onClick={() => setPaso("subir")} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
               Volver
             </button>
             <button
               type="button"
               disabled={columnasFaltantes.length > 0}
               onClick={continuarAPrevisualizacion}
-              className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] disabled:opacity-50"
+              className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white disabled:opacity-50"
             >
               Previsualizar
             </button>
@@ -162,14 +162,14 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
 
       {paso === "previsualizar" && (
         <div className="flex flex-col gap-4">
-          <p className="text-sm font-medium text-[var(--color-text)]">
+          <p className="text-menor font-medium text-texto">
             {listas} fila{listas === 1 ? "" : "s"} lista{listas === 1 ? "" : "s"} para importar, {conError} con errores
             {filas.length > 50 && ` (mostrando las primeras 50 de ${filas.length})`}.
           </p>
 
-          <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
-            <table className="w-full text-sm">
-              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface)] text-left text-xs uppercase text-[var(--color-text-muted)]">
+          <div className="overflow-x-auto rounded-tarjeta border border-borde-decorativo">
+            <table className="w-full text-menor">
+              <thead className="border-b border-borde-decorativo bg-superficie text-left text-auxiliar uppercase text-secundario">
                 <tr>
                   <th className="px-3 py-2">Fila</th>
                   {COLUMNAS.map((c) => (
@@ -181,13 +181,13 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
               </thead>
               <tbody>
                 {filas.slice(0, 50).map((f) => (
-                  <tr key={f.fila} className={f.empresaListaParaImportar ? "" : "bg-[var(--color-danger)]/5"}>
+                  <tr key={f.fila} className={f.empresaListaParaImportar ? "" : "bg-error/5"}>
                     <td className="px-3 py-2 align-top">{f.fila}</td>
                     {COLUMNAS.map((c) => (
                       <td key={c.clave} className="px-3 py-2 align-top">
                         {f.valores[c.clave] || "—"}
                         {f.erroresPorCampo[c.clave] && (
-                          <p className="mt-0.5 text-xs text-[var(--color-danger)]">{f.erroresPorCampo[c.clave]}</p>
+                          <p className="mt-0.5 text-auxiliar text-error">{f.erroresPorCampo[c.clave]}</p>
                         )}
                       </td>
                     ))}
@@ -197,7 +197,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
             </table>
           </div>
           {filas.some((f) => f.erroresGenerales.length > 0) && (
-            <ul className="text-xs text-[var(--color-danger)]">
+            <ul className="text-auxiliar text-error">
               {filas
                 .filter((f) => f.erroresGenerales.length > 0)
                 .map((f) => (
@@ -209,11 +209,11 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
           )}
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => setPaso("mapear")} className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+            <button type="button" onClick={() => setPaso("mapear")} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
               Volver
             </button>
             {conError > 0 && (
-              <button type="button" onClick={() => descargarReporteErrores(filas)} className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+              <button type="button" onClick={() => descargarReporteErrores(filas)} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
                 Descargar reporte de errores
               </button>
             )}
@@ -221,7 +221,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
               type="button"
               disabled={listas === 0}
               onClick={importar}
-              className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] disabled:opacity-50"
+              className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white disabled:opacity-50"
             >
               Importar {listas} fila{listas === 1 ? "" : "s"} válida{listas === 1 ? "" : "s"}
             </button>
@@ -230,17 +230,17 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
       )}
 
       {paso === "resultado" && (
-        <div className="flex flex-col gap-4 rounded-lg border border-[var(--color-border)] p-6">
+        <div className="flex flex-col gap-4 rounded-tarjeta border border-borde-decorativo p-6">
           {fetcher.state !== "idle" ? (
-            <p className="text-sm text-[var(--color-text-muted)]">Importando, no cierres esta pantalla...</p>
+            <p className="text-menor text-secundario">Importando, no cierres esta pantalla...</p>
           ) : fetcher.data ? (
             <>
-              <p className="text-sm text-[var(--color-text)]">
+              <p className="text-menor text-texto">
                 Se crearon <strong>{fetcher.data.creados}</strong> empleados.
                 {fetcher.data.fallidos.length > 0 && ` ${fetcher.data.fallidos.length} filas se rechazaron.`}
               </p>
               {fetcher.data.fallidos.length > 0 && (
-                <ul className="text-xs text-[var(--color-danger)]">
+                <ul className="text-auxiliar text-error">
                   {fetcher.data.fallidos.map((f) => (
                     <li key={f.fila}>
                       Fila {f.fila}: {f.motivo}
@@ -248,7 +248,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
                   ))}
                 </ul>
               )}
-              <Link to="/empleados" className="w-fit rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]">
+              <Link to="/empleados" className="w-fit rounded-control bg-primario px-4 py-2 text-menor font-medium text-white">
                 Ver empleados
               </Link>
             </>

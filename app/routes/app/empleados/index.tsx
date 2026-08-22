@@ -199,31 +199,31 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[var(--color-text)]">Empleados</h1>
+        <h1 className="text-seccion font-semibold text-texto">Empleados</h1>
         <div className="flex gap-2">
-          <Link to="/empleados/importar" className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+          <Link to="/empleados/importar" className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
             Importar planilla
           </Link>
-          <Link to="/empleados/nuevo" className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]">
+          <Link to="/empleados/nuevo" className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white">
             Nuevo empleado
           </Link>
         </div>
       </div>
 
       <Form method="get" className="flex flex-wrap items-end gap-3">
-        <div className="min-w-[220px] flex-1">
-          <label className="text-sm font-medium" htmlFor="q">
+        <div className="min-w-56 flex-1">
+          <label className="text-menor font-medium" htmlFor="q">
             Buscar
           </label>
-          <input id="q" name="q" defaultValue={filtros.q} placeholder="Nombre, apellido o ID interno" className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm" />
+          <input id="q" name="q" defaultValue={filtros.q} placeholder="Nombre, apellido o ID interno" className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor" />
         </div>
         <FiltroSelect label="Puesto" name="puesto" valor={filtros.puesto} opciones={puestos} />
         <FiltroSelect label="Departamento" name="departamento" valor={filtros.departamento} opciones={departamentos} />
         <div>
-          <label className="text-sm font-medium" htmlFor="estado">
+          <label className="text-menor font-medium" htmlFor="estado">
             Estado
           </label>
-          <select id="estado" name="estado" defaultValue={filtros.estado} className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm">
+          <select id="estado" name="estado" defaultValue={filtros.estado} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
             <option value="">Todos</option>
             {Object.entries(ETIQUETAS_ESTADO).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
@@ -231,10 +231,10 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium" htmlFor="antiguedad">
+          <label className="text-menor font-medium" htmlFor="antiguedad">
             Antigüedad
           </label>
-          <select id="antiguedad" name="antiguedad" defaultValue={filtros.antiguedad} className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm">
+          <select id="antiguedad" name="antiguedad" defaultValue={filtros.antiguedad} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
             <option value="">Todas</option>
             {Object.entries(ETIQUETAS_ANTIGUEDAD).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
@@ -242,17 +242,17 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium" htmlFor="certificados">
+          <label className="text-menor font-medium" htmlFor="certificados">
             Certificados
           </label>
-          <select id="certificados" name="certificados" defaultValue={filtros.certificados} className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm">
+          <select id="certificados" name="certificados" defaultValue={filtros.certificados} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
             <option value="">Todos</option>
             {Object.entries(ETIQUETAS_CERTIFICADOS).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
             ))}
           </select>
         </div>
-        <button type="submit" className="rounded-md border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium">
+        <button type="submit" className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium">
           Filtrar
         </button>
       </Form>
@@ -260,7 +260,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
       {chips.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {chips.map((c) => (
-            <a key={c.clave} href={quitarFiltro(c.clave)} className="flex items-center gap-1 rounded-full border border-[var(--color-border)] px-3 py-1 text-xs">
+            <a key={c.clave} href={quitarFiltro(c.clave)} className="flex items-center gap-1 rounded-full border border-borde-decorativo px-3 py-1 text-auxiliar">
               {c.texto} <span aria-hidden>×</span>
             </a>
           ))}
@@ -277,15 +277,15 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
       )}
 
       {empleados.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-[var(--color-border)] p-8 text-center text-sm text-[var(--color-text-muted)]">
+        <p className="rounded-tarjeta border border-dashed border-borde-decorativo p-8 text-center text-menor text-secundario">
           {total === 0 && chips.length === 0 && !filtros.q
             ? "Todavía no cargaste empleados. Podés sumarlos de a uno o importar una planilla."
             : "Ningún empleado coincide con los filtros aplicados."}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
-          <table className="w-full text-sm">
-            <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface)] text-left text-xs uppercase text-[var(--color-text-muted)]">
+        <div className="overflow-x-auto rounded-tarjeta border border-borde-decorativo">
+          <table className="w-full text-menor">
+            <thead className="border-b border-borde-decorativo bg-superficie text-left text-auxiliar uppercase text-secundario">
               <tr>
                 <th className="px-4 py-2">
                   <input type="checkbox" checked={seleccion.size > 0 && seleccion.size === empleados.length} onChange={alternarTodos} aria-label="Seleccionar todos" />
@@ -302,7 +302,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody>
               {empleados.map((e: any) => (
-                <tr key={e.id} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-bg)]">
+                <tr key={e.id} className="border-b border-borde-decorativo last:border-0 hover:bg-fondo">
                   <td className="px-4 py-2">
                     <input type="checkbox" checked={seleccion.has(e.id)} onChange={() => alternarSeleccion(e.id)} aria-label={`Seleccionar a ${e.nombre} ${e.apellido}`} />
                   </td>
@@ -310,7 +310,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
                     <Avatar nombre={e.nombre} apellido={e.apellido} idInterno={e.id_interno} fotoUrl={e.fotoUrlFirmada} size={32} />
                   </td>
                   <td className="px-4 py-2">
-                    <Link to={`/empleados/${e.id}`} className="font-medium text-[var(--color-primary)]">
+                    <Link to={`/empleados/${e.id}`} className="font-medium text-primario">
                       {e.apellido}, {e.nombre}
                     </Link>
                   </td>
@@ -328,7 +328,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
       )}
 
       {total > 0 && (
-        <div className="flex items-center justify-between text-sm text-[var(--color-text-muted)]">
+        <div className="flex items-center justify-between text-menor text-secundario">
           <span>{total} empleados</span>
           <div className="flex items-center gap-2">
             {filtros.pagina > 1 && (
@@ -395,7 +395,7 @@ function BarraAcciones({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm">
+    <div className="flex flex-wrap items-center gap-3 rounded-tarjeta border border-borde-decorativo bg-superficie p-3 text-menor">
       <span className="font-medium">{seleccionados.length} seleccionados</span>
 
       {!confirmando ? (
@@ -406,7 +406,7 @@ function BarraAcciones({
               setAccion(e.target.value as AccionLote);
               setValor("");
             }}
-            className="rounded-md border border-[var(--color-border)] px-2 py-1"
+            className="rounded-control border border-borde-decorativo px-2 py-1"
           >
             <option value="">Elegir acción...</option>
             <option value="departamento">Cambiar departamento</option>
@@ -415,7 +415,7 @@ function BarraAcciones({
           </select>
 
           {accion === "departamento" && (
-            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-md border border-[var(--color-border)] px-2 py-1">
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-control border border-borde-decorativo px-2 py-1">
               <option value="">Elegir...</option>
               {departamentos.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -425,7 +425,7 @@ function BarraAcciones({
             </select>
           )}
           {accion === "estado" && (
-            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-md border border-[var(--color-border)] px-2 py-1">
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-control border border-borde-decorativo px-2 py-1">
               <option value="">Elegir...</option>
               {Object.entries(ETIQUETAS_ESTADO).map(([v, t]) => (
                 <option key={v} value={v}>
@@ -442,7 +442,7 @@ function BarraAcciones({
                 const { exportarEmpleados } = await import("~/lib/exportar-empleados.client");
                 exportarEmpleados(seleccionados, puestos, departamentos);
               }}
-              className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)]"
+              className="rounded-control bg-primario px-3 py-1 font-medium text-white"
             >
               Descargar
             </button>
@@ -451,7 +451,7 @@ function BarraAcciones({
               type="button"
               disabled={!accion || !valor}
               onClick={() => setConfirmando(true)}
-              className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)] disabled:opacity-50"
+              className="rounded-control bg-primario px-3 py-1 font-medium text-white disabled:opacity-50"
             >
               Continuar
             </button>
@@ -463,16 +463,16 @@ function BarraAcciones({
             Vas a cambiar el {accion === "departamento" ? "departamento" : "estado"} de {seleccionados.length} empleados a{" "}
             <strong>{nombreValor}</strong>.
           </span>
-          <button type="button" onClick={() => setConfirmando(false)} className="rounded-md px-3 py-1">
+          <button type="button" onClick={() => setConfirmando(false)} className="rounded-control px-3 py-1">
             Cancelar
           </button>
-          <button type="button" onClick={aplicar} disabled={fetcher.state !== "idle"} className="rounded-md bg-[var(--color-primary)] px-3 py-1 font-medium text-[var(--color-primary-contrast)]">
+          <button type="button" onClick={aplicar} disabled={fetcher.state !== "idle"} className="rounded-control bg-primario px-3 py-1 font-medium text-white">
             Confirmar
           </button>
         </>
       )}
 
-      <button type="button" onClick={onTerminar} className="ml-auto text-[var(--color-text-muted)] underline">
+      <button type="button" onClick={onTerminar} className="ml-auto text-secundario underline">
         Cancelar selección
       </button>
     </div>
@@ -482,10 +482,10 @@ function BarraAcciones({
 function FiltroSelect({ label, name, valor, opciones }: { label: string; name: string; valor: string; opciones: { id: string; nombre: string }[] }) {
   return (
     <div>
-      <label className="text-sm font-medium" htmlFor={name}>
+      <label className="text-menor font-medium" htmlFor={name}>
         {label}
       </label>
-      <select id={name} name={name} defaultValue={valor} className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm">
+      <select id={name} name={name} defaultValue={valor} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
         <option value="">Todos</option>
         {opciones.map((o) => (
           <option key={o.id} value={o.id}>

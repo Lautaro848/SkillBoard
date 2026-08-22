@@ -71,15 +71,15 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-[var(--color-text)]">Certificados</h1>
-        <p className="text-sm text-[var(--color-text-muted)]">
+        <h1 className="text-seccion font-semibold text-texto">Certificados</h1>
+        <p className="text-menor text-secundario">
           Qué está vencido, qué está por vencer y qué falta cargar.
         </p>
       </div>
 
       <Form method="get" className="flex flex-wrap items-end gap-3">
-        <div className="min-w-[200px] flex-1">
-          <label className="text-sm font-medium" htmlFor="q">
+        <div className="min-w-48 flex-1">
+          <label className="text-menor font-medium" htmlFor="q">
             Empleado
           </label>
           <input
@@ -87,31 +87,31 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
             name="q"
             defaultValue={filtros.q}
             placeholder="Nombre o ID interno"
-            className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+            className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
           />
         </div>
         <Selector label="Tipo" name="tipo" valor={filtros.tipo} opciones={tipos} />
         <Selector label="Departamento" name="departamento" valor={filtros.departamento} opciones={departamentos} />
         <Selector label="Puesto" name="puesto" valor={filtros.puesto} opciones={puestos} />
-        <button type="submit" className="rounded-md border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium">
+        <button type="submit" className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium">
           Filtrar
         </button>
         {hayFiltros && (
-          <a href="/certificados" className="py-1.5 text-sm text-[var(--color-text-muted)] underline">
+          <a href="/certificados" className="py-1.5 text-menor text-secundario underline">
             Limpiar
           </a>
         )}
       </Form>
 
       {!hayAlgunCertificado && faltantes.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[var(--color-border)] p-8 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">
+        <div className="rounded-tarjeta border border-dashed border-borde-decorativo p-8 text-center">
+          <p className="text-menor text-secundario">
             Todavía no cargaste certificados. Se cargan desde el perfil de cada empleado, en la pestaña
             Certificados.
           </p>
           <Link
             to="/empleados"
-            className="mt-4 inline-block rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="mt-4 inline-block rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
           >
             Ir a Empleados
           </Link>
@@ -154,21 +154,21 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
               {faltantes.map((f) => (
                 <li
                   key={`${f.empleadoId}-${f.tipoId}`}
-                  className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 last:border-0"
+                  className="flex flex-wrap items-center justify-between gap-2 border-b border-borde-decorativo px-4 py-3 last:border-0"
                 >
                   <div>
-                    <Link to={`/empleados/${f.empleadoId}`} className="text-sm font-medium text-[var(--color-primary)]">
+                    <Link to={`/empleados/${f.empleadoId}`} className="text-menor font-medium text-primario">
                       {f.empleadoNombre}
                     </Link>
-                    <p className="text-xs text-[var(--color-text-muted)]">
+                    <p className="text-auxiliar text-secundario">
                       {f.empleadoIdInterno} · {f.puestoNombre}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm">{f.tipoNombre}</span>
+                    <span className="text-menor">{f.tipoNombre}</span>
                     <Link
                       to={`/empleados/${f.empleadoId}/certificados/nuevo`}
-                      className="rounded-md border border-[var(--color-border)] px-3 py-1 text-xs font-medium"
+                      className="rounded-control border border-borde-decorativo px-3 py-1 text-auxiliar font-medium"
                     >
                       Cargar
                     </Link>
@@ -179,22 +179,22 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
           )}
 
           {/* Plegado por defecto: lo que está bien no necesita ocupar pantalla. */}
-          <div className="rounded-lg border border-[var(--color-border)]">
+          <div className="rounded-tarjeta border border-borde-decorativo">
             <button
               type="button"
               onClick={() => setVigentesAbierto((v) => !v)}
               className="flex w-full items-center justify-between px-4 py-3 text-left"
               aria-expanded={vigentesAbierto}
             >
-              <span className="font-medium text-[var(--color-text)]">Vigentes ({vigentes.length})</span>
-              <span aria-hidden className="text-[var(--color-text-muted)]">
+              <span className="font-medium text-texto">Vigentes ({vigentes.length})</span>
+              <span aria-hidden className="text-secundario">
                 {vigentesAbierto ? "−" : "+"}
               </span>
             </button>
             {vigentesAbierto && (
-              <ul className="border-t border-[var(--color-border)]">
+              <ul className="border-t border-borde-decorativo">
                 {vigentes.length === 0 ? (
-                  <li className="px-4 py-3 text-sm text-[var(--color-text-muted)]">Ninguno.</li>
+                  <li className="px-4 py-3 text-menor text-secundario">Ninguno.</li>
                 ) : (
                   vigentes.map((c) => <FilaCertificado key={c.id} c={c} />)
                 )}
@@ -225,20 +225,20 @@ function Bloque({
   descripcion?: string;
   children: React.ReactNode;
 }) {
-  const color = tono === "danger" ? "var(--color-danger)" : "var(--color-warning)";
+  const color = tono === "danger" ? "var(--color-error)" : "var(--color-advertencia)";
   return (
-    <section id={id} className="scroll-mt-6 rounded-lg border border-[var(--color-border)]">
+    <section id={id} className="scroll-mt-6 rounded-tarjeta border border-borde-decorativo">
       <header
-        className="flex flex-col gap-0.5 border-b border-[var(--color-border)] px-4 py-3"
+        className="flex flex-col gap-0.5 border-b border-borde-decorativo px-4 py-3"
         style={{ borderLeft: `3px solid ${color}` }}
       >
         <h2 className="font-medium" style={{ color }}>
           {titulo} ({cantidad})
         </h2>
-        {descripcion && <p className="text-xs text-[var(--color-text-muted)]">{descripcion}</p>}
+        {descripcion && <p className="text-auxiliar text-secundario">{descripcion}</p>}
       </header>
       {cantidad === 0 ? (
-        <p className="px-4 py-3 text-sm text-[var(--color-text-muted)]">{vacio}</p>
+        <p className="px-4 py-3 text-menor text-secundario">{vacio}</p>
       ) : (
         <ul>{children}</ul>
       )}
@@ -248,12 +248,12 @@ function Bloque({
 
 function FilaCertificado({ c }: { c: CertificadoConEmpleado }) {
   return (
-    <li className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 last:border-0">
+    <li className="flex flex-wrap items-center justify-between gap-2 border-b border-borde-decorativo px-4 py-3 last:border-0">
       <div>
-        <Link to={`/empleados/${c.empleado_id}?tab=certificados`} className="text-sm font-medium text-[var(--color-primary)]">
+        <Link to={`/empleados/${c.empleado_id}?tab=certificados`} className="text-menor font-medium text-primario">
           {c.empleadoNombre}
         </Link>
-        <p className="text-xs text-[var(--color-text-muted)]">
+        <p className="text-auxiliar text-secundario">
           {c.empleadoIdInterno} · {c.tipoNombre}
           {c.numero && ` · N.° ${c.numero}`}
         </p>
@@ -276,14 +276,14 @@ function Selector({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium" htmlFor={name}>
+      <label className="text-menor font-medium" htmlFor={name}>
         {label}
       </label>
       <select
         id={name}
         name={name}
         defaultValue={valor}
-        className="mt-1 block rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+        className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
       >
         <option value="">Todos</option>
         {opciones.map((o) => (

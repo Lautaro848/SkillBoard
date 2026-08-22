@@ -140,22 +140,22 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
 
   if (!hayEmpleados) {
     return (
-      <div className="rounded-lg border border-dashed border-[var(--color-border)] p-8 text-center">
-        <h1 className="text-lg font-semibold text-[var(--color-text)]">Todavía no cargaste empleados</h1>
-        <p className="mx-auto mt-1 max-w-md text-sm text-[var(--color-text-muted)]">
+      <div className="rounded-tarjeta border border-dashed border-borde-decorativo p-8 text-center">
+        <h1 className="text-tarjeta font-semibold text-texto">Todavía no cargaste empleados</h1>
+        <p className="mx-auto mt-1 max-w-md text-menor text-secundario">
           El panel se arma con lo que cargues: mientras no haya gente, no hay nada real que mostrar acá.
           Podés sumarlos de a uno o importar una planilla.
         </p>
         <div className="mt-4 flex justify-center gap-2">
           <Link
             to="/empleados/nuevo"
-            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
           >
             Cargar el primer empleado
           </Link>
           <Link
             to="/empleados/importar"
-            className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium"
           >
             Importar planilla
           </Link>
@@ -168,20 +168,20 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text)]">Panel</h1>
-          <p className="text-sm text-[var(--color-text-muted)] first-letter:uppercase">{etiquetaPeriodo}</p>
+          <h1 className="text-seccion font-semibold text-texto">Panel</h1>
+          <p className="text-menor text-secundario first-letter:uppercase">{etiquetaPeriodo}</p>
         </div>
         {/* Los filtros van en una sola fila arriba de los gráficos. */}
         <Form method="get" className="flex items-end gap-2">
           <div>
-            <label className="text-xs font-medium text-[var(--color-text-muted)]" htmlFor="periodo">
+            <label className="text-auxiliar font-medium text-secundario" htmlFor="periodo">
               Período
             </label>
             <select
               id="periodo"
               name="periodo"
               defaultValue={periodo}
-              className="mt-1 block rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm"
+              className="mt-1 block rounded-control border border-borde-decorativo bg-superficie px-3 py-1.5 text-menor"
             >
               {Object.entries(ETIQUETAS_PERIODO).map(([clave, etiqueta]) => (
                 <option key={clave} value={clave}>
@@ -192,7 +192,7 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
           </div>
           <button
             type="submit"
-            className="rounded-md border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium"
           >
             Aplicar
           </button>
@@ -238,10 +238,10 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
           hayObjetivos={objetivos.length > 0}
         />
 
-        <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text)]">Empleados activos por departamento</h2>
+        <section className="rounded-tarjeta border border-borde-decorativo bg-superficie p-5">
+          <h2 className="text-menor font-semibold text-texto">Empleados activos por departamento</h2>
           {distribucion.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--color-text-muted)]">
+            <p className="mt-3 text-menor text-secundario">
               No hay empleados activos para distribuir.
             </p>
           ) : (
@@ -253,14 +253,14 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
       </div>
 
       {objetivos.length > 0 && (
-        <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+        <section className="rounded-tarjeta border border-borde-decorativo bg-superficie p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-sm font-semibold text-[var(--color-text)]">Objetivos del período</h2>
-            <Link to="/objetivos" className="text-sm text-[var(--color-primary)] underline">
+            <h2 className="text-menor font-semibold text-texto">Objetivos del período</h2>
+            <Link to="/objetivos" className="text-menor text-primario underline">
               Ver todos
             </Link>
           </div>
-          <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+          <p className="mt-1 text-auxiliar text-secundario">
             Ordenados por lo que más atrasado está respecto del ritmo esperado. 100 es ir al ritmo previsto; la
             marca vertical en cada barra es dónde debería estar hoy.
           </p>
@@ -276,9 +276,9 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
 }
 
 const TONOS = {
-  neutro: "var(--color-text)",
-  warning: "var(--color-warning)",
-  danger: "var(--color-danger)",
+  neutro: "var(--color-texto)",
+  warning: "var(--color-advertencia)",
+  danger: "var(--color-error)",
 } as const;
 
 function Tarjeta({
@@ -297,13 +297,13 @@ function Tarjeta({
   return (
     <Link
       to={to}
-      className="block rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--color-primary)]"
+      className="block rounded-tarjeta border border-borde-decorativo bg-superficie p-4 hover:border-primario"
     >
-      <p className="text-sm text-[var(--color-text-muted)]">{titulo}</p>
-      <p className="mt-1 text-3xl font-semibold tabular-nums" style={{ color: TONOS[tono] }}>
+      <p className="text-menor text-secundario">{titulo}</p>
+      <p className="mt-1 text-pantalla font-semibold tabular-nums" style={{ color: TONOS[tono] }}>
         {valor}
       </p>
-      <p className="mt-1 text-xs text-[var(--color-text-muted)]">{detalle}</p>
+      <p className="mt-1 text-auxiliar text-secundario">{detalle}</p>
     </Link>
   );
 }
@@ -325,16 +325,16 @@ function Indice({
   // ni un gráfico de ejemplo: se explica qué falta para que exista.
   if (indice === null) {
     return (
-      <section className="rounded-lg border border-dashed border-[var(--color-border)] p-5">
-        <h2 className="text-sm font-semibold text-[var(--color-text)]">Índice de cumplimiento</h2>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+      <section className="rounded-tarjeta border border-dashed border-borde-decorativo p-5">
+        <h2 className="text-menor font-semibold text-texto">Índice de cumplimiento</h2>
+        <p className="mt-2 text-menor text-secundario">
           {hayObjetivos
             ? "Hay objetivos cargados en este período, pero ninguno tiene mediciones todavía. El índice aparece cuando cargues el primer valor."
             : "Todavía no hay objetivos en este período. El índice compara lo que la empresa se propuso contra el ritmo al que va, así que necesita al menos un objetivo con mediciones."}
         </p>
         <Link
           to="/objetivos"
-          className="mt-4 inline-block rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+          className="mt-4 inline-block rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
         >
           {hayObjetivos ? "Cargar una medición" : "Crear un objetivo"}
         </Link>
@@ -342,26 +342,26 @@ function Indice({
     );
   }
 
-  const color = indice >= 90 ? "var(--color-success)" : indice >= 60 ? "var(--color-warning)" : "var(--color-danger)";
+  const color = indice >= 90 ? "var(--color-exito)" : indice >= 60 ? "var(--color-advertencia)" : "var(--color-error)";
   const estado = indice >= 90 ? "Al ritmo previsto" : indice >= 60 ? "Algo por debajo del ritmo" : "Por debajo del ritmo";
   const FLECHAS = { sube: "↑", baja: "↓", igual: "=", sin_dato: "" } as const;
 
   return (
-    <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-      <h2 className="text-sm font-semibold text-[var(--color-text)]">Índice de cumplimiento</h2>
+    <section className="rounded-tarjeta border border-borde-decorativo bg-superficie p-5">
+      <h2 className="text-menor font-semibold text-texto">Índice de cumplimiento</h2>
       {/* Figura protagonista: el número es el gráfico. Sin "/100": el índice
           puede pasarse de 100 cuando se va adelantado, así que esa escala
           mentiría. Qué significa 100 lo explica el pie de la tarjeta. */}
       <p className="mt-3">
-        <span className="text-6xl font-semibold tabular-nums leading-none" style={{ color }}>
+        <span className="text-figura font-semibold tabular-nums leading-none" style={{ color }}>
           {indice}
         </span>
       </p>
-      <p className="mt-2 text-sm font-medium" style={{ color }}>
+      <p className="mt-2 text-menor font-medium" style={{ color }}>
         {estado}
       </p>
       {/* La flecha nunca va sola: siempre con el texto que dice cuánto cambió. */}
-      <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+      <p className="mt-1 text-menor text-secundario">
         {comparacion.direccion !== "sin_dato" && (
           <span aria-hidden className="mr-1">
             {FLECHAS[comparacion.direccion]}
@@ -370,7 +370,7 @@ function Indice({
         {comparacion.texto}
         {comparacion.direccion !== "sin_dato" && ` (${etiquetaAnterior})`}
       </p>
-      <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs text-[var(--color-text-muted)]">
+      <p className="mt-3 border-t border-borde-decorativo pt-3 text-auxiliar text-secundario">
         Promedio ponderado de {medibles} {medibles === 1 ? "objetivo medido" : "objetivos medidos"}. Compara el
         avance real contra el que correspondería al tiempo transcurrido: 100 es ir exactamente al ritmo previsto y
         se puede pasar de 100 si se va adelantado (se topea en 125). Los objetivos sin mediciones quedan fuera en
@@ -384,46 +384,46 @@ function FilaObjetivo({ o }: { o: ObjetivoCalculado }) {
   const pct = o.cumplimiento;
   const color =
     pct === null
-      ? "var(--color-text-muted)"
+      ? "var(--color-secundario)"
       : pct >= 90
-        ? "var(--color-success)"
+        ? "var(--color-exito)"
         : pct >= 60
-          ? "var(--color-warning)"
-          : "var(--color-danger)";
+          ? "var(--color-advertencia)"
+          : "var(--color-error)";
   // El color nunca lleva solo el significado: siempre va con la etiqueta.
   const estado = pct === null ? "Sin medir" : pct >= 90 ? "Al día" : pct >= 60 ? "Atrasado" : "Muy atrasado";
 
   return (
     <li>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-sm font-medium text-[var(--color-text)]">{o.nombre}</span>
-        <span className="text-sm" style={{ color }}>
+        <span className="text-menor font-medium text-texto">{o.nombre}</span>
+        <span className="text-menor" style={{ color }}>
           {estado}
           {pct !== null && <span className="ml-2 tabular-nums font-semibold">{Math.round(pct)}</span>}
         </span>
       </div>
       {/* Barra doble: lo avanzado y, encima, la marca de dónde debería ir hoy. */}
       <div
-        className="relative mt-2 h-4 rounded-[4px] bg-[var(--color-dato-fondo)]"
+        className="relative mt-2 h-4 rounded-dato bg-borde-decorativo"
         title={`${o.nombre}: ${formatearValor(o.valorInicial, o.unidad)} → ${
           o.valorActual !== null ? formatearValor(o.valorActual, o.unidad) : "sin medir"
         } → ${formatearValor(o.valorObjetivo, o.unidad)}. Debería ir por el ${Math.round(o.avanceEsperado * 100)}%.`}
       >
         <div
-          className="absolute inset-y-0 left-0 rounded-r-[4px]"
+          className="absolute inset-y-0 left-0 rounded-r-dato"
           style={{ width: `${Math.min(Math.max(o.avanceReal, 0), 1) * 100}%`, backgroundColor: color }}
         />
         {/* Anillo de 2px contra la superficie para que la marca se lea encima. */}
         <div
-          className="absolute inset-y-[-3px] w-0.5 bg-[var(--color-text)] ring-2 ring-[var(--color-surface)]"
+          className="absolute -inset-y-1 w-0.5 bg-texto ring-2 ring-superficie"
           style={{ left: `${o.avanceEsperado * 100}%` }}
         />
       </div>
-      <p className="mt-1 flex flex-wrap justify-between gap-2 text-xs text-[var(--color-text-muted)]">
+      <p className="mt-1 flex flex-wrap justify-between gap-2 text-auxiliar text-secundario">
         <span>
           {formatearValor(o.valorInicial, o.unidad)} →{" "}
           {o.valorActual !== null ? (
-            <strong className="font-medium text-[var(--color-text)]">
+            <strong className="font-medium text-texto">
               {formatearValor(o.valorActual, o.unidad)}
             </strong>
           ) : (

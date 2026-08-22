@@ -128,7 +128,7 @@ export default function NuevoEmpleado({ loaderData, actionData }: Route.Componen
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-[var(--color-text)]">Nuevo empleado</h1>
+        <h1 className="text-seccion font-semibold text-texto">Nuevo empleado</h1>
       </div>
       <EmpleadoForm
         puestos={loaderData.puestos}

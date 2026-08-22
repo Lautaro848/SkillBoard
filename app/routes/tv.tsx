@@ -34,9 +34,9 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
 // con menús y enlaces: muestra un cartel legible desde lejos y nada más.
 export function ErrorBoundary() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[#0e1a1c] px-8 text-center text-white">
-      <h1 className="text-4xl font-bold">Este carrusel no está disponible</h1>
-      <p className="mt-4 max-w-xl text-xl opacity-70">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-tv-fondo px-8 text-center text-white">
+      <h1 className="text-pantalla font-bold">Este carrusel no está disponible</h1>
+      <p className="mt-4 max-w-xl text-seccion opacity-70">
         El enlace puede haber sido rotado o el carrusel apagado desde la configuración. Pedí el enlace nuevo a
         quien administra SkillBoard.
       </p>
@@ -129,7 +129,7 @@ export default function TV({ loaderData, params }: Route.ComponentProps) {
 
   return (
     <main
-      className="flex h-screen w-screen flex-col overflow-hidden bg-[#0e1a1c] text-white"
+      className="flex h-screen w-screen flex-col overflow-hidden bg-tv-fondo text-white"
       // Sin cursor: la TV no tiene mouse y una flecha quieta en el medio de
       // la pantalla se ve como un error.
       style={{ cursor: "none" }}
@@ -137,11 +137,11 @@ export default function TV({ loaderData, params }: Route.ComponentProps) {
       <header className="flex shrink-0 items-center justify-between px-12 pt-10">
         <div className="flex items-center gap-5">
           {datos.carrusel.logoUrl && <img src={datos.carrusel.logoUrl} alt="" className="h-14 w-auto" />}
-          <p className="text-2xl font-medium opacity-80">{datos.carrusel.empresa}</p>
+          <p className="text-seccion font-medium opacity-80">{datos.carrusel.empresa}</p>
         </div>
         <div className="flex items-center gap-6">
           {estado === "sin_conexion" && (
-            <p className="text-lg opacity-50">Sin conexión · mostrando los últimos datos</p>
+            <p className="text-tarjeta opacity-50">Sin conexión · mostrando los últimos datos</p>
           )}
           <Puntos total={empleados.length} actual={indice} />
         </div>
@@ -149,7 +149,7 @@ export default function TV({ loaderData, params }: Route.ComponentProps) {
 
       <div className="flex flex-1 items-center justify-center">
         {empleados.length === 0 ? (
-          <p className="px-12 text-center text-4xl opacity-70">
+          <p className="px-12 text-center text-pantalla opacity-70">
             Este carrusel no tiene empleados que mostrar. Revisá los filtros en la configuración.
           </p>
         ) : (
@@ -178,7 +178,7 @@ function Puntos({ total, actual }: { total: number; actual: number }) {
   if (total <= 1) return null;
   if (total > 20) {
     return (
-      <p className="text-lg tabular-nums opacity-50">
+      <p className="text-tarjeta tabular-nums opacity-50">
         {actual + 1} de {total}
       </p>
     );
@@ -188,8 +188,7 @@ function Puntos({ total, actual }: { total: number; actual: number }) {
       {Array.from({ length: total }, (_, i) => (
         <li
           key={i}
-          className="h-2.5 w-2.5 rounded-full"
-          style={{ backgroundColor: i === actual ? "#ffffff" : "rgba(255,255,255,0.25)" }}
+          className={`h-2.5 w-2.5 rounded-full ${i === actual ? "bg-white" : "bg-white/25"}`}
         />
       ))}
     </ul>

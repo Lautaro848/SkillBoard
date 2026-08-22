@@ -6,21 +6,21 @@ import { Link } from "react-router";
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-3xl font-semibold text-[var(--color-text)]">SkillBoard</h1>
-      <p className="text-[var(--color-text-muted)]">
+      <h1 className="text-pantalla font-semibold text-texto">SkillBoard</h1>
+      <p className="text-secundario">
         Sabé quién sabe hacer qué, no te quedes sin habilitaciones vencidas, y repartí el
         trabajo del día con criterio.
       </p>
       <div className="mt-2 flex gap-3">
         <Link
           to="/registro"
-          className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+          className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
         >
           Crear cuenta
         </Link>
         <Link
           to="/iniciar-sesion"
-          className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)]"
+          className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium text-texto"
         >
           Iniciar sesión
         </Link>

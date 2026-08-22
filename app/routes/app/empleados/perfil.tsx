@@ -117,39 +117,39 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <nav className="text-sm text-[var(--color-text-muted)]">
+      <nav className="text-menor text-secundario">
         <Link to="/empleados" className="underline">
           Empleados
         </Link>{" "}
         › {empleado.nombre} {empleado.apellido}
       </nav>
 
-      <div className="flex items-center gap-4 rounded-lg border border-[var(--color-border)] p-4">
+      <div className="flex items-center gap-4 rounded-tarjeta border border-borde-decorativo p-4">
         <Avatar nombre={empleado.nombre} apellido={empleado.apellido} idInterno={empleado.id_interno} fotoUrl={fotoUrlFirmada} size={64} />
         <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text)]">
+          <h1 className="text-seccion font-semibold text-texto">
             {empleado.nombre} {empleado.apellido}
           </h1>
-          <p className="text-sm text-[var(--color-text-muted)]">
+          <p className="text-menor text-secundario">
             {empleado.puestos?.nombre ?? "Sin puesto"} · {empleado.departamentos?.nombre ?? "Sin departamento"} · {empleado.id_interno} ·{" "}
             {antiguedad(empleado.fecha_ingreso)} · {ETIQUETAS_ESTADO[empleado.estado]}
           </p>
         </div>
-        <Link to={`/empleados/${empleado.id}/editar`} className="ml-auto rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium">
+        <Link to={`/empleados/${empleado.id}/editar`} className="ml-auto rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
           Editar
         </Link>
         <BotonEliminar nombreCompleto={`${empleado.nombre} ${empleado.apellido}`} />
       </div>
 
-      <nav className="flex gap-1 border-b border-[var(--color-border)]">
+      <nav className="flex gap-1 border-b border-borde-decorativo">
         {PESTANIAS.map((p) => (
           <a
             key={p}
             href={`?tab=${p}`}
-            className={`px-3 py-2 text-sm ${
+            className={`px-3 py-2 text-menor ${
               p === pestania
-                ? "border-b-2 border-[var(--color-primary)] font-medium text-[var(--color-primary)]"
-                : "text-[var(--color-text-muted)]"
+                ? "border-b-2 border-primario font-medium text-primario"
+                : "text-secundario"
             }`}
           >
             {ETIQUETAS_TAB[p]}
@@ -158,7 +158,7 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
       </nav>
 
       {pestania === "datos" && (
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-2 gap-4 text-menor">
           <Dato label="Email" valor={empleado.email ?? "—"} />
           <Dato label="Teléfono" valor={empleado.telefono ?? "—"} />
           <Dato label="Fecha de nacimiento" valor={formatearFecha(empleado.fecha_nacimiento)} />
@@ -174,22 +174,22 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
           ) : (
             <ul className="flex flex-col gap-3">
               {aptitudes.map((a: any, i: number) => (
-                <li key={i} className="rounded-lg border border-[var(--color-border)] p-3">
-                  <div className="flex items-center justify-between text-sm">
+                <li key={i} className="rounded-tarjeta border border-borde-decorativo p-3">
+                  <div className="flex items-center justify-between text-menor">
                     <span className="font-medium">{a.aptitudes?.nombre}</span>
-                    <span className="text-[var(--color-text-muted)]">{NIVEL_ETIQUETAS[a.nivel]}</span>
+                    <span className="text-secundario">{NIVEL_ETIQUETAS[a.nivel]}</span>
                   </div>
                   <div className="mt-2 flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <span
                         key={n}
                         className="h-1.5 flex-1 rounded-full"
-                        style={{ backgroundColor: n <= a.nivel ? "var(--color-primary)" : "var(--color-border)" }}
+                        style={{ backgroundColor: n <= a.nivel ? "var(--color-primario)" : "var(--color-borde-decorativo)" }}
                       />
                     ))}
                   </div>
                   {a.perfiles && (
-                    <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                    <p className="mt-1 text-auxiliar text-secundario">
                       Validado por {a.perfiles.nombre} {a.perfiles.apellido} el {formatearFecha(a.validado_en)}
                     </p>
                   )}
@@ -204,7 +204,7 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
         <div className="flex flex-col gap-3">
           <Link
             to={`/empleados/${empleado.id}/certificados/nuevo`}
-            className="w-fit rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="w-fit rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
           >
             Cargar certificado
           </Link>
@@ -216,17 +216,17 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
               {certificados.map((c: any) => (
                 <li
                   key={c.id}
-                  className={`rounded-lg border p-3 ${
+                  className={`rounded-tarjeta border p-3 ${
                     c.estado === "vencido" || c.estado === "vence_hoy"
-                      ? "border-[var(--color-danger)]/40 bg-[var(--color-danger)]/5"
-                      : "border-[var(--color-border)]"
+                      ? "border-error/40 bg-error/5"
+                      : "border-borde-decorativo"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-sm font-medium">{c.tipos_certificado?.nombre}</span>
+                    <span className="text-menor font-medium">{c.tipos_certificado?.nombre}</span>
                     <EstadoCert estado={c.estado} diasRestantes={c.dias_restantes} />
                   </div>
-                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  <p className="mt-1 text-auxiliar text-secundario">
                     N.° {c.numero ?? "—"}
                     {c.entidad_emisora && ` · ${c.entidad_emisora}`} · Emitido {formatearFecha(c.fecha_emision)}
                     {c.fecha_vencimiento && ` · Vence ${formatearFecha(c.fecha_vencimiento)}`}
@@ -237,7 +237,7 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
                         href={c.archivoUrlFirmada}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-[var(--color-primary)] underline"
+                        className="text-auxiliar text-primario underline"
                       >
                         Ver archivo
                       </a>
@@ -245,7 +245,7 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
                     <fetcher.Form method="post">
                       <input type="hidden" name="intent" value="borrar-certificado" />
                       <input type="hidden" name="certificadoId" value={c.id} />
-                      <button type="submit" className="text-xs text-[var(--color-text-muted)] underline">
+                      <button type="submit" className="text-auxiliar text-secundario underline">
                         Eliminar
                       </button>
                     </fetcher.Form>
@@ -266,9 +266,9 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
           {auditoria.length === 0 ? (
             <EstadoVacio texto="Sin actividad registrada todavía." />
           ) : (
-            <ul className="flex flex-col gap-2 text-sm">
+            <ul className="flex flex-col gap-2 text-menor">
               {auditoria.map((a: any, i: number) => (
-                <li key={i} className="rounded-md border border-[var(--color-border)] px-3 py-2">
+                <li key={i} className="rounded-control border border-borde-decorativo px-3 py-2">
                   <span className="font-medium">{a.accion}</span> por {a.perfiles ? `${a.perfiles.nombre} ${a.perfiles.apellido}` : "sistema"} ·{" "}
                   {formatearFecha(a.creado_en)}
                 </li>
@@ -284,14 +284,14 @@ export default function PerfilEmpleado({ loaderData }: Route.ComponentProps) {
 function Dato({ label, valor }: { label: string; valor: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase text-[var(--color-text-muted)]">{label}</dt>
+      <dt className="text-auxiliar uppercase text-secundario">{label}</dt>
       <dd className="mt-0.5">{valor}</dd>
     </div>
   );
 }
 
 function EstadoVacio({ texto }: { texto: string }) {
-  return <p className="rounded-lg border border-dashed border-[var(--color-border)] p-6 text-center text-sm text-[var(--color-text-muted)]">{texto}</p>;
+  return <p className="rounded-tarjeta border border-dashed border-borde-decorativo p-6 text-center text-menor text-secundario">{texto}</p>;
 }
 
 function formatearFecha(fecha: string): string {
@@ -309,7 +309,7 @@ function BotonEliminar({ nombreCompleto }: { nombreCompleto: string }) {
 
   if (!abierto) {
     return (
-      <button type="button" onClick={() => setAbierto(true)} className="rounded-md border border-[var(--color-danger)]/40 px-4 py-2 text-sm font-medium text-[var(--color-danger)]">
+      <button type="button" onClick={() => setAbierto(true)} className="rounded-control border border-error/40 px-4 py-2 text-menor font-medium text-error">
         Eliminar
       </button>
     );
@@ -317,26 +317,26 @@ function BotonEliminar({ nombreCompleto }: { nombreCompleto: string }) {
 
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-lg bg-[var(--color-surface)] p-5">
-        <h2 className="font-semibold text-[var(--color-text)]">Eliminar empleado</h2>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+      <div className="w-full max-w-sm rounded-tarjeta bg-superficie p-5">
+        <h2 className="font-semibold text-texto">Eliminar empleado</h2>
+        <p className="mt-2 text-menor text-secundario">
           Escribí <strong>{nombreCompleto}</strong> para confirmar. Sus certificados e historial se conservan para auditoría.
         </p>
         <input
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          className="mt-3 w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+          className="mt-3 w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
           autoFocus
         />
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" onClick={() => setAbierto(false)} className="rounded-md px-3 py-1.5 text-sm">
+          <button type="button" onClick={() => setAbierto(false)} className="rounded-control px-3 py-1.5 text-menor">
             Cancelar
           </button>
           <fetcher.Form method="post">
             <button
               type="submit"
               disabled={!coincide || fetcher.state !== "idle"}
-              className="rounded-md bg-[var(--color-danger)] px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded-control bg-error px-3 py-1.5 text-menor font-medium text-white disabled:opacity-50"
             >
               Eliminar
             </button>

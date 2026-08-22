@@ -97,7 +97,7 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
 
   return (
     <div className="flex flex-col gap-6">
-      <nav className="text-sm text-[var(--color-text-muted)]">
+      <nav className="text-menor text-secundario">
         <Link to="/empleados" className="underline">
           Empleados
         </Link>{" "}
@@ -108,34 +108,34 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
         › Nuevo certificado
       </nav>
 
-      <h1 className="text-xl font-semibold text-[var(--color-text)]">
+      <h1 className="text-seccion font-semibold text-texto">
         Cargar certificado de {empleado.nombre} {empleado.apellido}
       </h1>
 
       {tipos.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[var(--color-border)] p-6 text-center text-sm text-[var(--color-text-muted)]">
+        <div className="rounded-tarjeta border border-dashed border-borde-decorativo p-6 text-center text-menor text-secundario">
           <p>Todavía no hay tipos de certificado cargados.</p>
           <Link
             to="/configuracion/catalogos?tipo=tipos_certificado"
-            className="mt-3 inline-block rounded-md bg-[var(--color-primary)] px-4 py-2 font-medium text-[var(--color-primary-contrast)]"
+            className="mt-3 inline-block rounded-control bg-primario px-4 py-2 font-medium text-white"
           >
             Crear el primero
           </Link>
         </div>
       ) : (
         <Form method="post" encType="multipart/form-data" className="flex max-w-lg flex-col gap-4" noValidate>
-          <p className="text-xs text-[var(--color-text-muted)]">
+          <p className="text-auxiliar text-secundario">
             Los campos marcados con <span aria-hidden>*</span> son obligatorios.
           </p>
 
           {errores?._form && (
-            <p className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-sm text-[var(--color-danger)]">
+            <p className="rounded-control border border-error/30 bg-error/5 p-3 text-menor text-error">
               {errores._form[0]}
             </p>
           )}
 
           <div>
-            <label className="text-sm font-medium" htmlFor="tipoId">
+            <label className="text-menor font-medium" htmlFor="tipoId">
               Tipo de certificado *
             </label>
             <select
@@ -144,7 +144,7 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
               required
               value={tipoId}
               onChange={(e) => setTipoId(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
             >
               <option value="">Elegir...</option>
               {tipos.map((t: { id: string; nombre: string }) => (
@@ -153,7 +153,7 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
                 </option>
               ))}
             </select>
-            {errores?.tipoId && <p className="mt-1 text-xs text-[var(--color-danger)]">{errores.tipoId[0]}</p>}
+            {errores?.tipoId && <p className="mt-1 text-auxiliar text-error">{errores.tipoId[0]}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -187,13 +187,13 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
           </div>
 
           {tipoElegido && pideVencimiento && (
-            <p className="-mt-2 text-xs text-[var(--color-text-muted)]">
+            <p className="-mt-2 text-auxiliar text-secundario">
               Se va a avisar {tipoElegido.dias_alerta} días antes del vencimiento.
             </p>
           )}
 
           <div>
-            <label className="text-sm font-medium" htmlFor="archivo">
+            <label className="text-menor font-medium" htmlFor="archivo">
               Archivo adjunto
             </label>
             <input
@@ -201,23 +201,23 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
               name="archivo"
               type="file"
               accept="application/pdf,image/jpeg,image/png"
-              className="mt-1 block w-full text-sm"
+              className="mt-1 block w-full text-menor"
             />
-            <p className="mt-1 text-xs text-[var(--color-text-muted)]">PDF, JPG o PNG. Máximo 10 MB.</p>
-            {errores?.archivo && <p className="mt-1 text-xs text-[var(--color-danger)]">{errores.archivo[0]}</p>}
+            <p className="mt-1 text-auxiliar text-secundario">PDF, JPG o PNG. Máximo 10 MB.</p>
+            {errores?.archivo && <p className="mt-1 text-auxiliar text-error">{errores.archivo[0]}</p>}
           </div>
 
           <div className="flex gap-3">
             <button
               type="submit"
               disabled={enviando}
-              className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)] disabled:opacity-60"
+              className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white disabled:opacity-60"
             >
               {enviando ? "Guardando..." : "Guardar certificado"}
             </button>
             <Link
               to={`/empleados/${empleado.id}?tab=certificados`}
-              className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium"
+              className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium"
             >
               Cancelar
             </Link>
@@ -245,7 +245,7 @@ function Campo({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium" htmlFor={name}>
+      <label className="text-menor font-medium" htmlFor={name}>
         {label} {required && "*"}
       </label>
       <input
@@ -254,9 +254,9 @@ function Campo({
         type={type}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
       />
-      {errores?.[0] && <p className="mt-1 text-xs text-[var(--color-danger)]">{errores[0]}</p>}
+      {errores?.[0] && <p className="mt-1 text-auxiliar text-error">{errores[0]}</p>}
     </div>
   );
 }
