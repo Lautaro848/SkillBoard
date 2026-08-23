@@ -27,7 +27,9 @@ const MENSAJE_PALETA =
   "que tienen el contraste calculado con la fórmula WCAG.";
 
 export default tseslint.config(
-  { ignores: ["build/**", "node_modules/**", ".react-router/**", "public/**"] },
+  // Los *.tmp.* son andamios de un rato (medición, capturas) y no forman
+  // parte de la aplicación.
+  { ignores: ["build/**", "node_modules/**", ".react-router/**", "public/**", "**/*.tmp.*"] },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,

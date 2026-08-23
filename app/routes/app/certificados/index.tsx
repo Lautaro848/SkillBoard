@@ -77,8 +77,9 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
         </p>
       </div>
 
-      <Form method="get" className="flex flex-wrap items-end gap-3">
-        <div className="min-w-48 flex-1">
+      {/* Apilados en celular, en fila desde tablet. */}
+      <Form method="get" className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
+        <div className="lg:min-w-48 lg:flex-1">
           <label className="text-menor font-medium" htmlFor="q">
             Empleado
           </label>
@@ -87,13 +88,13 @@ export default function Certificados({ loaderData }: Route.ComponentProps) {
             name="q"
             defaultValue={filtros.q}
             placeholder="Nombre o ID interno"
-            className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+            className="campo mt-1"
           />
         </div>
         <Selector label="Tipo" name="tipo" valor={filtros.tipo} opciones={tipos} />
         <Selector label="Departamento" name="departamento" valor={filtros.departamento} opciones={departamentos} />
         <Selector label="Puesto" name="puesto" valor={filtros.puesto} opciones={puestos} />
-        <button type="submit" className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium">
+        <button type="submit" className="boton boton-secundario">
           Filtrar
         </button>
         {hayFiltros && (
@@ -283,7 +284,7 @@ function Selector({
         id={name}
         name={name}
         defaultValue={valor}
-        className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+        className="campo mt-1"
       >
         <option value="">Todos</option>
         {opciones.map((o) => (
