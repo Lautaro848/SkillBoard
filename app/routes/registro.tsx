@@ -1,7 +1,11 @@
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useState } from "react";
 import { createSupabaseServerClient } from "~/lib/supabase.server";
-import { checkPasswordStrength, registroSchema } from "~/lib/validation/auth";
+import { registroSchema } from "~/lib/validation/auth";
+// Solo las reglas, sin el diccionario de contraseñas comunes: ese módulo pesa
+// 488 KB y no tiene por qué bajarlo el navegador. El servidor hace la
+// comprobación completa al enviar.
+import { revisarReglas } from "~/lib/validation/contrasena";
 import type { Route } from "./+types/registro";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
@@ -56,7 +60,7 @@ export default function Registro({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
   const [password, setPassword] = useState("");
-  const strength = checkPasswordStrength(password);
+  const reglas = revisarReglas(password);
   const values = actionData?.values as Record<string, string> | undefined;
 
   return (
@@ -95,19 +99,19 @@ export default function Registro({ actionData }: Route.ComponentProps) {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
+            className="campo mt-1"
           />
           {password.length > 0 && (
             <ul className="mt-1.5 flex flex-col gap-0.5 text-auxiliar">
-              {strength.ok ? (
-                <li className="text-exito">Contraseña segura.</li>
-              ) : (
-                strength.reasons.map((reason) => (
-                  <li key={reason} className="text-secundario">
-                    · {reason}
-                  </li>
-                ))
-              )}
+              {reglas.faltantes.map((requisito) => (
+                <li key={requisito} className="text-secundario">
+                  · {requisito}
+                </li>
+              ))}
+              {/* El servidor evalúa estas mismas reglas y nada más, así que
+                  si acá está todo bien, al enviar no aparece un requisito
+                  nuevo que no se había avisado. */}
+              {reglas.ok && <li className="text-secundario">· Cumple los requisitos</li>}
             </ul>
           )}
           {actionData?.errors?.password && (
