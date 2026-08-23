@@ -10,7 +10,7 @@ import { justificacionPorPlantilla } from "~/lib/tukson/plantilla";
 import { proveedorConfigurado } from "~/lib/tukson/proveedor";
 import { ORDEN_PRIORIDAD, type Prioridad } from "~/lib/tukson/tipos";
 import { Boton, BotonEnviar } from "~/components/ui/boton";
-import { AreaTexto, Campo, Selector } from "~/components/ui/campo";
+import { AreaTexto, Campo, CampoFecha, Selector } from "~/components/ui/campo";
 import { Aviso, EstadoVacio } from "~/components/ui/estados";
 import type { Route } from "./+types/index";
 
@@ -38,13 +38,42 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       .maybeSingle(),
   ]);
 
-  const { data: tareas } = lote
-    ? await supabase.from("tareas").select("*").eq("lote_id", lote.id).order("creado_en")
-    : { data: [] };
+  const [{ data: tareas }, { data: asignaciones }, { data: empleados }, { data: reglasPendientes }] =
+    await Promise.all([
+      lote
+        ? supabase.from("tareas").select("*").eq("lote_id", lote.id).order("creado_en")
+        : Promise.resolve({ data: [] }),
+      lote
+        ? supabase
+            .from("asignaciones")
+            .select("id, tarea_id, empleado_id, score, desglose, justificacion, origen")
+            .eq("lote_id", lote.id)
+        : Promise.resolve({ data: [] }),
+      supabase
+        .from("empleados")
+        .select("id, nombre, apellido")
+        .eq("empresa_id", empresaId)
+        .is("eliminado_en", null)
+        .eq("estado", "activo")
+        .order("apellido"),
+      // Reglas propuestas a partir de una corrección y todavía sin decidir.
+      // Nada se activa sin que un administrador las apruebe.
+      supabase
+        .from("reglas_empresa")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .eq("origen", "derivada")
+        .eq("activa", false)
+        .is("confirmada_por", null)
+        .order("creada_en", { ascending: false }),
+    ]);
 
   return {
     lote,
     tareas: tareas ?? [],
+    asignaciones: asignaciones ?? [],
+    empleados: empleados ?? [],
+    reglasPendientes: reglasPendientes ?? [],
     aptitudes: [...catalogos.aptitudes].map(([id, nombre]) => ({ id, nombre })),
     tiposCertificado: [...catalogos.tiposCertificado].map(([id, nombre]) => ({ id, nombre })),
     departamentos: [...catalogos.departamentos].map(([id, nombre]) => ({ id, nombre })),
@@ -227,6 +256,115 @@ export async function action({ request, context }: Route.ActionArgs) {
     return { ok: true };
   }
 
+  // --- Paso 7: corrección y regla candidata --------------------------------
+  if (intent === "corregir") {
+    const asignacionId = String(formData.get("asignacionId"));
+    const nuevoEmpleadoId = String(formData.get("empleadoId") ?? "");
+    const motivo = String(formData.get("motivo") ?? "").trim();
+
+    // El motivo es obligatorio. Sin él la corrección no enseña nada y el
+    // sistema no mejora con el uso, que es todo el punto del paso 7.
+    if (motivo.length < 10) {
+      return {
+        errores: {
+          _form: ["Contanos el motivo del cambio, aunque sea en una frase. Es lo que permite que Tukson lo tenga en cuenta la próxima vez."],
+        } as Errores,
+      };
+    }
+    if (!nuevoEmpleadoId) {
+      return { errores: { _form: ["Elegí a quién le asignás la tarea."] } as Errores };
+    }
+
+    const { data: anterior } = await supabase
+      .from("asignaciones")
+      .select("empleado_id")
+      .eq("id", asignacionId)
+      .eq("empresa_id", empresaId)
+      .single();
+
+    await supabase
+      .from("asignaciones")
+      .update({ empleado_id: nuevoEmpleadoId, origen: "manual", justificacion: motivo })
+      .eq("id", asignacionId)
+      .eq("empresa_id", empresaId);
+
+    // La regla se propone con las palabras de la persona, tal cual las
+    // escribió. Sin modelo conectado no se puede inferir el alcance ni la
+    // vigencia, así que se los pedimos en el momento de aprobarla en vez de
+    // inventarlos.
+    const { data: empleado } = await supabase
+      .from("empleados")
+      .select("nombre, apellido")
+      .eq("id", anterior?.empleado_id ?? "")
+      .maybeSingle();
+
+    const quien = empleado ? `${empleado.nombre} ${empleado.apellido}` : "Este empleado";
+
+    const { data: regla } = await supabase
+      .from("reglas_empresa")
+      .insert({
+        empresa_id: empresaId,
+        tipo: "exclusion",
+        enunciado: `${quien}: ${motivo}`,
+        condiciones: { empleadoId: anterior?.empleado_id ?? null },
+        peso: -10,
+        origen: "derivada",
+        // Nunca activa al crearse. La aprueba una persona o no existe.
+        activa: false,
+      })
+      .select("id")
+      .single();
+
+    await supabase.from("correcciones_tukson").insert({
+      empresa_id: empresaId,
+      asignacion_id: asignacionId,
+      empleado_anterior_id: anterior?.empleado_id ?? null,
+      empleado_nuevo_id: nuevoEmpleadoId,
+      motivo,
+      regla_generada_id: regla?.id ?? null,
+      creado_por: userId,
+    });
+
+    return { ok: true, mensaje: "Se cambió la asignación." };
+  }
+
+  if (intent === "aprobar-regla") {
+    const vigencia = String(formData.get("vigenciaHasta") ?? "").trim();
+    const id = String(formData.get("reglaId"));
+
+    const { data: actual } = await supabase
+      .from("reglas_empresa")
+      .select("condiciones")
+      .eq("id", id)
+      .eq("empresa_id", empresaId)
+      .single();
+
+    await supabase
+      .from("reglas_empresa")
+      .update({
+        activa: true,
+        confirmada_por: userId,
+        condiciones: { ...(actual?.condiciones ?? {}), ...(vigencia ? { vigenciaHasta: vigencia } : {}) },
+      })
+      .eq("id", id)
+      .eq("empresa_id", empresaId);
+
+    return { ok: true, mensaje: "Regla activada. La podés editar o desactivar en Configuración › Reglas de Tukson." };
+  }
+
+  if (intent === "descartar-regla") {
+    // "Esta vez no, fue un caso puntual" es tan importante como aprobar: si
+    // cada corrección se volviera regla permanente, el sistema se degradaría
+    // con el uso, que es lo contrario de lo que se busca.
+    await supabase
+      .from("reglas_empresa")
+      .delete()
+      .eq("id", String(formData.get("reglaId")))
+      .eq("empresa_id", empresaId);
+
+    return { ok: true, mensaje: "Se tomó como un caso puntual. No se creó ninguna regla." };
+  }
+
   // --- Paso 4: confirmación ------------------------------------------------
   if (intent === "confirmar") {
     await supabase
@@ -248,7 +386,8 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function Tukson({ loaderData, actionData }: Route.ComponentProps) {
-  const { lote, tareas, aptitudes, tiposCertificado, departamentos, conModelo } = loaderData;
+  const { lote, tareas, asignaciones, empleados, reglasPendientes, aptitudes, tiposCertificado, departamentos, conModelo } =
+    loaderData;
   const navegacion = useNavigation();
   const errores = actionData?.errores;
   const mensaje = actionData && "mensaje" in actionData ? actionData.mensaje : undefined;
@@ -296,7 +435,19 @@ export default function Tukson({ loaderData, actionData }: Route.ComponentProps)
         />
       )}
 
-      {paso === 3 && lote && <Propuesta loteId={lote.id} resumen={lote.resumen} />}
+      {reglasPendientes.map((r) => (
+        <ReglaPropuesta key={r.id} regla={r} />
+      ))}
+
+      {paso === 3 && lote && (
+        <Propuesta
+          loteId={lote.id}
+          resumen={lote.resumen}
+          asignaciones={asignaciones}
+          tareas={tareas}
+          empleados={empleados}
+        />
+      )}
     </div>
   );
 }
@@ -592,12 +743,62 @@ function Grupo({
   );
 }
 
-function Propuesta({ loteId, resumen }: { loteId: string; resumen: string | null }) {
+interface FilaAsignacion {
+  id: string;
+  tarea_id: string;
+  empleado_id: string;
+  score: number | null;
+  desglose: DesgloseGuardado | null;
+  justificacion: string | null;
+  origen: string;
+}
+
+interface DesgloseGuardado {
+  aptitudes: number;
+  nivel: number;
+  historial: number;
+  disponibilidad: number;
+  departamento: number;
+  reglas: number;
+  total: number;
+}
+
+function Propuesta({
+  loteId,
+  resumen,
+  asignaciones,
+  tareas,
+  empleados,
+}: {
+  loteId: string;
+  resumen: string | null;
+  asignaciones: FilaAsignacion[];
+  tareas: FilaTarea[];
+  empleados: { id: string; nombre: string; apellido: string }[];
+}) {
   const datos = resumen ? (JSON.parse(resumen) as ResumenGuardado) : null;
+  const tareaPorId = new Map(tareas.map((t) => [t.id, t]));
+  const empleadoPorId = new Map(empleados.map((e) => [e.id, `${e.nombre} ${e.apellido}`]));
 
   return (
     <div className="flex flex-col gap-6">
       {datos && <ResumenReparto datos={datos} />}
+
+      {asignaciones.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-tarjeta font-semibold text-texto">Propuesta</h2>
+          {asignaciones.map((a) => (
+            <FilaPropuesta
+              key={a.id}
+              asignacion={a}
+              titulo={tareaPorId.get(a.tarea_id)?.titulo ?? "Tarea"}
+              nombreEmpleado={empleadoPorId.get(a.empleado_id) ?? "—"}
+              empleados={empleados}
+              loteId={loteId}
+            />
+          ))}
+        </section>
+      )}
 
       {datos && datos.sinCandidatos.length > 0 && (
         <section className="flex flex-col gap-3">
@@ -627,6 +828,147 @@ function Propuesta({ loteId, resumen }: { loteId: string; resumen: string | null
         </Form>
       </div>
     </div>
+  );
+}
+
+const COMPONENTES: { clave: keyof DesgloseGuardado; etiqueta: string; tope: number }[] = [
+  { clave: "aptitudes", etiqueta: "Coincidencia de aptitudes", tope: 40 },
+  { clave: "nivel", etiqueta: "Nivel en esas aptitudes", tope: 20 },
+  { clave: "historial", etiqueta: "Historial en tareas similares", tope: 15 },
+  { clave: "disponibilidad", etiqueta: "Disponibilidad del día", tope: 15 },
+  { clave: "departamento", etiqueta: "Afinidad de departamento", tope: 10 },
+  { clave: "reglas", etiqueta: "Reglas de la empresa", tope: 10 },
+];
+
+function FilaPropuesta({
+  asignacion,
+  titulo,
+  nombreEmpleado,
+  empleados,
+  loteId,
+}: {
+  asignacion: FilaAsignacion;
+  titulo: string;
+  nombreEmpleado: string;
+  empleados: { id: string; nombre: string; apellido: string }[];
+  loteId: string;
+}) {
+  const [cambiando, setCambiando] = useState(false);
+
+  return (
+    <article className="tarjeta p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-cuerpo font-medium text-texto">{titulo}</p>
+          <p className="mt-1 text-menor text-texto">
+            <span className="text-secundario">Asignada a</span> {nombreEmpleado}
+            {asignacion.score !== null && (
+              <span className="ml-2 tabular text-secundario">{Math.round(asignacion.score)} pts</span>
+            )}
+          </p>
+          {asignacion.justificacion && (
+            <p className="mt-2 text-menor text-secundario">{asignacion.justificacion}</p>
+          )}
+        </div>
+        <Boton variante="secundario" type="button" onClick={() => setCambiando((v) => !v)}>
+          {cambiando ? "Cancelar" : "Cambiar"}
+        </Boton>
+      </div>
+
+      {/* "¿Por qué él?" se responde con el desglose numérico con el que se
+          decidió, no con una opinión. */}
+      {asignacion.desglose && (
+        <details className="mt-4">
+          <summary className="cursor-pointer text-menor text-primario">Ver el puntaje</summary>
+          <table className="mt-3 w-full text-menor">
+            <tbody>
+              {COMPONENTES.map((c) => (
+                <tr key={c.clave} className="border-b border-borde-decorativo last:border-0">
+                  <td className="py-3 text-secundario">{c.etiqueta}</td>
+                  <td className="py-3 text-right tabular text-texto">
+                    {asignacion.desglose![c.clave]} <span className="text-secundario">/ {c.tope}</span>
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td className="py-3 font-semibold text-texto">Total</td>
+                <td className="py-3 text-right font-semibold tabular text-texto">
+                  {asignacion.desglose.total} <span className="font-normal text-secundario">/ 100</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      )}
+
+      {cambiando && (
+        <Form method="post" className="mt-4 border-t border-borde-decorativo pt-4">
+          <input type="hidden" name="intent" value="corregir" />
+          <input type="hidden" name="loteId" value={loteId} />
+          <input type="hidden" name="asignacionId" value={asignacion.id} />
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Selector etiqueta="Reasignar a" name="empleadoId" obligatorio defaultValue="">
+              <option value="">Elegí una persona</option>
+              {empleados
+                .filter((e) => e.id !== asignacion.empleado_id)
+                .map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.apellido}, {e.nombre}
+                  </option>
+                ))}
+            </Selector>
+            <Campo
+              etiqueta="¿Por qué hacés este cambio?"
+              name="motivo"
+              obligatorio
+              placeholder="Está con la parada de planta toda la semana"
+              ayuda="Contarnos el motivo permite que Tukson lo tenga en cuenta la próxima vez."
+            />
+          </div>
+
+          <BotonEnviar variante="principal" etiquetaCargando="Guardando…">
+            Guardar el cambio
+          </BotonEnviar>
+        </Form>
+      )}
+    </article>
+  );
+}
+
+// El tercer botón es tan importante como el primero: la mayoría de las
+// correcciones son casos puntuales, y convertirlas todas en reglas
+// permanentes degradaría el sistema con el uso.
+function ReglaPropuesta({ regla }: { regla: { id: string; enunciado: string } }) {
+  return (
+    <section className="tarjeta border-primario p-6">
+      <h2 className="text-tarjeta font-semibold text-texto">Tukson entendió esto de tu corrección</h2>
+      <p className="mt-3 text-cuerpo text-texto">“{regla.enunciado}”</p>
+
+      <Form method="post" className="mt-4 flex flex-wrap items-end gap-4">
+        <input type="hidden" name="intent" value="aprobar-regla" />
+        <input type="hidden" name="reglaId" value={regla.id} />
+        <CampoFecha
+          etiqueta="Aplicarla hasta"
+          name="vigenciaHasta"
+          className="max-w-56"
+          ayuda="Dejalo vacío si no tiene fecha de fin."
+        />
+        <div className="flex flex-wrap gap-3 pb-6">
+          <Boton variante="principal" type="submit">
+            Confirmar regla
+          </Boton>
+        </div>
+      </Form>
+
+      <Form method="post">
+        <input type="hidden" name="intent" value="descartar-regla" />
+        <input type="hidden" name="reglaId" value={regla.id} />
+        <Boton variante="terciario" type="submit">
+          Esta vez no, fue un caso puntual
+        </Boton>
+      </Form>
+    </section>
   );
 }
 

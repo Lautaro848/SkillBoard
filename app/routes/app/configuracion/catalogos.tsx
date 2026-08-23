@@ -172,10 +172,10 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
             {ETIQUETAS[t]}
           </a>
         ))}
-        <a
-          href="/configuracion/avisos"
-          className="ml-auto px-3 py-2 text-menor text-secundario"
-        >
+        <a href="/configuracion/reglas" className="ml-auto px-3 py-2 text-menor text-secundario">
+          Reglas de Tukson →
+        </a>
+        <a href="/configuracion/avisos" className="px-3 py-2 text-menor text-secundario">
           Avisos de vencimiento →
         </a>
       </nav>

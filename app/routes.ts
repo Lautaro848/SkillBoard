@@ -15,6 +15,7 @@ export default [
     route("panel", "routes/app/panel.tsx"),
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
     route("configuracion/avisos", "routes/app/configuracion/avisos.tsx"),
+    route("configuracion/reglas", "routes/app/configuracion/reglas.tsx"),
     route("empleados", "routes/app/empleados/index.tsx"),
     route("empleados/nuevo", "routes/app/empleados/nuevo.tsx"),
     route("empleados/importar", "routes/app/empleados/importar.tsx"),
