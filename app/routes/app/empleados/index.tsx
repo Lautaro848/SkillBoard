@@ -155,6 +155,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
   const { empleados, total, indicadorPorEmpleado, puestos, departamentos, filtros } = loaderData;
   const totalPaginas = Math.max(1, Math.ceil(total / filtros.porPagina));
   const [seleccion, setSeleccion] = useState<Set<string>>(new Set());
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
 
   function alternarSeleccion(id: string) {
     setSeleccion((actual) => {
@@ -198,24 +199,45 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      {/* En celular el título y las acciones se apilan: uno al lado del otro
+          los deja a los dos ilegibles. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-seccion font-semibold text-texto">Empleados</h1>
-        <div className="flex gap-2">
-          <Link to="/empleados/importar" className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/empleados/importar" className="boton boton-secundario">
             Importar planilla
           </Link>
-          <Link to="/empleados/nuevo" className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white">
+          <Link to="/empleados/nuevo" className="boton boton-principal">
             Nuevo empleado
           </Link>
         </div>
       </div>
 
-      <Form method="get" className="flex flex-wrap items-end gap-3">
-        <div className="min-w-56 flex-1">
+      {/* En celular seis filtros apilados son casi una pantalla entera antes
+          de llegar al primer empleado, y la tarea principal en el teléfono es
+          justamente consultar a alguien. Por eso se pliegan acá y quedan
+          siempre visibles de tablet para arriba. */}
+      <button
+        type="button"
+        onClick={() => setFiltrosAbiertos((v) => !v)}
+        className="boton boton-secundario self-start sm:hidden"
+        aria-expanded={filtrosAbiertos}
+        aria-controls="filtros"
+      >
+        {filtrosAbiertos ? "Ocultar filtros" : "Filtros"}
+        {chips.length > 0 && ` (${chips.length})`}
+      </button>
+
+      <Form
+        method="get"
+        id="filtros"
+        className={`${filtrosAbiertos ? "grid" : "hidden"} grid-cols-1 items-end gap-3 sm:grid sm:grid-cols-2 lg:flex lg:flex-wrap`}
+      >
+        <div className="lg:min-w-56 lg:flex-1">
           <label className="text-menor font-medium" htmlFor="q">
             Buscar
           </label>
-          <input id="q" name="q" defaultValue={filtros.q} placeholder="Nombre, apellido o ID interno" className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor" />
+          <input id="q" name="q" defaultValue={filtros.q} placeholder="Nombre, apellido o ID interno" className="campo mt-1" />
         </div>
         <FiltroSelect label="Puesto" name="puesto" valor={filtros.puesto} opciones={puestos} />
         <FiltroSelect label="Departamento" name="departamento" valor={filtros.departamento} opciones={departamentos} />
@@ -223,7 +245,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           <label className="text-menor font-medium" htmlFor="estado">
             Estado
           </label>
-          <select id="estado" name="estado" defaultValue={filtros.estado} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+          <select id="estado" name="estado" defaultValue={filtros.estado} className="campo mt-1">
             <option value="">Todos</option>
             {Object.entries(ETIQUETAS_ESTADO).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
@@ -234,7 +256,7 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           <label className="text-menor font-medium" htmlFor="antiguedad">
             Antigüedad
           </label>
-          <select id="antiguedad" name="antiguedad" defaultValue={filtros.antiguedad} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+          <select id="antiguedad" name="antiguedad" defaultValue={filtros.antiguedad} className="campo mt-1">
             <option value="">Todas</option>
             {Object.entries(ETIQUETAS_ANTIGUEDAD).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
@@ -245,14 +267,14 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
           <label className="text-menor font-medium" htmlFor="certificados">
             Certificados
           </label>
-          <select id="certificados" name="certificados" defaultValue={filtros.certificados} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+          <select id="certificados" name="certificados" defaultValue={filtros.certificados} className="campo mt-1">
             <option value="">Todos</option>
             {Object.entries(ETIQUETAS_CERTIFICADOS).map(([v, t]) => (
               <option key={v} value={v}>{t}</option>
             ))}
           </select>
         </div>
-        <button type="submit" className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium">
+        <button type="submit" className="boton boton-secundario">
           Filtrar
         </button>
       </Form>
@@ -283,48 +305,86 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
             : "Ningún empleado coincide con los filtros aplicados."}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-tarjeta border border-borde-decorativo">
-          <table className="w-full text-menor">
-            <thead className="border-b border-borde-decorativo bg-superficie text-left text-auxiliar uppercase text-secundario">
-              <tr>
-                <th className="px-4 py-2">
-                  <input type="checkbox" checked={seleccion.size > 0 && seleccion.size === empleados.length} onChange={alternarTodos} aria-label="Seleccionar todos" />
-                </th>
-                <th className="px-4 py-2"></th>
-                <th className="px-4 py-2">Nombre</th>
-                <th className="px-4 py-2">ID interno</th>
-                <th className="px-4 py-2">Puesto</th>
-                <th className="px-4 py-2">Departamento</th>
-                <th className="px-4 py-2">Antigüedad</th>
-                <th className="px-4 py-2">Certificados</th>
-                <th className="px-4 py-2">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {empleados.map((e: any) => (
-                <tr key={e.id} className="border-b border-borde-decorativo last:border-0 hover:bg-fondo">
-                  <td className="px-4 py-2">
-                    <input type="checkbox" checked={seleccion.has(e.id)} onChange={() => alternarSeleccion(e.id)} aria-label={`Seleccionar a ${e.nombre} ${e.apellido}`} />
-                  </td>
-                  <td className="px-4 py-2">
-                    <Avatar nombre={e.nombre} apellido={e.apellido} idInterno={e.id_interno} fotoUrl={e.fotoUrlFirmada} size={32} />
-                  </td>
-                  <td className="px-4 py-2">
-                    <Link to={`/empleados/${e.id}`} className="font-medium text-primario">
+        <>
+          {/* Nada de desplazamiento horizontal en una tabla: es lo primero que
+              rompe la usabilidad en tablet (05-sistema-de-diseno.md §4). Esta
+              tiene nueve columnas, así que por debajo de 1024 px cada fila se
+              convierte en una tarjeta apilada. */}
+          <ul className="flex flex-col gap-3 lg:hidden">
+            {empleados.map((e: any) => (
+              <li key={e.id} className="tarjeta p-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={seleccion.has(e.id)}
+                    onChange={() => alternarSeleccion(e.id)}
+                    aria-label={`Seleccionar a ${e.nombre} ${e.apellido}`}
+                    className="mt-1"
+                  />
+                  <Avatar nombre={e.nombre} apellido={e.apellido} idInterno={e.id_interno} fotoUrl={e.fotoUrlFirmada} size={40} />
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/empleados/${e.id}`} className="text-cuerpo font-medium text-primario">
                       {e.apellido}, {e.nombre}
                     </Link>
-                  </td>
-                  <td className="px-4 py-2">{e.id_interno}</td>
-                  <td className="px-4 py-2">{puestos.find((p: any) => p.id === e.puesto_id)?.nombre ?? "—"}</td>
-                  <td className="px-4 py-2">{departamentos.find((d: any) => d.id === e.departamento_id)?.nombre ?? "—"}</td>
-                  <td className="px-4 py-2">{antiguedad(e.fecha_ingreso)}</td>
-                  <td className="px-4 py-2">{indicadorPorEmpleado[e.id]}</td>
-                  <td className="px-4 py-2">{ETIQUETAS_ESTADO[e.estado]}</td>
+                    <p className="text-auxiliar text-secundario">
+                      {e.id_interno} · {ETIQUETAS_ESTADO[e.estado]}
+                    </p>
+                  </div>
+                </div>
+
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-borde-decorativo pt-3 text-menor">
+                  <Dato etiqueta="Puesto" valor={puestos.find((p: any) => p.id === e.puesto_id)?.nombre ?? "—"} />
+                  <Dato etiqueta="Departamento" valor={departamentos.find((d: any) => d.id === e.departamento_id)?.nombre ?? "—"} />
+                  <Dato etiqueta="Antigüedad" valor={antiguedad(e.fecha_ingreso)} />
+                  <Dato etiqueta="Certificados" valor={indicadorPorEmpleado[e.id]} />
+                </dl>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden rounded-tarjeta border border-borde-decorativo lg:block">
+            <table className="w-full text-menor">
+              <thead className="border-b border-borde-decorativo bg-superficie text-left text-auxiliar uppercase text-secundario">
+                <tr>
+                  <th className="px-4 py-3">
+                    <input type="checkbox" checked={seleccion.size > 0 && seleccion.size === empleados.length} onChange={alternarTodos} aria-label="Seleccionar todos" />
+                  </th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3">Nombre</th>
+                  <th className="px-4 py-3">ID interno</th>
+                  <th className="px-4 py-3">Puesto</th>
+                  <th className="px-4 py-3">Departamento</th>
+                  <th className="px-4 py-3">Antigüedad</th>
+                  <th className="px-4 py-3">Certificados</th>
+                  <th className="px-4 py-3">Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {empleados.map((e: any) => (
+                  <tr key={e.id} className="border-b border-borde-decorativo last:border-0 hover:bg-fondo">
+                    <td className="px-4 py-3">
+                      <input type="checkbox" checked={seleccion.has(e.id)} onChange={() => alternarSeleccion(e.id)} aria-label={`Seleccionar a ${e.nombre} ${e.apellido}`} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Avatar nombre={e.nombre} apellido={e.apellido} idInterno={e.id_interno} fotoUrl={e.fotoUrlFirmada} size={32} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link to={`/empleados/${e.id}`} className="font-medium text-primario">
+                        {e.apellido}, {e.nombre}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">{e.id_interno}</td>
+                    <td className="px-4 py-3">{puestos.find((p: any) => p.id === e.puesto_id)?.nombre ?? "—"}</td>
+                    <td className="px-4 py-3">{departamentos.find((d: any) => d.id === e.departamento_id)?.nombre ?? "—"}</td>
+                    <td className="px-4 py-3">{antiguedad(e.fecha_ingreso)}</td>
+                    <td className="px-4 py-3">{indicadorPorEmpleado[e.id]}</td>
+                    <td className="px-4 py-3">{ETIQUETAS_ESTADO[e.estado]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {total > 0 && (
@@ -415,7 +475,7 @@ function BarraAcciones({
           </select>
 
           {accion === "departamento" && (
-            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-control border border-borde-decorativo px-2 py-1">
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="campo">
               <option value="">Elegir...</option>
               {departamentos.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -425,7 +485,7 @@ function BarraAcciones({
             </select>
           )}
           {accion === "estado" && (
-            <select value={valor} onChange={(e) => setValor(e.target.value)} className="rounded-control border border-borde-decorativo px-2 py-1">
+            <select value={valor} onChange={(e) => setValor(e.target.value)} className="campo">
               <option value="">Elegir...</option>
               {Object.entries(ETIQUETAS_ESTADO).map(([v, t]) => (
                 <option key={v} value={v}>
@@ -485,7 +545,7 @@ function FiltroSelect({ label, name, valor, opciones }: { label: string; name: s
       <label className="text-menor font-medium" htmlFor={name}>
         {label}
       </label>
-      <select id={name} name={name} defaultValue={valor} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+      <select id={name} name={name} defaultValue={valor} className="campo mt-1">
         <option value="">Todos</option>
         {opciones.map((o) => (
           <option key={o.id} value={o.id}>
@@ -493,6 +553,17 @@ function FiltroSelect({ label, name, valor, opciones }: { label: string; name: s
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+// Par etiqueta/valor de las tarjetas del celular. La etiqueta va arriba y en
+// chico: en una columna angosta, ponerla al lado deja el valor sin lugar.
+function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-auxiliar text-secundario">{etiqueta}</dt>
+      <dd className="truncate text-texto">{valor}</dd>
     </div>
   );
 }

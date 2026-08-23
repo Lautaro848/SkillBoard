@@ -168,7 +168,7 @@ export function EmpleadoForm({
             <label className="text-menor font-medium" htmlFor="estado">
               Estado
             </label>
-            <select id="estado" name="estado" defaultValue={v.estado ?? "activo"} className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor">
+            <select id="estado" name="estado" defaultValue={v.estado ?? "activo"} className="campo mt-1">
               <option value="activo">Activo</option>
               <option value="licencia">Licencia</option>
               <option value="baja">Baja</option>
@@ -179,7 +179,7 @@ export function EmpleadoForm({
           <label className="text-menor font-medium" htmlFor="observaciones">
             Observaciones
           </label>
-          <textarea id="observaciones" name="observaciones" defaultValue={v.observaciones} maxLength={2000} rows={3} className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor" />
+          <textarea id="observaciones" name="observaciones" defaultValue={v.observaciones} maxLength={2000} rows={3} className="campo mt-1" />
           {errores.observaciones && <p className="mt-1 text-auxiliar text-error">{errores.observaciones[0]}</p>}
         </div>
       </section>
@@ -190,7 +190,7 @@ export function EmpleadoForm({
             <label className="text-menor font-medium" htmlFor="nuevaAptitud">
               Aptitud
             </label>
-            <select id="nuevaAptitud" value={nuevaAptitud} onChange={(e) => setNuevaAptitud(e.target.value)} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+            <select id="nuevaAptitud" value={nuevaAptitud} onChange={(e) => setNuevaAptitud(e.target.value)} className="campo mt-1">
               <option value="">Elegir...</option>
               {aptitudesCatalogo
                 .filter((a) => !aptitudes.some((x) => x.aptitudId === a.id))
@@ -205,7 +205,7 @@ export function EmpleadoForm({
             <label className="text-menor font-medium" htmlFor="nuevoNivel">
               Nivel
             </label>
-            <select id="nuevoNivel" value={nuevoNivel} onChange={(e) => setNuevoNivel(Number(e.target.value))} className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor">
+            <select id="nuevoNivel" value={nuevoNivel} onChange={(e) => setNuevoNivel(Number(e.target.value))} className="campo mt-1">
               {[1, 2, 3, 4, 5].map((n) => (
                 <option key={n} value={n}>
                   {n} · {NIVEL_ETIQUETAS[n]}
@@ -301,7 +301,7 @@ function Selector({
       <label className="text-menor font-medium" htmlFor={name}>
         {label} {required && "*"}
       </label>
-      <select id={name} name={name} required={required} defaultValue={defaultValue} className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor">
+      <select id={name} name={name} required={required} defaultValue={defaultValue} className="campo mt-1">
         <option value="">Elegir...</option>
         {opciones.map((o) => (
           <option key={o.id} value={o.id}>

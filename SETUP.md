@@ -1,4 +1,4 @@
-# Puesta en marcha (Fases 0, 1 y 2)
+# Puesta en marcha
 
 Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
@@ -6,14 +6,11 @@ Este documento es la continuación práctica de `docs/00-resumen-y-plan.md`.
 
 ## 🔗 Está en línea
 
-**https://skillboard-git-claude-skillboard-ov-bfd149-lautaro848s-projects.vercel.app**
+**https://skillboard-phi.vercel.app**
 
-Entrá con la cuenta de prueba de más abajo. Se actualiza solo con cada push
-a la rama de desarrollo.
-
-> La URL corta (`skillboard-phi.vercel.app`) apunta a la rama `main`, que
-> todavía no tiene el trabajo — está todo en `claude/skillboard-overview-uopw0a`.
-> Al mergear a `main`, la URL corta pasa a servir la versión actual.
+Entrá con la cuenta de prueba de más abajo. Se actualiza solo con cada
+merge a `main`. Cada rama de desarrollo además genera su propia URL de
+vista previa, que Vercel comenta en el pull request.
 
 **Supabase** (base, auth, archivos) — en producción, con datos reales.
 **Vercel** — preview navegable, para *ver* el producto mientras se desarrolla.
@@ -68,7 +65,7 @@ de CPU por ruta con una empresa de 200 empleados, para anotarlo en
 Proyecto real: **`Skillboard`**, ref `bdufwbssueduudhbwzim`, región `sa-east-1`
 (São Paulo) — https://supabase.com/dashboard/project/bdufwbssueduudhbwzim
 
-- Las 11 migraciones de `supabase/migrations/` están aplicadas.
+- Las 14 migraciones de `supabase/migrations/` están aplicadas.
 - RLS probado con una sesión real: login funciona, `buscar_empleados` y la
   vista `v_certificados` (con el embedding de `tipos_certificado`) devuelven
   los datos correctos con las políticas aplicadas.
@@ -78,7 +75,7 @@ Proyecto real: **`Skillboard`**, ref `bdufwbssueduudhbwzim`, región `sa-east-1`
 - `SUPABASE_URL` y `SUPABASE_ANON_KEY` ya están en `wrangler.jsonc` (son
   claves públicas, protegidas por RLS: no hace falta ocultarlas).
 
-### Cuatro bugs reales que aparecieron recién al probar contra la base real
+### Bugs reales que aparecieron recién al probar contra la base real
 
 Ninguno se veía en `tsc`/`build` porque son de configuración de Postgres, no
 de TypeScript. Quedaron corregidos en migraciones nuevas:
@@ -102,6 +99,17 @@ de TypeScript. Quedaron corregidos en migraciones nuevas:
    `authenticated` pero no a `service_role`, así que el cron de avisos no
    podía leer ni una tabla. `service_role` saltea RLS, pero el GRANT de
    acceso a la tabla es una capa distinta y se exige igual.
+
+5. **`0013_vista_security_invoker.sql`** — el más grave, y no venía del
+   código sino del esquema. En Postgres una vista corre por defecto con los
+   permisos de su dueño, que acá es `postgres` y saltea RLS: las políticas
+   de `certificados` se aplicaban perfecto en la tabla y no se aplicaban
+   nada al consultar `v_certificados`. Un usuario autenticado **sin ninguna
+   membresía** veía 0 filas en la tabla y 2 en la vista, o sea que
+   cualquier cuenta podía leer los certificados de todas las empresas
+   pidiendo `/rest/v1/v_certificados`. La aplicación nunca lo hacía
+   —siempre filtra por `empresa_id`— pero la API está expuesta y no hace
+   falta pasar por la aplicación.
 
 Y de paso, el linter de seguridad de Supabase (`0003_fix_search_path.sql`)
 marcó que dos funciones no tenían `search_path` fijo.
@@ -187,6 +195,7 @@ tocar datos de producción para validar RLS.
   contra un Worker desplegado de verdad en Cloudflare.
 - Copia de seguridad diaria (`pg_dump`) vía GitHub Action.
 - Cargar `RESEND_API_KEY` para que los avisos salgan de verdad (ver arriba).
-- Panel de rendimiento (Fase 3), Modo carrusel (4), Tukson (5), y recién en
-  la Fase 6 la página pública con precios, planes y legales — hoy `/` es un
+- La Fase 6: página pública con precios, planes y legales — hoy `/` es un
   placeholder deliberado.
+- Los tres pasos de Tukson que usan un modelo de lenguaje. El filtro, el
+  puntaje y el reparto funcionan sin él; la pantalla lo aclara al entrar.

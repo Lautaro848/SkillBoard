@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import axe from "axe-core";
 import Panel from "~/routes/app/panel";
 import Reglas from "~/routes/app/configuracion/reglas";
+import AppLayout from "~/routes/app/layout";
 import { Boton } from "~/components/ui/boton";
 import { Campo, LeyendaObligatorios, Selector } from "~/components/ui/campo";
 import { Aviso, EstadoVacio } from "~/components/ui/estados";
@@ -130,6 +131,24 @@ describe("accesibilidad", () => {
     };
 
     expect(await revisar(enRouter(<Panel {...props(datos)} />))).toEqual([]);
+  });
+
+  it("el menú del celular y el cajón tampoco", async () => {
+    const html = renderToStaticMarkup(
+      <RouterProvider
+        router={createMemoryRouter(
+          [
+            {
+              path: "/",
+              element: <AppLayout {...props({ perfil: null, empresaNombre: "Metalúrgica del Sur" })} />,
+              children: [{ index: true, element: <h1>Panel</h1> }],
+            },
+          ],
+          { initialEntries: ["/"] },
+        )}
+      />,
+    );
+    expect(await revisar(html)).toEqual([]);
   });
 
   it("la pantalla de reglas tampoco", async () => {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form } from "react-router";
 import { createSupabaseServerClient } from "~/lib/supabase.server";
+import { requireSesion } from "~/lib/sesion.server";
 import {
   aptitudSchema,
   catalogoNombreSchema,
@@ -83,7 +84,9 @@ async function contarUsos(
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  const { supabase } = createSupabaseServerClient(request, context);
+  // empresa_id sale SIEMPRE de la sesión, nunca de algo que mande el cliente
+  // (02-modelo-de-datos.md §1, punto 3).
+  const { supabase, empresaId } = await requireSesion(request, context);
   const formData = await request.formData();
   const tipo = tipoValido(formData.get("tipo") as string);
   const intent = formData.get("intent");
@@ -97,7 +100,7 @@ export async function action({ request, context }: Route.ActionArgs) {
         error: `Está asignado a ${usos} ${sustantivo}. Reasignalos antes de eliminarlo.`,
       };
     }
-    await supabase.from(tipo).delete().eq("id", id);
+    await supabase.from(tipo).delete().eq("id", id).eq("empresa_id", empresaId);
     return { ok: true };
   }
 
@@ -110,7 +113,8 @@ export async function action({ request, context }: Route.ActionArgs) {
     const { error } = await supabase
       .from("tipos_certificado")
       .update({ obligatorio_para_puestos: puestosIds })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("empresa_id", empresaId);
     if (error) return { error: "No se pudo guardar la obligatoriedad." };
     return { ok: true };
   }
@@ -130,7 +134,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     return { error: Object.values(parsed.error.flatten().fieldErrors)[0]?.[0] ?? "Datos inválidos" };
   }
 
-  const columnas: Record<string, unknown> = { nombre: parsed.data.nombre };
+  const columnas: Record<string, unknown> = { empresa_id: empresaId, nombre: parsed.data.nombre };
   if ("departamentoId" in parsed.data && parsed.data.departamentoId) {
     columnas.departamento_id = parsed.data.departamentoId;
   }
@@ -140,8 +144,18 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   const { error } = await supabase.from(tipo).insert(columnas);
   if (error) {
-    const duplicado = error.message.includes("duplicate") || error.code === "23505";
-    return { error: duplicado ? "Ya existe un elemento con ese nombre." : "No se pudo guardar." };
+    // Los errores enseñan: qué pasó, por qué y qué hacer
+    // (05-sistema-de-diseno.md §5). "No se pudo guardar" no es ninguna de
+    // las tres cosas.
+    if (error.code === "23505" || error.message.includes("duplicate")) {
+      return { error: `Ya existe "${parsed.data.nombre}" en ${ETIQUETAS[tipo].toLowerCase()}. Usá otro nombre.` };
+    }
+    if (error.code === "23514") {
+      return { error: "Algún valor está fuera de lo permitido. Revisá el nombre y los días de alerta." };
+    }
+    return {
+      error: `No pudimos guardar "${parsed.data.nombre}". Volvé a intentar en unos segundos; si sigue, pasanos este código: ${error.code ?? "sin código"}.`,
+    };
   }
   return { ok: true };
 }

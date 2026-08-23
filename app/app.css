@@ -297,6 +297,21 @@ h3 {
     box-shadow: var(--shadow-tarjeta);
   }
 
+  /* --- Menú lateral / cajón --------------------------------------------- */
+  /* 260 px fijos, pero nunca más del 85 % de la pantalla: en un teléfono
+     angosto el cajón tiene que dejar ver algo del fondo, que es lo que hace
+     entender que se cierra tocando al costado. */
+  .cajon-lateral {
+    width: 260px;
+    max-width: 85vw;
+  }
+
+  @media (min-width: 1024px) {
+    .cajon-lateral {
+      max-width: none;
+    }
+  }
+
   /* --- Enlace de salto -------------------------------------------------- */
   /* Primer elemento enfocable de la aplicación. Invisible hasta que alguien
      llega con el tabulador, y ahí sí bien visible. */
