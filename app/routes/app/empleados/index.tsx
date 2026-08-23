@@ -282,7 +282,10 @@ export default function Empleados({ loaderData }: Route.ComponentProps) {
       {chips.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {chips.map((c) => (
-            <a key={c.clave} href={quitarFiltro(c.clave)} className="flex items-center gap-1 rounded-full border border-borde-decorativo px-3 py-1 text-auxiliar">
+            // El borde es lo único que dice que esto se puede tocar para
+            // quitar el filtro, así que va con el borde de control (4,76:1) y
+            // no con el decorativo. La píldora se mantiene: no es un botón.
+            <a key={c.clave} href={quitarFiltro(c.clave)} className="flex items-center gap-1 rounded-full border border-borde px-3 py-1 text-auxiliar">
               {c.texto} <span aria-hidden>×</span>
             </a>
           ))}
@@ -466,7 +469,7 @@ function BarraAcciones({
               setAccion(e.target.value as AccionLote);
               setValor("");
             }}
-            className="rounded-control border border-borde-decorativo px-2 py-1"
+            className="campo"
           >
             <option value="">Elegir acción...</option>
             <option value="departamento">Cambiar departamento</option>

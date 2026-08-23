@@ -181,7 +181,7 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
               id="periodo"
               name="periodo"
               defaultValue={periodo}
-              className="mt-1 block rounded-control border border-borde-decorativo bg-superficie px-3 py-1.5 text-menor"
+              className="campo mt-1"
             >
               {Object.entries(ETIQUETAS_PERIODO).map(([clave, etiqueta]) => (
                 <option key={clave} value={clave}>
@@ -192,7 +192,7 @@ export default function Panel({ loaderData }: Route.ComponentProps) {
           </div>
           <button
             type="submit"
-            className="rounded-control border border-borde-decorativo px-4 py-1.5 text-menor font-medium"
+            className="boton boton-secundario"
           >
             Aplicar
           </button>

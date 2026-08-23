@@ -120,7 +120,7 @@ export default function Avisos({ loaderData, actionData }: Route.ComponentProps)
             rows={3}
             defaultValue={(config.destinatarios ?? []).join("\n")}
             placeholder="Un email por línea"
-            className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+            className="campo mt-1"
           />
           <p className="mt-1 text-auxiliar text-secundario">
             Si lo dejás vacío, el aviso va a los administradores de la empresa
@@ -140,7 +140,7 @@ export default function Avisos({ loaderData, actionData }: Route.ComponentProps)
               min={1}
               max={365}
               defaultValue={config.dias_anticipacion}
-              className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+              className="campo mt-1"
             />
             <p className="mt-1 text-auxiliar text-secundario">
               Cada tipo de certificado puede tener su propio umbral; este es el tope general.
@@ -155,7 +155,7 @@ export default function Avisos({ loaderData, actionData }: Route.ComponentProps)
               id="frecuencia"
               name="frecuencia"
               defaultValue={config.frecuencia}
-              className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+              className="campo mt-1"
             >
               <option value="diaria">Diaria</option>
               <option value="semanal">Semanal (lunes)</option>

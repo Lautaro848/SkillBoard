@@ -102,7 +102,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
             Subí un archivo .xlsx o .csv con tus empleados. Si no tenés uno armado, descargá la plantilla con las
             columnas correctas y una fila de ejemplo.
           </p>
-          <button type="button" onClick={descargarPlantilla} className="w-fit rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
+          <button type="button" onClick={descargarPlantilla} className="boton boton-secundario w-fit">
             Descargar plantilla
           </button>
           <div>
@@ -127,7 +127,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
                 <select
                   value={mapeo[c.clave] ?? ""}
                   onChange={(e) => setMapeo((m) => ({ ...m, [c.clave]: e.target.value || null }))}
-                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+                  className="campo mt-1"
                 >
                   <option value="">No importar</option>
                   {encabezados.map((h) => (
@@ -145,7 +145,7 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
             </p>
           )}
           <div className="flex gap-3">
-            <button type="button" onClick={() => setPaso("subir")} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
+            <button type="button" onClick={() => setPaso("subir")} className="boton boton-secundario">
               Volver
             </button>
             <button
@@ -209,11 +209,11 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
           )}
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => setPaso("mapear")} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
+            <button type="button" onClick={() => setPaso("mapear")} className="boton boton-secundario">
               Volver
             </button>
             {conError > 0 && (
-              <button type="button" onClick={() => descargarReporteErrores(filas)} className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium">
+              <button type="button" onClick={() => descargarReporteErrores(filas)} className="boton boton-secundario">
                 Descargar reporte de errores
               </button>
             )}

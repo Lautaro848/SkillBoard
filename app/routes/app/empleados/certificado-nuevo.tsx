@@ -144,7 +144,7 @@ export default function CertificadoNuevo({ loaderData, actionData }: Route.Compo
               required
               value={tipoId}
               onChange={(e) => setTipoId(e.target.value)}
-              className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+              className="campo mt-1"
             >
               <option value="">Elegir...</option>
               {tipos.map((t: { id: string; nombre: string }) => (
@@ -254,7 +254,7 @@ function Campo({
         type={type}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+        className="campo mt-1"
       />
       {errores?.[0] && <p className="mt-1 text-auxiliar text-error">{errores[0]}</p>}
     </div>

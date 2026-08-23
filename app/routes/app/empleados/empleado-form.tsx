@@ -213,7 +213,7 @@ export function EmpleadoForm({
               ))}
             </select>
           </div>
-          <button type="button" onClick={agregarAptitud} className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium">
+          <button type="button" onClick={agregarAptitud} className="boton boton-secundario">
             Agregar
           </button>
         </div>
@@ -274,7 +274,7 @@ function Campo({
         type={type}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+        className="campo mt-1"
       />
       {errores?.[0] && <p className="mt-1 text-auxiliar text-error">{errores[0]}</p>}
     </div>

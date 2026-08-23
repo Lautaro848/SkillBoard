@@ -26,6 +26,24 @@ const MENSAJE_PALETA =
   "(primario, acento, exito, advertencia, error, texto, secundario, borde, fondo, superficie, serie-1…6), " +
   "que tienen el contraste calculado con la fórmula WCAG.";
 
+// WCAG 1.4.11 pide 3:1 para el límite visual de un control. En el sistema hay
+// dos bordes y es fácil agarrar el que no va:
+//
+//   --color-borde              #64748b  4,76:1  → controles
+//   --color-borde-decorativo   #e2e8f0  1,23:1  → separar tarjetas y filas
+//
+// Un campo con el borde decorativo se ve bien en el monitor de quien lo
+// escribe y desaparece en una pantalla con reflejo o para alguien con la
+// vista cansada. Pasó dos veces —34 controles la última—, así que ahora lo
+// dice la herramienta y no la revisión.
+const CONTROLES = String.raw`^(input|select|textarea|button)$`;
+
+const MENSAJE_BORDE =
+  "Borde decorativo (#e2e8f0, 1,23:1) en un control. WCAG 1.4.11 exige 3:1 para el límite " +
+  "visual de algo con lo que se interactúa. Usá la clase `campo` en campos y " +
+  "`boton boton-secundario` en botones, que ya traen el borde correcto además del foco y el " +
+  "estado deshabilitado. Si necesitás conservar otra forma, `border-borde` (#64748b, 4,76:1).";
+
 export default tseslint.config(
   // Los *.tmp.* son andamios de un rato (medición, capturas) y no forman
   // parte de la aplicación.
@@ -55,6 +73,14 @@ export default tseslint.config(
         {
           selector: `JSXAttribute[name.name=/^(className|class)$/] TemplateElement[value.raw=/${PALETA_TAILWIND}/]`,
           message: MENSAJE_PALETA,
+        },
+        {
+          selector: `JSXOpeningElement[name.name=/${CONTROLES}/] JSXAttribute[name.name=/^(className|class)$/] Literal[value=/border-borde-decorativo/]`,
+          message: MENSAJE_BORDE,
+        },
+        {
+          selector: `JSXOpeningElement[name.name=/${CONTROLES}/] JSXAttribute[name.name=/^(className|class)$/] TemplateElement[value.raw=/border-borde-decorativo/]`,
+          message: MENSAJE_BORDE,
         },
       ],
     },
