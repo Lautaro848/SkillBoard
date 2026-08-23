@@ -3,6 +3,7 @@ import { Form, Link } from "react-router";
 import { requireSesion } from "~/lib/sesion.server";
 import { cargarCertificados, type CertificadoConEmpleado } from "~/lib/certificados.server";
 import { EstadoCert } from "~/components/estado-certificado";
+import { coincide } from "~/lib/texto";
 import type { Route } from "./+types/index";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
@@ -24,14 +25,14 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       supabase.from("puestos").select("id, nombre").eq("empresa_id", empresaId).order("nombre"),
     ]);
 
-  const termino = filtros.q.trim().toLowerCase();
+  // Buscar "Maria" tiene que encontrar a "María": nadie escribe los acentos
+  // al buscar. `coincide` normaliza igual que la base (ver app/lib/texto.ts).
+  const termino = filtros.q;
   const pasaFiltros = (c: CertificadoConEmpleado) =>
     (!filtros.tipo || c.tipoId === filtros.tipo) &&
     (!filtros.departamento || c.departamentoId === filtros.departamento) &&
     (!filtros.puesto || c.puestoId === filtros.puesto) &&
-    (!termino ||
-      c.empleadoNombre.toLowerCase().includes(termino) ||
-      c.empleadoIdInterno.toLowerCase().includes(termino));
+    coincide(termino, c.empleadoNombre, c.empleadoIdInterno, c.tipoNombre);
 
   const filtrados = certificados.filter(pasaFiltros);
   const porFecha = (a: CertificadoConEmpleado, b: CertificadoConEmpleado) =>
@@ -49,9 +50,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     faltantes: faltantes.filter(
       (f) =>
         (!filtros.tipo || f.tipoId === filtros.tipo) &&
-        (!termino ||
-          f.empleadoNombre.toLowerCase().includes(termino) ||
-          f.empleadoIdInterno.toLowerCase().includes(termino)),
+        coincide(termino, f.empleadoNombre, f.empleadoIdInterno, f.tipoNombre),
     ),
     tipos: tipos ?? [],
     departamentos: departamentos ?? [],
