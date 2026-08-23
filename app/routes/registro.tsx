@@ -2,6 +2,7 @@ import { Form, Link, redirect, useNavigation } from "react-router";
 import { useState } from "react";
 import { createSupabaseServerClient } from "~/lib/supabase.server";
 import { registroSchema } from "~/lib/validation/auth";
+import { motivoContrasenaFiltrada } from "~/lib/validation/pwned.server";
 // Solo las reglas, sin el diccionario de contraseñas comunes: ese módulo pesa
 // 488 KB y no tiene por qué bajarlo el navegador. El servidor hace la
 // comprobación completa al enviar.
@@ -32,6 +33,15 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!parsed.success) {
     const errors: RegistroErrors = parsed.error.flatten().fieldErrors;
     return { errors, values: raw };
+  }
+
+  // Las cinco reglas ya pasaron; falta lo que ninguna regla puede saber: si
+  // esta contraseña exacta apareció en una filtración. Va acá y no en el
+  // schema porque necesita red, y porque un fallo del servicio no puede
+  // impedir un registro (ver pwned.server.ts).
+  const filtrada = await motivoContrasenaFiltrada(parsed.data.password);
+  if (filtrada) {
+    return { errors: { password: [filtrada] } satisfies RegistroErrors, values: raw };
   }
 
   const { supabase, headers } = createSupabaseServerClient(request, context);
@@ -166,7 +176,7 @@ function Field({
         type={type}
         required
         defaultValue={defaultValue}
-        className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
+        className="campo mt-1"
       />
       {errors?.[0] && <p className="mt-1 text-auxiliar text-error">{errors[0]}</p>}
     </div>

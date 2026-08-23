@@ -192,6 +192,9 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
         <a href="/configuracion/avisos" className="px-3 py-2 text-menor text-secundario">
           Avisos de vencimiento →
         </a>
+        <a href="/configuracion/contrasena" className="px-3 py-2 text-menor text-secundario">
+          Cambiar contraseña →
+        </a>
       </nav>
 
       {actionData?.error && (

@@ -48,13 +48,28 @@ SkillBoard
 Precargar los catálogos es lo que evita que un responsable de RR.HH. de 55 años quede parado frente a un formulario que le pide "seleccioná un puesto" en una lista vacía.
 
 ### Contraseñas
-Mínimo 10 caracteres, con mayúscula, minúscula, número y símbolo, contrastadas contra una lista de las 10.000 más comunes (paquete local, sin llamadas externas). Medidor de fuerza visible con texto, no solo con una barra de color. Hash a cargo de Supabase Auth (bcrypt). Nunca se registra, nunca se devuelve.
+Mínimo 10 caracteres, con mayúscula, minúscula, número y símbolo. Medidor de fuerza visible con texto, no solo con una barra de color. Hash a cargo de Supabase Auth (bcrypt). Nunca se registra, nunca se devuelve.
+
+**Corrección sobre la lista local de las 10.000 contraseñas más comunes (v1.0 de este documento):** se eliminó. Al medirla contra las cinco reglas, ninguna de las 10.001 entradas podía llegar a la comprobación: 9.950 tienen menos de 10 caracteres, 45 de las 51 restantes no tienen ningún dígito, y las 6 que sobreviven (`1234567890`, `charlie123`, `quant4307s`…) no tienen símbolo. La rama era inalcanzable, el diccionario de 488 KB viajaba al navegador en `/registro`, y la pantalla le prometía al usuario una comprobación que nunca ocurría (Regla 1). La cuenta queda fijada en `app/lib/__tests__/contrasena.test.ts`.
+
+El reemplazo es la **API de Pwned Passwords de HaveIBeenPwned**, del lado del servidor, con el modelo *k-anonymity*: se calcula el SHA-1 de la contraseña, se envían solo los primeros 5 caracteres del hash a `api.pwnedpasswords.com/range/{prefijo}`, y el sufijo se busca acá entre los cientos que devuelve. El servicio nunca ve la contraseña ni el hash completo. Se pide además la cabecera `Add-Padding`, que rellena la respuesta con entradas falsas —contador 0, se descartan— para que su tamaño no delate nada. Es gratuita, no requiere clave y no tiene límite de peticiones.
+
+Corre en `/registro` y en el cambio de contraseña (`/configuracion/contrasena`). Si la API no responde en 2,5 s o falla, **la contraseña se acepta** y el incidente queda en el log del servidor: no se bloquea un registro por la caída de un servicio de terceros. Un barrido sobre el código (`contrasenas-verificadas.test.ts`) impide que una pantalla futura —"olvidé mi contraseña"— fije una contraseña sin pasar por la comprobación.
+
+**Falta configurar en Supabase Auth** (Authentication › Sign In / Providers › Email). La API de Supabase está expuesta: quien registre una cuenta pegándole directo a la API se saltea la validación del formulario.
+- `Minimum password length` en 10.
+- `Password requirements` en la opción más estricta.
+- `Secure password change` y `Require current password when updating` encendidos: sin ellos, una sesión robada alcanza para apropiarse de la cuenta.
+- `Prevent use of leaked passwords` es exclusivo del plan Pro. **No hace falta pagarlo**: es la misma protección que ya da la implementación contra Pwned Passwords descrita arriba. El linter de seguridad de Supabase lo va a marcar igual; es esperable.
 
 ### Criterios de aceptación
 - [ ] Registrarse con un email ya usado dice: *"Ya existe una cuenta con ese email. Podés iniciar sesión o recuperar tu contraseña."*, no un error genérico.
 - [ ] Un fallo a mitad del alta no deja registros parciales.
 - [ ] El asistente se puede saltar y retomar después desde Configuración.
 - [ ] El pie muestra nombre del producto, versión y enlace a soporte en login, registro y aplicación (Regla 1, branding).
+- [x] Una contraseña filtrada se rechaza con el número de apariciones y qué hacer; la contraseña nunca sale del servidor.
+- [x] Con HaveIBeenPwned caído, el registro funciona igual.
+- [ ] La política está configurada también en Supabase Auth, no solo en la aplicación.
 
 ---
 

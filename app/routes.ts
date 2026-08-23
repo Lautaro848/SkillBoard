@@ -14,6 +14,7 @@ export default [
   layout("routes/app/layout.tsx", [
     route("panel", "routes/app/panel.tsx"),
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
+    route("configuracion/contrasena", "routes/app/configuracion/contrasena.tsx"),
     route("configuracion/avisos", "routes/app/configuracion/avisos.tsx"),
     route("configuracion/reglas", "routes/app/configuracion/reglas.tsx"),
     route("empleados", "routes/app/empleados/index.tsx"),

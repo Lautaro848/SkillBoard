@@ -59,3 +59,20 @@ export const iniciarSesionSchema = z.object({
 });
 
 export type IniciarSesionInput = z.infer<typeof iniciarSesionSchema>;
+
+export const cambioContrasenaSchema = z
+  .object({
+    actual: z.string().min(1, "Ingresá tu contraseña actual"),
+    nueva: passwordSchema,
+    repetir: z.string().min(1, "Repetí la contraseña nueva"),
+  })
+  .refine((d) => d.nueva === d.repetir, {
+    message: "Las dos contraseñas nuevas no coinciden",
+    path: ["repetir"],
+  })
+  .refine((d) => d.nueva !== d.actual, {
+    message: "La contraseña nueva tiene que ser distinta de la actual",
+    path: ["nueva"],
+  });
+
+export type CambioContrasenaInput = z.infer<typeof cambioContrasenaSchema>;
