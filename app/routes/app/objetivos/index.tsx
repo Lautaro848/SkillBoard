@@ -109,22 +109,22 @@ export default function Objetivos({ loaderData, actionData }: Route.ComponentPro
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text)]">Objetivos</h1>
-          <p className="text-sm text-[var(--color-text-muted)]">
+          <h1 className="text-seccion font-semibold text-texto">Objetivos</h1>
+          <p className="text-menor text-secundario">
             Lo que la empresa se propone medir. De acá sale el índice de cumplimiento del panel.
           </p>
         </div>
         <div className="flex gap-2">
           <a
             href={verCerrados ? "/objetivos" : "/objetivos?cerrados=1"}
-            className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium"
           >
             {verCerrados ? "Ver solo activos" : "Ver todos"}
           </a>
           <button
             type="button"
             onClick={() => setMostrandoForm((v) => !v)}
-            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
           >
             {mostrandoForm ? "Cancelar" : "Nuevo objetivo"}
           </button>
@@ -132,7 +132,7 @@ export default function Objetivos({ loaderData, actionData }: Route.ComponentPro
       </div>
 
       {errores?._form && (
-        <p className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-sm text-[var(--color-danger)]">
+        <p className="rounded-control border border-error/30 bg-error/5 p-3 text-menor text-error">
           {errores._form[0]}
         </p>
       )}
@@ -157,9 +157,9 @@ export default function Objetivos({ loaderData, actionData }: Route.ComponentPro
 // primero (03-modulos-y-alcance.md, módulo 5).
 function EstadoVacioObjetivos({ onCrear }: { onCrear: () => void }) {
   return (
-    <div className="rounded-lg border border-dashed border-[var(--color-border)] p-8">
-      <h2 className="font-medium text-[var(--color-text)]">Todavía no definiste objetivos</h2>
-      <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+    <div className="rounded-tarjeta border border-dashed border-borde-decorativo p-8">
+      <h2 className="font-medium text-texto">Todavía no definiste objetivos</h2>
+      <p className="mt-1 text-menor text-secundario">
         Un objetivo es algo medible que la empresa se propone en un período: un número de partida, una meta y
         una fecha. SkillBoard no inventa métricas — mide lo que vos cargás.
       </p>
@@ -169,16 +169,16 @@ function EstadoVacioObjetivos({ onCrear }: { onCrear: () => void }) {
           { t: "Certificaciones al día", d: "Del 70% al 100% este mes" },
           { t: "Horas de capacitación", d: "De 0 a 120 horas en el año" },
         ].map((e) => (
-          <div key={e.t} className="rounded-md border border-[var(--color-border)] p-3">
-            <p className="text-sm font-medium">{e.t}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">{e.d}</p>
+          <div key={e.t} className="rounded-control border border-borde-decorativo p-3">
+            <p className="text-menor font-medium">{e.t}</p>
+            <p className="text-auxiliar text-secundario">{e.d}</p>
           </div>
         ))}
       </div>
       <button
         type="button"
         onClick={onCrear}
-        className="mt-4 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+        className="mt-4 rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
       >
         Crear el primer objetivo
       </button>
@@ -193,39 +193,39 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
   const pct = o.cumplimiento;
   const color =
     pct === null
-      ? "var(--color-text-muted)"
+      ? "var(--color-secundario)"
       : pct >= 90
-        ? "var(--color-success)"
+        ? "var(--color-exito)"
         : pct >= 60
-          ? "var(--color-warning)"
-          : "var(--color-danger)";
+          ? "var(--color-advertencia)"
+          : "var(--color-error)";
 
   return (
-    <li className="rounded-lg border border-[var(--color-border)] p-4">
+    <li className="rounded-tarjeta border border-borde-decorativo p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="font-medium text-[var(--color-text)]">{o.nombre}</h3>
-          <p className="text-xs text-[var(--color-text-muted)]">
+          <h3 className="font-medium text-texto">{o.nombre}</h3>
+          <p className="text-auxiliar text-secundario">
             {ETIQUETAS_PERIODICIDAD[o.periodicidad ?? ""] ?? ""} · {formatearFecha(o.periodoInicio)} al{" "}
             {formatearFecha(o.periodoFin)} · Peso {o.peso}
           </p>
         </div>
         <div className="text-right">
           {pct === null ? (
-            <span className="text-sm text-[var(--color-text-muted)]">Sin medir</span>
+            <span className="text-menor text-secundario">Sin medir</span>
           ) : (
             <>
-              <span className="text-2xl font-semibold" style={{ color }}>
+              <span className="text-seccion font-semibold" style={{ color }}>
                 {Math.round(pct)}
               </span>
-              <span className="text-sm text-[var(--color-text-muted)]">/100</span>
+              <span className="text-menor text-secundario">/100</span>
             </>
           )}
         </div>
       </div>
 
       <div className="mt-3">
-        <div className="flex justify-between text-xs text-[var(--color-text-muted)]">
+        <div className="flex justify-between text-auxiliar text-secundario">
           <span>
             {formatearValor(o.valorInicial, o.unidad)} →{" "}
             {o.valorActual !== null ? <strong>{formatearValor(o.valorActual, o.unidad)}</strong> : "sin medir"} →{" "}
@@ -234,36 +234,36 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
           <span>{Math.round(o.avanceEsperado * 100)}% del tiempo transcurrido</span>
         </div>
         {/* Dos barras: lo avanzado y, encima, la marca de dónde debería ir. */}
-        <div className="relative mt-1 h-2 rounded-full bg-[var(--color-border)]">
+        <div className="relative mt-1 h-2 rounded-full bg-borde-decorativo">
           <div
             className="absolute inset-y-0 left-0 rounded-full"
             style={{ width: `${Math.min(Math.max(o.avanceReal, 0), 1) * 100}%`, backgroundColor: color }}
           />
           <div
-            className="absolute inset-y-[-3px] w-0.5 bg-[var(--color-text)]"
+            className="absolute -inset-y-1 w-0.5 bg-texto"
             style={{ left: `${o.avanceEsperado * 100}%` }}
             title="Dónde debería ir hoy"
           />
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-auxiliar">
         <button
           type="button"
           onClick={() => setMidiendo((v) => !v)}
-          className="rounded-md border border-[var(--color-border)] px-3 py-1 font-medium"
+          className="rounded-control border border-borde-decorativo px-3 py-1 font-medium"
         >
           {midiendo ? "Cancelar" : "Cargar medición"}
         </button>
         <fetcher.Form method="post">
           <input type="hidden" name="intent" value="cerrar" />
           <input type="hidden" name="objetivoId" value={o.id} />
-          <button type="submit" className="text-[var(--color-text-muted)] underline">
+          <button type="submit" className="text-secundario underline">
             Cerrar objetivo
           </button>
         </fetcher.Form>
         {mediciones.length > 0 && (
-          <span className="text-[var(--color-text-muted)]">
+          <span className="text-secundario">
             {mediciones.length} {mediciones.length === 1 ? "medición" : "mediciones"} · última el{" "}
             {formatearFecha(mediciones[mediciones.length - 1].fecha)}
           </span>
@@ -271,11 +271,11 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
       </div>
 
       {midiendo && (
-        <Form method="post" className="mt-3 flex flex-wrap items-end gap-3 rounded-md bg-[var(--color-bg)] p-3">
+        <Form method="post" className="mt-3 flex flex-wrap items-end gap-3 rounded-control bg-fondo p-3">
           <input type="hidden" name="intent" value="medir" />
           <input type="hidden" name="objetivoId" value={o.id} />
           <div>
-            <label className="text-xs font-medium" htmlFor={`valor-${o.id}`}>
+            <label className="text-auxiliar font-medium" htmlFor={`valor-${o.id}`}>
               Valor actual
             </label>
             <input
@@ -284,11 +284,11 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
               type="number"
               step="any"
               required
-              className="mt-1 block w-32 rounded-md border border-[var(--color-border)] px-2 py-1 text-sm"
+              className="mt-1 block w-32 rounded-control border border-borde-decorativo px-2 py-1 text-menor"
             />
           </div>
           <div>
-            <label className="text-xs font-medium" htmlFor={`fecha-${o.id}`}>
+            <label className="text-auxiliar font-medium" htmlFor={`fecha-${o.id}`}>
               Fecha
             </label>
             <input
@@ -297,22 +297,22 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
               type="date"
               required
               defaultValue={new Date().toISOString().slice(0, 10)}
-              className="mt-1 block rounded-md border border-[var(--color-border)] px-2 py-1 text-sm"
+              className="mt-1 block rounded-control border border-borde-decorativo px-2 py-1 text-menor"
             />
           </div>
-          <div className="min-w-[160px] flex-1">
-            <label className="text-xs font-medium" htmlFor={`nota-${o.id}`}>
+          <div className="min-w-40 flex-1">
+            <label className="text-auxiliar font-medium" htmlFor={`nota-${o.id}`}>
               Nota
             </label>
             <input
               id={`nota-${o.id}`}
               name="nota"
-              className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-2 py-1 text-sm"
+              className="mt-1 block w-full rounded-control border border-borde-decorativo px-2 py-1 text-menor"
             />
           </div>
           <button
             type="submit"
-            className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="rounded-control bg-primario px-3 py-1.5 text-menor font-medium text-white"
           >
             Guardar
           </button>
@@ -333,8 +333,8 @@ function FormularioObjetivo({
   const enTresMeses = new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10);
 
   return (
-    <Form method="post" className="flex flex-col gap-4 rounded-lg border border-[var(--color-border)] p-4" noValidate>
-      <p className="text-xs text-[var(--color-text-muted)]">
+    <Form method="post" className="flex flex-col gap-4 rounded-tarjeta border border-borde-decorativo p-4" noValidate>
+      <p className="text-auxiliar text-secundario">
         Los campos marcados con <span aria-hidden>*</span> son obligatorios.
       </p>
 
@@ -366,14 +366,14 @@ function FormularioObjetivo({
           opciones={ETIQUETAS_PESO}
           defaultValue={valores.peso ?? "3"}
         />
-        <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+        <p className="mt-1 text-auxiliar text-secundario">
           Pondera cuánto influye este objetivo en el índice general.
         </p>
       </div>
 
       <button
         type="submit"
-        className="w-fit rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+        className="w-fit rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
       >
         Crear objetivo
       </button>
@@ -398,7 +398,7 @@ function Campo({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium" htmlFor={name}>
+      <label className="text-menor font-medium" htmlFor={name}>
         {label} {required && "*"}
       </label>
       <input
@@ -408,9 +408,9 @@ function Campo({
         step={type === "number" ? "any" : undefined}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
       />
-      {errores?.[0] && <p className="mt-1 text-xs text-[var(--color-danger)]">{errores[0]}</p>}
+      {errores?.[0] && <p className="mt-1 text-auxiliar text-error">{errores[0]}</p>}
     </div>
   );
 }
@@ -428,14 +428,14 @@ function Selector({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium" htmlFor={name}>
+      <label className="text-menor font-medium" htmlFor={name}>
         {label} *
       </label>
       <select
         id={name}
         name={name}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
       >
         {Object.entries(opciones).map(([v, t]) => (
           <option key={v} value={v}>

@@ -166,8 +166,8 @@ export default function Carrusel({ loaderData, actionData }: Route.ComponentProp
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text)]">Modo carrusel</h1>
-          <p className="max-w-2xl text-sm text-[var(--color-text-muted)]">
+          <h1 className="text-seccion font-semibold text-texto">Modo carrusel</h1>
+          <p className="max-w-2xl text-menor text-secundario">
             Una pantalla para colgar en el comedor o la recepción. Se abre con un enlace propio, sin usuario ni
             contraseña, y muestra a la gente de a una. No espeja tu pantalla: podés seguir usando SkillBoard
             normalmente.
@@ -177,7 +177,7 @@ export default function Carrusel({ loaderData, actionData }: Route.ComponentProp
           <input type="hidden" name="intent" value="crear" />
           <button
             type="submit"
-            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+            className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
           >
             Nuevo carrusel
           </button>
@@ -185,19 +185,19 @@ export default function Carrusel({ loaderData, actionData }: Route.ComponentProp
       </div>
 
       {actionData?.errores?._form && (
-        <p className="rounded-md border border-[var(--color-danger)] px-4 py-2 text-sm text-[var(--color-danger)]">
+        <p className="rounded-control border border-error px-4 py-2 text-menor text-error">
           {actionData.errores._form[0]}
         </p>
       )}
       {actionData && "mensaje" in actionData && actionData.mensaje && (
-        <p className="rounded-md border border-[var(--color-success)] px-4 py-2 text-sm text-[var(--color-success)]">
+        <p className="rounded-control border border-exito px-4 py-2 text-menor text-exito">
           {actionData.mensaje}
         </p>
       )}
 
       {carruseles.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[var(--color-border)] p-8 text-center">
-          <p className="mx-auto max-w-lg text-sm text-[var(--color-text-muted)]">
+        <div className="rounded-tarjeta border border-dashed border-borde-decorativo p-8 text-center">
+          <p className="mx-auto max-w-lg text-menor text-secundario">
             Todavía no creaste ningún carrusel. Al crear uno vas a obtener un enlace para abrir en la TV, y podés
             elegir qué gente entra y qué datos se muestran.
           </p>
@@ -277,18 +277,18 @@ function TarjetaCarrusel({
     set(lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor]);
 
   return (
-    <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] px-5 py-4">
+    <section className="rounded-tarjeta border border-borde-decorativo bg-superficie">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-borde-decorativo px-5 py-4">
         <div className="min-w-0">
-          <p className="font-medium text-[var(--color-text)]">
+          <p className="font-medium text-texto">
             {carrusel.nombre}
             {!carrusel.activo && (
-              <span className="ml-2 rounded-full bg-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-text-muted)]">
+              <span className="ml-2 rounded-full bg-borde-decorativo px-2 py-0.5 text-auxiliar font-normal text-secundario">
                 Apagado
               </span>
             )}
           </p>
-          <p className="mt-0.5 truncate font-mono text-xs text-[var(--color-text-muted)]">{url}</p>
+          <p className="mt-0.5 truncate font-mono text-auxiliar text-secundario">{url}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -298,7 +298,7 @@ function TarjetaCarrusel({
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
             }}
-            className="rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
           >
             {copiado ? "Copiado" : "Copiar enlace"}
           </button>
@@ -306,14 +306,14 @@ function TarjetaCarrusel({
             href={`/tv/${carrusel.token}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
           >
             Abrir
           </a>
           <button
             type="button"
             onClick={onAbrir}
-            className="rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium"
+            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
             aria-expanded={abierto}
           >
             {abierto ? "Cerrar" : "Configurar"}
@@ -329,17 +329,17 @@ function TarjetaCarrusel({
 
             <div className="grid gap-4 sm:grid-cols-[2fr_1fr_auto]">
               <label className="block">
-                <span className="text-sm font-medium">Nombre</span>
+                <span className="text-menor font-medium">Nombre</span>
                 <input
                   name="nombre"
                   defaultValue={carrusel.nombre}
-                  className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
                 />
-                {errores?.nombre && <p className="mt-1 text-xs text-[var(--color-danger)]">{errores.nombre[0]}</p>}
+                {errores?.nombre && <p className="mt-1 text-auxiliar text-error">{errores.nombre[0]}</p>}
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium">Segundos por pantalla</span>
+                <span className="text-menor font-medium">Segundos por pantalla</span>
                 <input
                   name="segundosPorSlide"
                   type="number"
@@ -347,16 +347,16 @@ function TarjetaCarrusel({
                   max={60}
                   value={segundos}
                   onChange={(e) => setSegundos(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
                 />
                 {errores?.segundosPorSlide && (
-                  <p className="mt-1 text-xs text-[var(--color-danger)]">{errores.segundosPorSlide[0]}</p>
+                  <p className="mt-1 text-auxiliar text-error">{errores.segundosPorSlide[0]}</p>
                 )}
               </label>
 
               <label className="flex items-end gap-2 pb-2">
                 <input type="checkbox" name="activo" defaultChecked={carrusel.activo} className="h-4 w-4" />
-                <span className="text-sm">Encendido</span>
+                <span className="text-menor">Encendido</span>
               </label>
             </div>
 
@@ -372,10 +372,10 @@ function TarjetaCarrusel({
                       onChange={() => setCampos({ ...campos, [c.clave]: !campos[c.clave] })}
                       className="mt-0.5 h-4 w-4"
                     />
-                    <span className="text-sm">
+                    <span className="text-menor">
                       {c.etiqueta}
                       {c.detalle && (
-                        <span className="block text-xs text-[var(--color-text-muted)]">{c.detalle}</span>
+                        <span className="block text-auxiliar text-secundario">{c.detalle}</span>
                       )}
                     </span>
                   </label>
@@ -383,8 +383,8 @@ function TarjetaCarrusel({
               </div>
               {/* Se listan a propósito: que se vea que la decisión está tomada
                   y no que nos olvidamos de ponerlos. */}
-              <p className="mt-4 border-t border-[var(--color-border)] pt-3 text-xs text-[var(--color-text-muted)]">
-                <strong className="font-medium text-[var(--color-text)]">
+              <p className="mt-4 border-t border-borde-decorativo pt-3 text-auxiliar text-secundario">
+                <strong className="font-medium text-texto">
                   Nunca se muestran en la TV, y no se pueden habilitar:
                 </strong>{" "}
                 {CAMPOS_BLOQUEADOS.join(" · ")}. Una pantalla en el comedor la ve cualquiera, incluidas las
@@ -394,7 +394,7 @@ function TarjetaCarrusel({
             </Bloque>
 
             <Bloque titulo="Quién aparece">
-              <p className="text-xs text-[var(--color-text-muted)]">
+              <p className="text-auxiliar text-secundario">
                 Sin nada tildado entran todos los empleados activos. Si elegís gente a mano, esa selección manda
                 sobre los filtros.
               </p>
@@ -447,20 +447,20 @@ function TarjetaCarrusel({
               <VistaPrevia empleados={incluidos} campos={campos} />
             </Bloque>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4">
+            <div className="flex flex-wrap items-center gap-3 border-t border-borde-decorativo pt-4">
               <button
                 type="submit"
-                className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-contrast)]"
+                className="rounded-control bg-primario px-4 py-2 text-menor font-medium text-white"
               >
                 Guardar cambios
               </button>
-              <span className="text-xs text-[var(--color-text-muted)]">
+              <span className="text-auxiliar text-secundario">
                 La TV toma los cambios sola en menos de un minuto, sin reiniciarla.
               </span>
             </div>
           </Form>
 
-          <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--color-border)] pt-4">
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-borde-decorativo pt-4">
             <BotonPeligroso
               intent="rotar"
               id={carrusel.id}
@@ -493,7 +493,7 @@ function VistaPrevia({
 
   if (empleados.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-[var(--color-border)] px-4 py-6 text-center text-sm text-[var(--color-text-muted)]">
+      <p className="rounded-control border border-dashed border-borde-decorativo px-4 py-6 text-center text-menor text-secundario">
         Con estos filtros no queda nadie para mostrar. La TV mostraría un cartel avisándolo, no una pantalla en
         negro.
       </p>
@@ -504,11 +504,11 @@ function VistaPrevia({
 
   return (
     <div>
-      <div className="flex aspect-video items-center justify-center overflow-hidden rounded-md bg-[#0e1a1c] text-white">
+      <div className="flex aspect-video items-center justify-center overflow-hidden rounded-control bg-tv-fondo text-white">
         <SlideCarrusel empleado={actual} campos={campos} escala={0.3} />
       </div>
       {empleados.length > 1 && (
-        <div className="mt-2 flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+        <div className="mt-2 flex items-center justify-between text-auxiliar text-secundario">
           <span>
             Pantalla {Math.min(indice, empleados.length - 1) + 1} de {empleados.length}
           </span>
@@ -516,14 +516,14 @@ function VistaPrevia({
             <button
               type="button"
               onClick={() => setIndice((i) => (i - 1 + empleados.length) % empleados.length)}
-              className="rounded border border-[var(--color-border)] px-2 py-1"
+              className="rounded border border-borde-decorativo px-2 py-1"
             >
               Anterior
             </button>
             <button
               type="button"
               onClick={() => setIndice((i) => (i + 1) % empleados.length)}
-              className="rounded border border-[var(--color-border)] px-2 py-1"
+              className="rounded border border-borde-decorativo px-2 py-1"
             >
               Siguiente
             </button>
@@ -537,8 +537,8 @@ function VistaPrevia({
 function Bloque({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="mb-2 text-sm font-semibold text-[var(--color-text)]">{titulo}</h3>
-      <div className="rounded-md border border-[var(--color-border)] p-4">{children}</div>
+      <h3 className="mb-2 text-menor font-semibold text-texto">{titulo}</h3>
+      <div className="rounded-control border border-borde-decorativo p-4">{children}</div>
     </section>
   );
 }
@@ -546,11 +546,11 @@ function Bloque({ titulo, children }: { titulo: string; children: React.ReactNod
 function Lista({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">{titulo}</p>
+      <p className="text-auxiliar font-medium uppercase tracking-wide text-secundario">{titulo}</p>
       <div className="mt-2 max-h-48 overflow-y-auto pr-1">
         {children ?? null}
         {Array.isArray(children) && children.length === 0 && (
-          <p className="text-xs text-[var(--color-text-muted)]">Nada cargado todavía.</p>
+          <p className="text-auxiliar text-secundario">Nada cargado todavía.</p>
         )}
       </div>
     </div>
@@ -583,7 +583,7 @@ function Casilla({
         disabled={deshabilitado}
         className="h-4 w-4"
       />
-      <span className="truncate text-sm">{etiqueta}</span>
+      <span className="truncate text-menor">{etiqueta}</span>
     </label>
   );
 }
@@ -610,7 +610,7 @@ function BotonPeligroso({
       <button
         type="submit"
         disabled={navegacion.state !== "idle"}
-        className="rounded-md border border-[var(--color-danger)] px-3 py-1.5 text-sm font-medium text-[var(--color-danger)] disabled:opacity-50"
+        className="rounded-control border border-error px-3 py-1.5 text-menor font-medium text-error disabled:opacity-50"
       >
         {etiqueta}
       </button>

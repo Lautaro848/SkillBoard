@@ -10,16 +10,24 @@ import type { Route } from "./+types/root";
 
 import "./app.css";
 
+// Las tipografías se sirven propias, no desde el CDN de Google: así no hay
+// una llamada a un tercero con la IP de cada persona que abre la aplicación
+// (05-sistema-de-diseno.md §2). Se precargan las dos que aparecen en el
+// primer pintado; el resto de los pesos llegan con la hoja de estilos.
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
+    rel: "preload",
+    href: "/fonts/inter-latin-400-normal.woff2",
+    as: "font",
+    type: "font/woff2",
     crossOrigin: "anonymous",
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap",
+    rel: "preload",
+    href: "/fonts/manrope-latin-700-normal.woff2",
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
   },
 ];
 
@@ -63,10 +71,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-3 px-6 text-center">
-      <h1 className="text-2xl font-semibold">{message}</h1>
-      <p className="text-[var(--color-text-muted)]">{details}</p>
+      <h1 className="text-seccion font-semibold">{message}</h1>
+      <p className="text-secundario">{details}</p>
       {stack && (
-        <pre className="w-full overflow-x-auto rounded-md bg-black/90 p-4 text-left text-xs text-white">
+        <pre className="w-full overflow-x-auto rounded-control bg-texto p-4 text-left text-auxiliar text-white">
           <code>{stack}</code>
         </pre>
       )}

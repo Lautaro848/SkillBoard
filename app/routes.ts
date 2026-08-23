@@ -15,6 +15,7 @@ export default [
     route("panel", "routes/app/panel.tsx"),
     route("configuracion/catalogos", "routes/app/configuracion/catalogos.tsx"),
     route("configuracion/avisos", "routes/app/configuracion/avisos.tsx"),
+    route("configuracion/reglas", "routes/app/configuracion/reglas.tsx"),
     route("empleados", "routes/app/empleados/index.tsx"),
     route("empleados/nuevo", "routes/app/empleados/nuevo.tsx"),
     route("empleados/importar", "routes/app/empleados/importar.tsx"),
@@ -24,5 +25,6 @@ export default [
     route("certificados", "routes/app/certificados/index.tsx"),
     route("objetivos", "routes/app/objetivos/index.tsx"),
     route("carrusel", "routes/app/carrusel/index.tsx"),
+    route("tukson", "routes/app/tukson/index.tsx"),
   ]),
 ] satisfies RouteConfig;

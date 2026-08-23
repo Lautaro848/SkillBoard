@@ -23,38 +23,62 @@ const NAV = [
   { to: "/empleados", label: "Empleados" },
   { to: "/certificados", label: "Certificados" },
   { to: "/objetivos", label: "Objetivos" },
+  { to: "/tukson", label: "Tukson" },
   { to: "/carrusel", label: "Modo carrusel" },
   { to: "/configuracion/catalogos", label: "Configuración" },
-  // Tukson se habilita en la fase 5.
 ] as const;
+
+// Sale del package.json en el build; acá se declara una sola vez para que el
+// pie no repita el número a mano en cada pantalla.
+const VERSION = "0.1.0";
 
 export default function AppLayout({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6">
-        <p className="px-2 text-lg font-bold text-[var(--color-primary)]">SkillBoard</p>
-        <p className="mt-1 px-2 text-xs text-[var(--color-text-muted)]">{loaderData.empresaNombre}</p>
-        <nav className="mt-8 flex flex-col gap-1">
+      {/* Primer elemento enfocable de la aplicación: quien navega con teclado
+          no tiene que recorrer todo el menú en cada pantalla. */}
+      <a href="#contenido" className="saltar text-menor font-medium text-primario">
+        Saltar al contenido
+      </a>
+
+      {/* Menú lateral de 260 px y contenido a 1200 px como máximo
+          (05-sistema-de-diseno.md §6). */}
+      <aside className="flex w-65 shrink-0 flex-col border-r border-borde-decorativo bg-superficie px-4 py-6">
+        <p className="px-2 text-tarjeta font-bold text-primario">SkillBoard</p>
+        <p className="mt-1 px-2 text-auxiliar text-secundario">{loaderData.empresaNombre}</p>
+        <nav className="mt-8 flex flex-col gap-1" aria-label="Secciones">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `rounded-md px-2 py-1.5 text-sm ${isActive ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]" : "text-[var(--color-text)]"}`
+                `rounded-control px-3 py-2 text-menor ${
+                  isActive ? "bg-primario-claro font-medium text-primario" : "text-texto"
+                }`
               }
             >
               {item.label}
             </NavLink>
           ))}
         </nav>
-        <Form method="post" action="/cerrar-sesion" className="mt-auto">
-          <button type="submit" className="text-sm text-[var(--color-text-muted)] underline">
-            Cerrar sesión
-          </button>
-        </Form>
+
+        <div className="mt-auto flex flex-col gap-3 pt-6">
+          <Form method="post" action="/cerrar-sesion">
+            <button type="submit" className="boton boton-terciario">
+              Cerrar sesión
+            </button>
+          </Form>
+          {/* La marca acompaña siempre, también en el pie (§8). Los enlaces
+              legales se suman en la Fase 6, cuando esas páginas existan: no
+              tiene sentido enlazar a algo que hoy daría 404. */}
+          <p className="px-2 text-auxiliar text-secundario">SkillBoard · versión {VERSION}</p>
+        </div>
       </aside>
-      <main className="flex-1 px-8 py-6">
-        <Outlet />
+
+      <main id="contenido" className="flex-1 px-8 py-8">
+        <div className="mx-auto max-w-300">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

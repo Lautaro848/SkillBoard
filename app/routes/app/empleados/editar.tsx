@@ -136,7 +136,7 @@ export default function EditarEmpleado({ loaderData, actionData }: Route.Compone
   const { empleado } = loaderData;
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text)]">
+      <h1 className="text-seccion font-semibold text-texto">
         Editar a {empleado.nombre} {empleado.apellido}
       </h1>
       <EmpleadoForm

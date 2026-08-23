@@ -108,7 +108,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 export default function ImportarEmpleados({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text)]">Importar empleados</h1>
+      <h1 className="text-seccion font-semibold text-texto">Importar empleados</h1>
       <ImportarWizard puestos={loaderData.puestos} departamentos={loaderData.departamentos} idsExistentes={loaderData.idsExistentes} />
     </div>
   );

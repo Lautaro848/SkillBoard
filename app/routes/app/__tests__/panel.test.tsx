@@ -28,13 +28,13 @@ const vacio = {
 
 // Un router de datos, no un MemoryRouter a secas: el selector de período usa
 // <Form>, que necesita el contexto de datos para existir.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const render = (loaderData: any) => {
   const router = createMemoryRouter(
     [
       {
         path: "/panel",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         element: <Panel loaderData={loaderData} {...({} as any)} />,
       },
     ],
@@ -50,7 +50,7 @@ describe("Panel", () => {
     expect(html).toContain("Todavía no hay objetivos en este período");
     // Si no hay índice, no hay figura: la clase de la cifra protagonista no
     // llega a renderizarse.
-    expect(html).not.toContain("text-6xl");
+    expect(html).not.toContain("text-figura");
   });
 
   it("con objetivos pero sin mediciones dice qué falta, no un cero", () => {
@@ -77,7 +77,7 @@ describe("Panel", () => {
     });
     expect(html).toContain("ninguno tiene mediciones todavía");
     expect(html).toContain("Sin medir");
-    expect(html).not.toContain("text-6xl");
+    expect(html).not.toContain("text-figura");
   });
 
   it("con un objetivo medido muestra la figura y el texto de comparación", () => {
