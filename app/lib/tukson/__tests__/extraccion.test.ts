@@ -7,14 +7,18 @@ import {
 } from "~/lib/tukson/extraccion";
 
 const bytes = (...n: number[]) => new Uint8Array([...n, ...new Array(64).fill(0x41)]);
+// Relleno con bytes de control: lo que hace que un archivo NO sea texto.
+const binario = (...n: number[]) => new Uint8Array([...n, ...new Array(64).fill(0x00)]);
 
 describe("detectarTipo", () => {
   it("reconoce un PDF por su contenido", () => {
     expect(detectarTipo(bytes(0x25, 0x50, 0x44, 0x46, 0x2d))).toBe("pdf");
   });
 
-  it("reconoce un docx por la firma de ZIP", () => {
-    expect(detectarTipo(bytes(0x50, 0x4b, 0x03, 0x04))).toBe("docx");
+  it("un ZIP cualquiera ya no se hace pasar por docx", () => {
+    // Antes bastaba la firma PK para darlo por Word. Un .docx, un .xlsx, un
+    // .odt y un .zip de fotos son todos ZIP: hay que mirar qué tienen adentro.
+    expect(detectarTipo(bytes(0x50, 0x4b, 0x03, 0x04))).toBe("desconocido");
   });
 
   it("un ejecutable renombrado a .pdf no pasa", () => {
@@ -43,7 +47,10 @@ describe("validarArchivo", () => {
   });
 
   it("ante un tipo desconocido ofrece la salida de pegar texto", () => {
-    const r = validarArchivo(bytes(0x4d, 0x5a), "raro.bin");
+    // Binario de verdad: bytes de control, que es lo que separa un archivo
+    // ilegible de un .txt. "MZ" seguido de letras SÍ es texto legible, y el
+    // detector tiene razón en aceptarlo.
+    const r = validarArchivo(binario(0x4d, 0x5a, 0x90, 0x00), "raro.bin");
     expect(r && !r.ok && r.motivo).toContain("pegar las tareas como texto");
   });
 });

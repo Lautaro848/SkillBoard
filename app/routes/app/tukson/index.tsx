@@ -329,8 +329,20 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   if (intent === "aprobar-regla") {
-    const vigencia = String(formData.get("vigenciaHasta") ?? "").trim();
     const id = String(formData.get("reglaId"));
+    // "Hasta nuevo aviso" o "hasta una fecha": la duración se elige de
+    // frente. Si eligió fecha, la fecha es obligatoria — antes un campo
+    // vacío convertía la regla en permanente sin que nadie lo pidiera.
+    const duracion = String(formData.get("vigencia") ?? "siempre");
+    const vigencia = String(formData.get("vigenciaHasta") ?? "").trim();
+
+    if (duracion === "hasta" && !vigencia) {
+      return {
+        errores: { vigenciaHasta: ["Elegí hasta qué día se aplica, o marcá «Hasta nuevo aviso»."] } as Errores,
+      };
+    }
+
+    const hasta = duracion === "hasta" ? vigencia : "";
 
     const { data: actual } = await supabase
       .from("reglas_empresa")
@@ -344,7 +356,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       .update({
         activa: true,
         confirmada_por: userId,
-        condiciones: { ...(actual?.condiciones ?? {}), ...(vigencia ? { vigenciaHasta: vigencia } : {}) },
+        condiciones: { ...(actual?.condiciones ?? {}), ...(hasta ? { vigenciaHasta: hasta } : {}) },
       })
       .eq("id", id)
       .eq("empresa_id", empresaId);
@@ -436,7 +448,7 @@ export default function Tukson({ loaderData, actionData }: Route.ComponentProps)
       )}
 
       {reglasPendientes.map((r) => (
-        <ReglaPropuesta key={r.id} regla={r} />
+        <ReglaPropuesta key={r.id} regla={r} errorFecha={actionData?.errores?.vigenciaHasta?.[0]} />
       ))}
 
       {paso === 3 && lote && (
@@ -505,11 +517,19 @@ function Ingesta() {
       <section className="tarjeta p-6">
         <h2 className="text-tarjeta font-semibold text-texto">Subir un documento</h2>
         <p className="mt-1 text-menor text-secundario">
-          PDF o Word, hasta 10 MB. Si el PDF es un escaneo sin texto seleccionable te lo vamos a decir en vez de
-          adivinar.
+          PDF, Word, Excel, LibreOffice, CSV o un .txt del Bloc de notas, hasta 10 MB. Si el PDF es un escaneo sin
+          texto seleccionable te lo vamos a decir en vez de adivinar.
         </p>
         <div className="mt-4">
-          <Campo etiqueta="Archivo" type="file" name="archivo" accept=".pdf,.docx" />
+          {/* `accept` es una ayuda del explorador de archivos, no una
+              validación: lo que decide es la firma del contenido, del lado del
+              servidor (extraccion.ts). Por eso la lista es generosa. */}
+          <Campo
+            etiqueta="Archivo"
+            type="file"
+            name="archivo"
+            accept=".pdf,.docx,.xlsx,.xlsm,.odt,.ods,.rtf,.csv,.tsv,.txt,.md,.log,text/plain"
+          />
         </div>
         <BotonEnviar variante="principal" etiquetaCargando="Leyendo…" className="mt-4">
           Continuar
@@ -939,26 +959,64 @@ function FilaPropuesta({
 // El tercer botón es tan importante como el primero: la mayoría de las
 // correcciones son casos puntuales, y convertirlas todas en reglas
 // permanentes degradaría el sistema con el uso.
-function ReglaPropuesta({ regla }: { regla: { id: string; enunciado: string } }) {
+function ReglaPropuesta({ regla, errorFecha }: { regla: { id: string; enunciado: string }; errorFecha?: string }) {
+  // "Hasta nuevo aviso" es lo más común, así que viene elegido y la fecha ni
+  // siquiera aparece hasta que hace falta.
+  const [conFecha, setConFecha] = useState(false);
+
   return (
     <section className="tarjeta border-primario p-6">
       <h2 className="text-tarjeta font-semibold text-texto">Tukson entendió esto de tu corrección</h2>
       <p className="mt-3 text-cuerpo text-texto">“{regla.enunciado}”</p>
 
-      <Form method="post" className="mt-4 flex flex-wrap items-end gap-4">
+      {/* Cuánto dura la regla es una decisión, no un campo opcional. Antes
+          era una fecha con la ayuda "dejalo vacío si no tiene fecha de fin":
+          una regla permanente se elegía NO haciendo nada, que es la forma más
+          fácil de elegirla sin querer. Ahora las dos opciones se ven. */}
+      <Form method="post" className="mt-4 flex flex-col gap-3">
         <input type="hidden" name="intent" value="aprobar-regla" />
         <input type="hidden" name="reglaId" value={regla.id} />
-        <CampoFecha
-          etiqueta="Aplicarla hasta"
-          name="vigenciaHasta"
-          className="max-w-56"
-          ayuda="Dejalo vacío si no tiene fecha de fin."
-        />
-        <div className="flex flex-wrap gap-3 pb-6">
-          <Boton variante="principal" type="submit">
-            Confirmar regla
-          </Boton>
-        </div>
+
+        <fieldset>
+          <legend className="text-menor font-medium text-texto">Cuánto dura</legend>
+          <div className="mt-2 flex flex-col gap-2">
+            <label className="flex items-center gap-2 text-menor">
+              <input
+                type="radio"
+                name="vigencia"
+                value="siempre"
+                defaultChecked
+                onChange={() => setConFecha(false)}
+                className="h-4 w-4"
+              />
+              Hasta nuevo aviso
+            </label>
+            <label className="flex items-center gap-2 text-menor">
+              <input
+                type="radio"
+                name="vigencia"
+                value="hasta"
+                onChange={() => setConFecha(true)}
+                className="h-4 w-4"
+              />
+              Hasta una fecha
+            </label>
+          </div>
+        </fieldset>
+
+        {conFecha && (
+          <CampoFecha
+            etiqueta="Aplicarla hasta"
+            name="vigenciaHasta"
+            className="max-w-56"
+            required
+            error={errorFecha}
+          />
+        )}
+
+        <Boton variante="principal" type="submit" className="self-start">
+          Confirmar regla
+        </Boton>
       </Form>
 
       <Form method="post">
