@@ -1,7 +1,22 @@
 import { z } from "zod";
 
 const NOMBRE_RE = /^[A-Za-zÀ-ÿñÑ\s\-']{2,50}$/;
-const ID_INTERNO_RE = /^[A-Za-z0-9]{3,20}$/;
+// Los legajos reales casi nunca son solo letras y números: OP-0143, 12.345,
+// RH/2024-07. La versión anterior de esta regla exigía [A-Za-z0-9] a secas y
+// rechazaba hasta el ejemplo de la plantilla que descarga el propio programa.
+// Se permiten separadores en el medio, pero no en los extremos, para que
+// " -OP-0143-" no entre como un ID distinto de "OP-0143".
+const ID_INTERNO_RE = /^[A-Za-z0-9][A-Za-z0-9._/-]{1,18}[A-Za-z0-9]$/;
+// ¿Tiene algún carácter fuera del ASCII? Se mira código por código en vez de
+// con un rango en una expresión regular: un rango escrito con caracteres de
+// control queda invisible en el editor y nadie lo puede revisar.
+function tieneNoAscii(texto: string): boolean {
+  for (const caracter of texto) {
+    if (caracter.codePointAt(0)! > 127) return true;
+  }
+  return false;
+}
+
 const TELEFONO_RE = /^[0-9\s\-()+]{8,20}$/;
 
 function capitalizar(valor: string): string {
@@ -28,7 +43,11 @@ export const empleadoSchema = z
     idInterno: z
       .string()
       .trim()
-      .regex(ID_INTERNO_RE, "El ID interno debe ser alfanumérico, de 3 a 20 caracteres")
+      .regex(
+        ID_INTERNO_RE,
+        "El ID interno puede tener letras, números, guiones, puntos y barras, entre 3 y 20 caracteres, " +
+          "y tiene que empezar y terminar con una letra o un número. Por ejemplo: OP-0143.",
+      )
       .transform((v) => v.toUpperCase()),
     nombre: z
       .string()
@@ -44,7 +63,19 @@ export const empleadoSchema = z
       .string()
       .trim()
       .toLowerCase()
-      .email("Ingresá un email válido")
+      // Importando una planilla aparece seguido un email con acento o ñ
+      // —andres.nuñez@empresa.com—, casi siempre porque lo armó una fórmula a
+      // partir del apellido. El correo estándar no los acepta, pero decir
+      // "email inválido" a secas deja a la persona mirando una dirección que
+      // a simple vista está perfecta.
+      .refine((v) => v === "" || !tieneNoAscii(v), {
+        message:
+          "El email tiene letras con acento o ñ, que las direcciones de correo no admiten. " +
+          "Suele pasar cuando se arma desde el apellido: probá con la versión sin acentos.",
+      })
+      .refine((v) => v === "" || z.string().email().safeParse(v).success, {
+        message: "Ingresá un email válido",
+      })
       .optional()
       .or(z.literal("")),
     telefono: z

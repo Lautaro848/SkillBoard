@@ -325,7 +325,7 @@ function BotonEliminar({ nombreCompleto }: { nombreCompleto: string }) {
         <input
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          className="mt-3 w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+          className="campo mt-3"
           autoFocus
         />
         <div className="mt-4 flex justify-end gap-2">

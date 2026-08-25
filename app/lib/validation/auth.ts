@@ -1,27 +1,25 @@
 import { z } from "zod";
-// @ts-expect-error -- no published type definitions
-import dumbPasswords from "dumb-passwords";
+import { revisarReglas } from "~/lib/validation/contrasena";
 
 export interface PasswordCheck {
   ok: boolean;
   reasons: string[];
 }
 
-// Rule-based strength check with visible text per requisite, not just a color
-// bar (03-modulos-y-alcance.md §Contraseñas). The blocklist is the offline
-// "10,000 most common passwords" list bundled by dumb-passwords — no
-// external calls, as required.
+// La comprobación del servidor, que es la que decide (Regla 3).
+//
+// Acá había además una consulta contra `dumb-passwords`, la lista de las
+// 10.000 contraseñas más usadas. Se sacó porque es inalcanzable: ninguna
+// entrada de esa lista puede pasar las cinco reglas, así que la rama nunca
+// se ejecutaba. La cuenta está en el test, con los datos.
+//
+// Que sea inalcanzable no significa que no haga falta protección contra
+// contraseñas filtradas: significa que esa lista no la daba. La da Supabase
+// Auth con su comprobación contra HaveIBeenPwned, que se activa en el panel
+// del proyecto y consulta un corpus de miles de millones, no de 10.000.
 export function checkPasswordStrength(password: string): PasswordCheck {
-  const reasons: string[] = [];
-  if (password.length < 10) reasons.push("Al menos 10 caracteres");
-  if (!/[a-z]/.test(password)) reasons.push("Una letra minúscula");
-  if (!/[A-Z]/.test(password)) reasons.push("Una letra mayúscula");
-  if (!/[0-9]/.test(password)) reasons.push("Un número");
-  if (!/[^A-Za-z0-9]/.test(password)) reasons.push("Un símbolo");
-  if (password.length >= 10 && dumbPasswords.check(password)) {
-    reasons.push("No puede ser una de las contraseñas más comunes");
-  }
-  return { ok: reasons.length === 0, reasons };
+  const { ok, faltantes } = revisarReglas(password);
+  return { ok, reasons: faltantes };
 }
 
 const passwordSchema = z.string().superRefine((value, ctx) => {
@@ -61,3 +59,20 @@ export const iniciarSesionSchema = z.object({
 });
 
 export type IniciarSesionInput = z.infer<typeof iniciarSesionSchema>;
+
+export const cambioContrasenaSchema = z
+  .object({
+    actual: z.string().min(1, "Ingresá tu contraseña actual"),
+    nueva: passwordSchema,
+    repetir: z.string().min(1, "Repetí la contraseña nueva"),
+  })
+  .refine((d) => d.nueva === d.repetir, {
+    message: "Las dos contraseñas nuevas no coinciden",
+    path: ["repetir"],
+  })
+  .refine((d) => d.nueva !== d.actual, {
+    message: "La contraseña nueva tiene que ser distinta de la actual",
+    path: ["nueva"],
+  });
+
+export type CambioContrasenaInput = z.infer<typeof cambioContrasenaSchema>;

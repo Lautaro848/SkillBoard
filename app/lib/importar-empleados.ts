@@ -49,6 +49,45 @@ export function proponerMapeo(encabezados: string[]): Mapeo {
   return mapeo;
 }
 
+// Los puestos y departamentos que el archivo menciona y la empresa no tiene.
+//
+// Se calcula sobre las filas crudas y no leyendo los mensajes de error,
+// porque un texto de error es para una persona, no para que otro código lo
+// interprete. Devuelve los nombres tal como los escribió el archivo, sin
+// repetir: si veinte filas dicen "Producción", se crea un departamento.
+export interface CatalogosFaltantes {
+  puestos: string[];
+  departamentos: string[];
+}
+
+export function catalogosFaltantes(
+  filasCrudas: Record<string, string>[],
+  mapeo: Mapeo,
+  catalogos: Pick<CatalogosImportacion, "puestos" | "departamentos">,
+): CatalogosFaltantes {
+  const conocidos = (lista: { nombre: string }[]) => new Set(lista.map((x) => normalizar(x.nombre)));
+  const puestosConocidos = conocidos(catalogos.puestos);
+  const departamentosConocidos = conocidos(catalogos.departamentos);
+
+  const juntar = (clave: string, conocidos: Set<string>) => {
+    const vistos = new Map<string, string>(); // normalizado -> como lo escribió el archivo
+    for (const fila of filasCrudas) {
+      const encabezado = mapeo[clave];
+      const nombre = encabezado ? (fila[encabezado] ?? "").toString().trim() : "";
+      if (!nombre) continue;
+      const norm = normalizar(nombre);
+      if (conocidos.has(norm) || vistos.has(norm)) continue;
+      vistos.set(norm, nombre);
+    }
+    return [...vistos.values()].sort((a, b) => a.localeCompare(b, "es-AR"));
+  };
+
+  return {
+    puestos: juntar("puesto", puestosConocidos),
+    departamentos: juntar("departamento", departamentosConocidos),
+  };
+}
+
 export interface DatosEmpleadoResueltos {
   idInterno: string;
   nombre: string;
@@ -85,13 +124,18 @@ export function validarFilas(
   filasCrudas: Record<string, string>[],
   mapeo: Mapeo,
   catalogos: CatalogosImportacion,
+  // En qué fila de la planilla estaba cada dato. Lo calcula el lector, que es
+  // el único que sabe si el archivo traía un título arriba o filas en blanco
+  // en el medio. Sin esto el reporte de errores manda a la fila equivocada.
+  numerosDeFila?: number[],
 ): FilaImportacion[] {
   const puestosPorNombre = new Map(catalogos.puestos.map((p) => [normalizar(p.nombre), p.id]));
   const departamentosPorNombre = new Map(catalogos.departamentos.map((d) => [normalizar(d.nombre), d.id]));
   const idsVistosEnArchivo = new Map<string, number>(); // id_interno normalizado -> primera fila donde aparece
 
   return filasCrudas.map((filaCruda, index) => {
-    const numeroFila = index + 2; // +1 por 0-index, +1 por la fila de encabezados
+    // El respaldo supone encabezados en la fila 1: +1 por 0-index, +1 por ellos.
+    const numeroFila = numerosDeFila?.[index] ?? index + 2;
     const valorDe = (clave: string) => {
       const encabezado = mapeo[clave];
       return encabezado ? (filaCruda[encabezado] ?? "").toString().trim() : "";

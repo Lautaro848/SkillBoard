@@ -27,6 +27,22 @@ export function createSupabaseServerClient(request: Request, context?: AppLoadCo
   return { supabase, headers };
 }
 
+// Un cliente sin cookies, para comprobar credenciales sin tocar la sesión que
+// ya está abierta.
+//
+// Lo necesita el cambio de contraseña: la única forma de verificar la
+// contraseña actual es intentar iniciar sesión con ella. Si eso se hiciera con
+// el cliente de la request, un intento fallido —o incluso uno exitoso, que
+// emite cookies nuevas— podría dejar a la persona afuera mientras cambia su
+// contraseña. Acá los `Set-Cookie` no van a ninguna parte y la sesión en curso
+// queda intacta.
+export function createSupabaseAnonClient(context?: AppLoadContext) {
+  const env = getEnv(context);
+  return createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    cookies: { getAll: () => [], setAll: () => {} },
+  });
+}
+
 // Solo para el cron de vencimientos y el importador, en código de servidor
 // que nunca es alcanzable desde el navegador. Saltea RLS — usar como bisturí.
 export function createSupabaseServiceClient(context?: AppLoadContext) {

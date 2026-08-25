@@ -192,6 +192,9 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
         <a href="/configuracion/avisos" className="px-3 py-2 text-menor text-secundario">
           Avisos de vencimiento →
         </a>
+        <a href="/configuracion/contrasena" className="px-3 py-2 text-menor text-secundario">
+          Cambiar contraseña →
+        </a>
       </nav>
 
       {actionData?.error && (
@@ -210,7 +213,7 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
             id="nombre"
             name="nombre"
             required
-            className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+            className="campo mt-1"
           />
         </div>
 
@@ -222,7 +225,7 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
             <select
               id="departamentoId"
               name="departamentoId"
-              className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+              className="campo mt-1"
             >
               <option value="">Sin asignar</option>
               {departamentos.map((d: { id: string; nombre: string }) => (
@@ -243,7 +246,7 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
               id="categoria"
               name="categoria"
               required
-              className="mt-1 block rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+              className="campo mt-1"
             >
               <option value="tecnica">Técnica</option>
               <option value="operativa">Operativa</option>
@@ -270,7 +273,7 @@ export default function Catalogos({ loaderData, actionData }: Route.ComponentPro
                 min={1}
                 max={365}
                 defaultValue={30}
-                className="mt-1 block w-24 rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+                className="campo mt-1 w-24"
               />
             </div>
           </>

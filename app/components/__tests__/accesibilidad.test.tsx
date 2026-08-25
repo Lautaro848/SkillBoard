@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import axe from "axe-core";
 import Panel from "~/routes/app/panel";
 import Reglas from "~/routes/app/configuracion/reglas";
+import CambiarContrasena from "~/routes/app/configuracion/contrasena";
 import AppLayout from "~/routes/app/layout";
 import { Boton } from "~/components/ui/boton";
 import { Campo, LeyendaObligatorios, Selector } from "~/components/ui/campo";
@@ -177,5 +178,23 @@ describe("accesibilidad", () => {
     };
 
     expect(await revisar(enRouter(<Reglas {...props(datos)} />))).toEqual([]);
+  });
+
+  it("el cambio de contraseña tampoco, y muestra el error donde corresponde", async () => {
+    const conError = {
+      loaderData: { email: "lautaro@metalurgicadelsur.com.ar" },
+      actionData: {
+        errores: {
+          nueva: ["Esta contraseña aparece 24.230.577 veces en filtraciones de datos públicas."],
+        },
+      },
+    } as any;
+
+    const html = enRouter(<CambiarContrasena {...conError} />);
+
+    // El error de una contraseña filtrada tiene que salir en la pantalla, no
+    // solo existir en la respuesta.
+    expect(html).toContain("24.230.577 veces");
+    expect(await revisar(html)).toEqual([]);
   });
 });

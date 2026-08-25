@@ -63,7 +63,7 @@ export default function IniciarSesion({ actionData }: Route.ComponentProps) {
             type="email"
             required
             defaultValue={values?.email}
-            className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
+            className="campo mt-1"
           />
         </div>
         <div>
@@ -75,7 +75,7 @@ export default function IniciarSesion({ actionData }: Route.ComponentProps) {
             name="password"
             type="password"
             required
-            className="mt-1 w-full rounded-control border border-borde-decorativo bg-superficie px-3 py-2 text-menor"
+            className="campo mt-1"
           />
         </div>
 

@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import { COLUMNAS } from "~/lib/importar-empleados";
 
-const FILA_EJEMPLO: Record<string, string> = {
+export const FILA_EJEMPLO: Record<string, string> = {
   idInterno: "OP-0143",
   nombre: "Juan",
   apellido: "Pérez",

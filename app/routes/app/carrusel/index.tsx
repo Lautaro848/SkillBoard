@@ -298,7 +298,7 @@ function TarjetaCarrusel({
               setCopiado(true);
               setTimeout(() => setCopiado(false), 2000);
             }}
-            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
+            className="boton boton-secundario"
           >
             {copiado ? "Copiado" : "Copiar enlace"}
           </button>
@@ -306,14 +306,14 @@ function TarjetaCarrusel({
             href={`/tv/${carrusel.token}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
+            className="boton boton-secundario"
           >
             Abrir
           </a>
           <button
             type="button"
             onClick={onAbrir}
-            className="rounded-control border border-borde-decorativo px-3 py-1.5 text-menor font-medium"
+            className="boton boton-secundario"
             aria-expanded={abierto}
           >
             {abierto ? "Cerrar" : "Configurar"}
@@ -333,7 +333,7 @@ function TarjetaCarrusel({
                 <input
                   name="nombre"
                   defaultValue={carrusel.nombre}
-                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+                  className="campo mt-1"
                 />
                 {errores?.nombre && <p className="mt-1 text-auxiliar text-error">{errores.nombre[0]}</p>}
               </label>
@@ -347,7 +347,7 @@ function TarjetaCarrusel({
                   max={60}
                   value={segundos}
                   onChange={(e) => setSegundos(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-1.5 text-menor"
+                  className="campo mt-1"
                 />
                 {errores?.segundosPorSlide && (
                   <p className="mt-1 text-auxiliar text-error">{errores.segundosPorSlide[0]}</p>
@@ -516,14 +516,14 @@ function VistaPrevia({
             <button
               type="button"
               onClick={() => setIndice((i) => (i - 1 + empleados.length) % empleados.length)}
-              className="rounded border border-borde-decorativo px-2 py-1"
+              className="boton boton-secundario"
             >
               Anterior
             </button>
             <button
               type="button"
               onClick={() => setIndice((i) => (i + 1) % empleados.length)}
-              className="rounded border border-borde-decorativo px-2 py-1"
+              className="boton boton-secundario"
             >
               Siguiente
             </button>

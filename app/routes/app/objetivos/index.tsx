@@ -117,7 +117,7 @@ export default function Objetivos({ loaderData, actionData }: Route.ComponentPro
         <div className="flex gap-2">
           <a
             href={verCerrados ? "/objetivos" : "/objetivos?cerrados=1"}
-            className="rounded-control border border-borde-decorativo px-4 py-2 text-menor font-medium"
+            className="boton boton-secundario"
           >
             {verCerrados ? "Ver solo activos" : "Ver todos"}
           </a>
@@ -251,7 +251,7 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
         <button
           type="button"
           onClick={() => setMidiendo((v) => !v)}
-          className="rounded-control border border-borde-decorativo px-3 py-1 font-medium"
+          className="boton boton-secundario"
         >
           {midiendo ? "Cancelar" : "Cargar medición"}
         </button>
@@ -284,7 +284,7 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
               type="number"
               step="any"
               required
-              className="mt-1 block w-32 rounded-control border border-borde-decorativo px-2 py-1 text-menor"
+              className="campo mt-1 w-32"
             />
           </div>
           <div>
@@ -297,7 +297,7 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
               type="date"
               required
               defaultValue={new Date().toISOString().slice(0, 10)}
-              className="mt-1 block rounded-control border border-borde-decorativo px-2 py-1 text-menor"
+              className="campo mt-1"
             />
           </div>
           <div className="min-w-40 flex-1">
@@ -307,7 +307,7 @@ function TarjetaObjetivo({ o, mediciones }: { o: ObjetivoCalculado; mediciones: 
             <input
               id={`nota-${o.id}`}
               name="nota"
-              className="mt-1 block w-full rounded-control border border-borde-decorativo px-2 py-1 text-menor"
+              className="campo mt-1"
             />
           </div>
           <button
@@ -408,7 +408,7 @@ function Campo({
         step={type === "number" ? "any" : undefined}
         required={required}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+        className="campo mt-1"
       />
       {errores?.[0] && <p className="mt-1 text-auxiliar text-error">{errores[0]}</p>}
     </div>
@@ -435,7 +435,7 @@ function Selector({
         id={name}
         name={name}
         defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-control border border-borde-decorativo px-3 py-2 text-menor"
+        className="campo mt-1"
       >
         {Object.entries(opciones).map(([v, t]) => (
           <option key={v} value={v}>
