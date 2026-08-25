@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Aviso } from "~/components/ui/estados";
 import { useFetcher } from "react-router";
 import { Link } from "react-router";
 import {
   COLUMNAS,
+  catalogosFaltantes,
   proponerMapeo,
   validarFilas,
   type FilaImportacion,
@@ -25,30 +27,59 @@ interface Props {
 
 type Paso = "subir" | "mapear" | "previsualizar" | "resultado";
 
-export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props) {
+export function ImportarWizard({ puestos: puestosIniciales, departamentos: departamentosIniciales, idsExistentes }: Props) {
   const [paso, setPaso] = useState<Paso>("subir");
+  // Los catálogos pueden crecer sin salir de la pantalla, así que viven en
+  // estado y no directo en las props.
+  const [puestos, setPuestos] = useState(puestosIniciales);
+  const [departamentos, setDepartamentos] = useState(departamentosIniciales);
+    const [errorCatalogos, setErrorCatalogos] = useState<string | null>(null);
   const [leyendo, setLeyendo] = useState(false);
   const [errorLectura, setErrorLectura] = useState<string | null>(null);
   const [encabezados, setEncabezados] = useState<string[]>([]);
   const [filasCrudas, setFilasCrudas] = useState<Record<string, string>[]>([]);
+  const [numerosDeFila, setNumerosDeFila] = useState<number[]>([]);
+  // El archivo queda guardado para poder releerlo si la persona elige otra
+  // hoja: volver a pedírselo sería hacerle repetir el paso anterior.
+  const [archivo, setArchivo] = useState<File | null>(null);
+  const [hojas, setHojas] = useState<string[]>([]);
+  const [hoja, setHoja] = useState("");
+  const [filaEncabezados, setFilaEncabezados] = useState(1);
   const [mapeo, setMapeo] = useState<Mapeo>({});
   const [filas, setFilas] = useState<FilaImportacion[]>([]);
   const fetcher = useFetcher<{ creados: number; fallidos: { fila: number; motivo: string }[] }>();
+  // Un fetcher aparte para crear catálogos: comparte la ruta con la
+  // importación pero es otra operación, y mezclarlos haría que el resultado
+  // de una pisara el de la otra.
+  const fetcherCatalogos = useFetcher<{
+    puestos: Opcion[];
+    departamentos: Opcion[];
+    rechazados: string[];
+  }>();
 
-  async function onArchivo(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function cargar(file: File, hojaPedida?: string) {
     setLeyendo(true);
     setErrorLectura(null);
     try {
-      const { encabezados: h, filas: f } = await leerArchivoEmpleados(file);
-      if (h.length === 0) {
-        setErrorLectura("El archivo no tiene filas. Revisá que sea el correcto.");
+      const leido = await leerArchivoEmpleados(file, hojaPedida);
+      setHojas(leido.hojas);
+      setHoja(leido.hoja);
+
+      if (leido.encabezados.length === 0) {
+        setErrorLectura(
+          leido.hojas.length > 1
+            ? `En la hoja "${leido.hoja}" no encontramos una tabla. Probá con otra: el archivo tiene ${leido.hojas.length} hojas.`
+            : "No encontramos una tabla en el archivo. Tiene que haber una fila con los nombres de las columnas y los empleados debajo.",
+        );
         return;
       }
-      setEncabezados(h);
-      setFilasCrudas(f);
-      setMapeo(proponerMapeo(h));
+
+      setArchivo(file);
+      setEncabezados(leido.encabezados);
+      setFilasCrudas(leido.filas);
+      setNumerosDeFila(leido.numerosDeFila);
+      setFilaEncabezados(leido.filaEncabezados);
+      setMapeo(proponerMapeo(leido.encabezados));
       setPaso("mapear");
     } catch {
       setErrorLectura("No pudimos leer el archivo. Probá exportarlo nuevamente como .xlsx o .csv.");
@@ -57,13 +88,28 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
     }
   }
 
-  function continuarAPrevisualizacion() {
-    const validadas = validarFilas(filasCrudas, mapeo, {
-      puestos,
-      departamentos,
-      idsExistentes: new Set(idsExistentes.map((id) => id.toUpperCase())),
-    });
+  async function onArchivo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) await cargar(file);
+  }
+
+  function revalidar(catalogos?: { puestos: Opcion[]; departamentos: Opcion[] }) {
+    const validadas = validarFilas(
+      filasCrudas,
+      mapeo,
+      {
+        puestos: catalogos?.puestos ?? puestos,
+        departamentos: catalogos?.departamentos ?? departamentos,
+        idsExistentes: new Set(idsExistentes.map((id) => id.toUpperCase())),
+      },
+      numerosDeFila,
+    );
     setFilas(validadas);
+    return validadas;
+  }
+
+  function continuarAPrevisualizacion() {
+    revalidar();
     setPaso("previsualizar");
   }
 
@@ -81,6 +127,65 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
     });
     setPaso("resultado");
   }
+
+  const creandoCatalogos = fetcherCatalogos.state !== "idle";
+
+  // Qué puestos y departamentos nombra el archivo que la empresa no tiene.
+  // Se recalcula en cada render: apenas se crean, la lista queda vacía sola.
+  const faltantes = catalogosFaltantes(filasCrudas, mapeo, { puestos, departamentos });
+  const totalFaltantes = faltantes.puestos.length + faltantes.departamentos.length;
+
+  // Crea los catálogos que faltan y vuelve a validar con los nuevos.
+  //
+  // Es una escritura, así que no pasa sin que la persona la pida: primero ve
+  // exactamente qué se va a crear y recién después aprieta el botón
+  // (03-modulos-y-alcance.md, Regla 2: resumen antes de aplicar).
+  function crearFaltantes() {
+    setErrorCatalogos(null);
+
+    // El departamento con el que aparece cada puesto, para que el puesto
+    // nuevo no quede sin área.
+    const departamentoDelPuesto = new Map<string, string>();
+    for (const fila of filasCrudas) {
+      const p = mapeo.puesto ? (fila[mapeo.puesto] ?? "").trim() : "";
+      const d = mapeo.departamento ? (fila[mapeo.departamento] ?? "").trim() : "";
+      if (p && !departamentoDelPuesto.has(p)) departamentoDelPuesto.set(p, d);
+    }
+
+    fetcherCatalogos.submit(
+      {
+        intent: "crear-catalogos",
+        departamentos: faltantes.departamentos,
+        puestos: faltantes.puestos.map((nombre) => ({
+          nombre,
+          departamento: departamentoDelPuesto.get(nombre) ?? "",
+        })),
+      },
+      { method: "post", encType: "application/json" },
+    );
+  }
+
+  // La respuesta llega asincrónica: cuando está, se adoptan los catálogos
+  // nuevos y se vuelve a validar para que la previsualización muestre las
+  // filas ya sin el error.
+  useEffect(() => {
+    const datos = fetcherCatalogos.data;
+    if (!datos) return;
+
+    setPuestos(datos.puestos);
+    setDepartamentos(datos.departamentos);
+    setErrorCatalogos(
+      datos.rechazados.length > 0
+        ? `No se pudieron crear estos nombres porque no tienen entre 2 y 50 caracteres: ${datos.rechazados.join(", ")}. ` +
+            "Corregilos en el archivo y volvé a subirlo."
+        : null,
+    );
+
+    revalidar({ puestos: datos.puestos, departamentos: datos.departamentos });
+    // Solo depende de la respuesta: `revalidar` lee estado que ya está al día
+    // en este render, y agregarla como dependencia volvería a correr el efecto
+    // en cada tecla.
+  }, [fetcherCatalogos.data]);
 
   const columnasFaltantes = COLUMNAS.filter((c) => c.requerido && !mapeo[c.clave]);
   const listas = filas.filter((f) => f.empresaListaParaImportar).length;
@@ -118,6 +223,36 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
           <p className="text-menor text-secundario">
             Detectamos estas columnas en tu archivo. Corregí la correspondencia donde haga falta.
           </p>
+
+          {/* Qué se leyó exactamente. Si el libro trae varias hojas —una
+              portada, un tablero, instrucciones— elegimos la que más datos
+              tiene, pero la decisión queda a la vista y se puede cambiar. */}
+          <div className="flex flex-wrap items-end gap-3">
+            {hojas.length > 1 ? (
+              <div>
+                <label className="text-menor font-medium" htmlFor="hoja">
+                  Hoja del archivo
+                </label>
+                <select
+                  id="hoja"
+                  value={hoja}
+                  disabled={leyendo}
+                  onChange={(e) => archivo && cargar(archivo, e.target.value)}
+                  className="campo mt-1"
+                >
+                  {hojas.map((h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            <p className="pb-2 text-auxiliar text-secundario">
+              Hoja «{hoja}» · encabezados en la fila {filaEncabezados} · {filasCrudas.length} fila
+              {filasCrudas.length === 1 ? "" : "s"} con datos.
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             {COLUMNAS.map((c) => (
               <div key={c.clave}>
@@ -166,6 +301,38 @@ export function ImportarWizard({ puestos, departamentos, idsExistentes }: Props)
             {listas} fila{listas === 1 ? "" : "s"} lista{listas === 1 ? "" : "s"} para importar, {conError} con errores
             {filas.length > 50 && ` (mostrando las primeras 50 de ${filas.length})`}.
           </p>
+
+          {totalFaltantes > 0 && (
+            <Aviso tono="advertencia" titulo="Faltan puestos y departamentos en tus catálogos">
+              <p>
+                El archivo nombra {totalFaltantes} que tu empresa todavía no tiene. Podés crearlos ahora y
+                seguir, o cancelar y corregir el archivo para que use los nombres que ya usás.
+              </p>
+              {faltantes.departamentos.length > 0 && (
+                <p className="mt-2">
+                  <span className="font-medium">
+                    Departamentos ({faltantes.departamentos.length}):
+                  </span>{" "}
+                  {faltantes.departamentos.join(", ")}
+                </p>
+              )}
+              {faltantes.puestos.length > 0 && (
+                <p className="mt-1">
+                  <span className="font-medium">Puestos ({faltantes.puestos.length}):</span>{" "}
+                  {faltantes.puestos.join(", ")}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={crearFaltantes}
+                disabled={creandoCatalogos}
+                className="boton boton-secundario mt-3"
+              >
+                {creandoCatalogos ? "Creando..." : `Crear estos ${totalFaltantes} y seguir`}
+              </button>
+              {errorCatalogos && <p className="mt-2 text-error">{errorCatalogos}</p>}
+            </Aviso>
+          )}
 
           <div className="overflow-x-auto rounded-tarjeta border border-borde-decorativo">
             <table className="w-full text-menor">
