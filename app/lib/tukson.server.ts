@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Candidato, Regla, TareaPasada } from "~/lib/tukson/tipos";
+import { UMBRALES_POR_DEFECTO, type Umbrales } from "~/lib/tukson/asignar";
 
 // Arma los candidatos que consumen el filtro y el puntaje. Consultas fijas,
 // sin importar cuántos empleados haya: nada de una consulta por fila
@@ -33,12 +34,15 @@ export async function cargarCandidatos(
   empresaId: string,
 ): Promise<Candidato[]> {
   const hoy = new Date().toISOString().slice(0, 10);
+  // Ventana de rotación: cuántas asignaciones recibió cada uno en la semana.
+  // Es el segundo criterio de desempate (06-tukson-mejoras.md §1.1).
+  const hace7Dias = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const [{ data: empleados }, { data: aptitudes }, { data: certificados }, { data: asignaciones }] =
     await Promise.all([
       supabase
         .from("empleados")
-        .select("id, nombre, apellido, estado, departamento_id, puesto_id, capacidad_diaria_min")
+        .select("id, id_interno, nombre, apellido, estado, departamento_id, puesto_id, capacidad_diaria_min")
         .eq("empresa_id", empresaId)
         .is("eliminado_en", null),
       supabase.from("empleado_aptitudes").select("empleado_id, aptitud_id, nivel").eq("empresa_id", empresaId),
@@ -94,6 +98,7 @@ export async function cargarCandidatos(
 
     return {
       id: e.id,
+      idInterno: e.id_interno as string,
       nombre: e.nombre,
       apellido: e.apellido,
       estado: e.estado,
@@ -103,6 +108,11 @@ export async function cargarCandidatos(
         (aptitudesPor.get(e.id) ?? []).map((a) => [a.aptitud_id as string, a.nivel as number]),
       ),
       certificadosVigentes: certs.filter((c) => c.estado !== "vencido").map((c) => c.tipo_id as string),
+      vencimientoDeVigentes: Object.fromEntries(
+        certs
+          .filter((c) => c.estado !== "vencido" && c.fecha_vencimiento)
+          .map((c) => [c.tipo_id as string, c.fecha_vencimiento as string]),
+      ),
       certificadosVencidos: Object.fromEntries(
         certs
           .filter((c) => c.estado === "vencido" && c.fecha_vencimiento)
@@ -111,6 +121,8 @@ export async function cargarCandidatos(
       historial,
       capacidadMin: e.capacidad_diaria_min ?? 480,
       cargaMin,
+      asignacionesUltimos7Dias: propias.filter((a) => String(a.creada_en).slice(0, 10) >= hace7Dias)
+        .length,
     };
   });
 }
@@ -133,4 +145,20 @@ export async function cargarReglas(
     activa: r.activa,
     condiciones: r.condiciones ?? {},
   }));
+}
+
+// Umbral mínimo de puntaje por empresa (06-tukson-mejoras.md §1.3). Si la
+// empresa nunca lo tocó, valen los del documento: 45 y 60.
+export async function cargarUmbrales(
+  supabase: SupabaseClient,
+  empresaId: string,
+): Promise<Umbrales> {
+  const { data } = await supabase
+    .from("config_tukson")
+    .select("umbral_general, umbral_critica")
+    .eq("empresa_id", empresaId)
+    .maybeSingle();
+
+  if (!data) return UMBRALES_POR_DEFECTO;
+  return { general: data.umbral_general, critica: data.umbral_critica };
 }

@@ -162,10 +162,18 @@ describe("accesibilidad", () => {
           peso: -10,
           activa: true,
           origen: "derivada",
-          condiciones: { vigenciaHasta: "2026-08-29" },
+          condiciones: { empleadoId: "e-1", tareaRequiereAptitudId: "a-altura", vigenciaHasta: "2026-08-29" },
           creada_en: "2026-08-22",
         },
       ],
+      umbrales: { general: 45, critica: 60 },
+      nombres: {
+        empleados: { "e-1": "Juan Pérez" },
+        aptitudes: { "a-altura": "trabajo en altura" },
+        certificados: { "c-altura": "el carnet de altura" },
+        departamentos: {},
+        puestos: {},
+      },
       metricas: {
         totalAsignaciones: 24,
         corregidas: 5,
@@ -177,7 +185,17 @@ describe("accesibilidad", () => {
       },
     };
 
-    expect(await revisar(enRouter(<Reglas {...props(datos)} />))).toEqual([]);
+    const html = enRouter(<Reglas {...props(datos)} />);
+
+    // Criterio de 06-tukson-mejoras.md §1.4: la pantalla explica a qué aplica
+    // cada regla en castellano, sin jerga de condiciones. Una regla que nadie
+    // puede leer es una regla que nadie va a corregir cuando esté mal.
+    expect(html).toContain("Se aplica a Juan Pérez");
+    expect(html).toContain("requieran la aptitud trabajo en altura");
+    expect(html).not.toContain("tareaRequiereAptitudId");
+    expect(html).not.toContain("a-altura");
+
+    expect(await revisar(html)).toEqual([]);
   });
 
   it("el cambio de contraseña tampoco, y muestra el error donde corresponde", async () => {

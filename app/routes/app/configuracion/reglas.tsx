@@ -1,5 +1,9 @@
 import { Form } from "react-router";
 import { requireSesion } from "~/lib/sesion.server";
+import { cargarCatalogos, cargarUmbrales } from "~/lib/tukson.server";
+import { describirCondiciones, esFragilPorTitulo } from "~/lib/tukson/reglas";
+import type { CondicionesRegla } from "~/lib/tukson/tipos";
+import { UMBRALES_POR_DEFECTO } from "~/lib/tukson/asignar";
 import { Boton, BotonEnviar } from "~/components/ui/boton";
 import { Campo, Selector } from "~/components/ui/campo";
 import { Aviso, EstadoVacio } from "~/components/ui/estados";
@@ -22,8 +26,16 @@ const EXPLICACION_TIPO: Record<string, string> = {
 export async function loader({ request, context }: Route.LoaderArgs) {
   const { supabase, empresaId } = await requireSesion(request, context);
 
-  const [{ data: reglas }, { data: correcciones }, { data: asignaciones }, { data: lotes }] =
-    await Promise.all([
+  const [
+    { data: reglas },
+    { data: correcciones },
+    { data: asignaciones },
+    { data: lotes },
+    catalogos,
+    { data: empleados },
+    umbrales,
+    { data: puestos },
+  ] = await Promise.all([
       supabase
         .from("reglas_empresa")
         .select("*")
@@ -36,6 +48,16 @@ export async function loader({ request, context }: Route.LoaderArgs) {
         .select("id")
         .eq("empresa_id", empresaId)
         .eq("estado", "confirmado"),
+      // Para poder decir a qué aplica cada regla en castellano, en vez de
+      // mostrar los ids que están guardados.
+      cargarCatalogos(supabase, empresaId),
+      supabase
+        .from("empleados")
+        .select("id, nombre, apellido")
+        .eq("empresa_id", empresaId)
+        .is("eliminado_en", null),
+      cargarUmbrales(supabase, empresaId),
+      supabase.from("puestos").select("id, nombre").eq("empresa_id", empresaId),
     ]);
 
   // Métricas del §5. Se muestran para que el propio cliente vea si el sistema
@@ -49,6 +71,16 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
   return {
     reglas: reglas ?? [],
+    umbrales,
+    nombres: {
+      empleados: Object.fromEntries(
+        (empleados ?? []).map((e) => [e.id as string, `${e.nombre} ${e.apellido}`]),
+      ),
+      aptitudes: Object.fromEntries(catalogos.aptitudes),
+      certificados: Object.fromEntries(catalogos.tiposCertificado),
+      departamentos: Object.fromEntries(catalogos.departamentos),
+      puestos: Object.fromEntries((puestos ?? []).map((p) => [p.id as string, p.nombre as string])),
+    },
     metricas: {
       totalAsignaciones,
       corregidas,
@@ -80,6 +112,33 @@ export async function action({ request, context }: Route.ActionArgs) {
       .eq("id", id)
       .eq("empresa_id", empresaId);
     return { ok: true, mensaje: activar ? "Regla activada." : "Regla desactivada." };
+  }
+
+  if (intent === "umbrales") {
+    const general = Number(formData.get("umbralGeneral") ?? UMBRALES_POR_DEFECTO.general);
+    const critica = Number(formData.get("umbralCritica") ?? UMBRALES_POR_DEFECTO.critica);
+
+    if (!Number.isFinite(general) || general < 0 || general > 100) {
+      return { ok: false, mensaje: "El mínimo general tiene que estar entre 0 y 100." };
+    }
+    if (critica < general) {
+      return {
+        ok: false,
+        mensaje:
+          "El mínimo de las tareas críticas no puede ser menor que el general: la tarea más importante " +
+          "estaría pidiendo menos que el resto.",
+      };
+    }
+
+    const { error } = await supabase
+      .from("config_tukson")
+      .upsert(
+        { empresa_id: empresaId, umbral_general: general, umbral_critica: critica, actualizado_en: new Date().toISOString() },
+        { onConflict: "empresa_id" },
+      );
+
+    if (error) return { ok: false, mensaje: "No pudimos guardar el mínimo. Probá de nuevo." };
+    return { ok: true, mensaje: "Mínimo de puntaje actualizado." };
   }
 
   if (intent === "borrar") {
@@ -134,6 +193,8 @@ export default function Reglas({ loaderData, actionData }: Route.ComponentProps)
 
       <Metricas datos={metricas} />
 
+      <Umbrales actuales={loaderData.umbrales} />
+
       {reglas.length === 0 ? (
         <EstadoVacio
           titulo="Todavía no hay reglas"
@@ -142,11 +203,56 @@ export default function Reglas({ loaderData, actionData }: Route.ComponentProps)
       ) : (
         <div className="flex flex-col gap-4">
           {reglas.map((r) => (
-            <TarjetaRegla key={r.id} regla={r} />
+            <TarjetaRegla key={r.id} regla={r} nombres={loaderData.nombres} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+// El mínimo de puntaje para que Tukson asigne sola una tarea
+// (06-tukson-mejoras.md §1.3). Vive acá y no escondido en el código porque un
+// umbral que no se ve no se puede discutir, y el valor correcto depende del
+// tamaño del equipo: un taller de cinco personas necesita ser más permisivo
+// que una planta de ochenta.
+function Umbrales({ actuales }: { actuales: { general: number; critica: number } }) {
+  return (
+    <section className="tarjeta p-6">
+      <h2 className="text-tarjeta font-semibold text-texto">Cuándo Tukson asigna sola</h2>
+      <p className="mt-1 max-w-3xl text-menor text-secundario">
+        Si el mejor candidato no llega a este puntaje, la tarea queda sin asignar y se muestra igual quién
+        era, con su puntaje, para que decidas vos. Sirve para que el sistema no proponga como recomendación
+        a alguien que apenas puede hacer la tarea.
+      </p>
+
+      <Form method="post" className="mt-4 flex flex-wrap items-end gap-4">
+        <input type="hidden" name="intent" value="umbrales" />
+        <Campo
+          etiqueta="Mínimo general"
+          name="umbralGeneral"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={String(actuales.general)}
+          className="max-w-40"
+          ayuda={`Sobre 100. Por defecto ${UMBRALES_POR_DEFECTO.general}.`}
+        />
+        <Campo
+          etiqueta="Mínimo en tareas críticas"
+          name="umbralCritica"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={String(actuales.critica)}
+          className="max-w-48"
+          ayuda={`Más exigente: ahí equivocarse cuesta más. Por defecto ${UMBRALES_POR_DEFECTO.critica}.`}
+        />
+        <BotonEnviar variante="secundario" className="mb-6">
+          Guardar
+        </BotonEnviar>
+      </Form>
+    </section>
   );
 }
 
@@ -206,28 +312,58 @@ interface FilaRegla {
   peso: number;
   activa: boolean;
   origen: string;
-  condiciones: { vigenciaHasta?: string } | null;
+  condiciones: CondicionesRegla | null;
   creada_en: string;
 }
 
-function TarjetaRegla({ regla }: { regla: FilaRegla }) {
+export interface NombresDeCatalogo {
+  empleados: Record<string, string>;
+  aptitudes: Record<string, string>;
+  certificados: Record<string, string>;
+  departamentos: Record<string, string>;
+  puestos: Record<string, string>;
+}
+
+function TarjetaRegla({ regla, nombres }: { regla: FilaRegla; nombres: NombresDeCatalogo }) {
   const vigencia = regla.condiciones?.vigenciaHasta;
   const vencida = vigencia ? new Date(`${vigencia}T23:59:59Z`) < new Date() : false;
+
+  // A qué aplica la regla, en palabras. Lo que está guardado son ids; sin
+  // esto la persona tiene que confiar en que el sistema entendió lo que quiso
+  // decir, sin poder verificarlo.
+  const buscar = (mapa: Record<string, string>, falta: string) => (id: string) => mapa[id] ?? falta;
+  const alcance = describirCondiciones(regla.condiciones, {
+    empleado: buscar(nombres.empleados, "un empleado que ya no está"),
+    departamento: buscar(nombres.departamentos, "un departamento borrado"),
+    puesto: buscar(nombres.puestos, "un puesto borrado"),
+    aptitud: buscar(nombres.aptitudes, "una aptitud borrada"),
+    certificado: buscar(nombres.certificados, "un certificado borrado"),
+  });
 
   return (
     <section className="tarjeta p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-cuerpo text-texto">{regla.enunciado}</p>
+          <p className="mt-1 text-menor text-texto">{alcance}</p>
           <p className="mt-1 text-auxiliar text-secundario">
             {ETIQUETA_TIPO[regla.tipo] ?? regla.tipo} · {EXPLICACION_TIPO[regla.tipo] ?? ""}{" "}
             {regla.origen === "derivada" ? "Salió de una corrección tuya." : "Cargada a mano."}
           </p>
-          {vigencia && (
+          {vencida && (
             <p className="mt-1 text-auxiliar text-secundario">
-              {vencida
-                ? `Venció el ${vigencia.split("-").reverse().join("/")}: ya no se aplica.`
-                : `Se aplica hasta el ${vigencia.split("-").reverse().join("/")}.`}
+              Venció el {vigencia!.split("-").reverse().join("/")}: ya no se aplica.
+            </p>
+          )}
+
+          {/* Una regla que depende de las palabras del título no agarra la
+              tarea de mañana si alguien la escribe distinto. Se dice, para
+              que se pueda cambiar por el requisito. */}
+          {esFragilPorTitulo(regla.condiciones) && (
+            <p className="mt-2 text-auxiliar text-advertencia">
+              Esta regla depende de que la tarea diga esa palabra en el título. Si mañana la misma tarea se
+              escribe de otra forma, la regla no se va a aplicar. Conviene rehacerla sobre la aptitud o el
+              certificado que la tarea requiere.
             </p>
           )}
         </div>

@@ -20,6 +20,7 @@ const tarea: TareaParaAsignar = {
 
 const empleado = (id: string, nombre: string, apellido: string, over: Partial<Candidato> = {}): Candidato => ({
   id,
+  idInterno: id.toUpperCase(),
   nombre,
   apellido,
   estado: "activo",
@@ -31,6 +32,7 @@ const empleado = (id: string, nombre: string, apellido: string, over: Partial<Ca
   historial: [{ aptitudes: ["a-hid"], completada: true }],
   capacidadMin: 480,
   cargaMin: 120,
+  asignacionesUltimos7Dias: 0,
   ...over,
 });
 

@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { requireSesion } from "~/lib/sesion.server";
-import { cargarCandidatos, cargarCatalogos, cargarReglas } from "~/lib/tukson.server";
+import { cargarCandidatos, cargarCatalogos, cargarReglas, cargarUmbrales } from "~/lib/tukson.server";
 import { extraerTexto } from "~/lib/tukson/extraccion.server";
 import { lineasDeTareas } from "~/lib/tukson/extraccion";
-import { asignarLote, resumirReparto } from "~/lib/tukson/asignar";
+import {
+  asignarLote,
+  avisoDeCapacidad,
+  evaluarCapacidad,
+  explicarMotivo,
+  resumirReparto,
+} from "~/lib/tukson/asignar";
 import { motivoSinCandidatos } from "~/lib/tukson/filtro";
 import { justificacionPorPlantilla } from "~/lib/tukson/plantilla";
 import { proveedorConfigurado } from "~/lib/tukson/proveedor";
@@ -181,10 +187,11 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   // --- Paso 3: análisis ----------------------------------------------------
   if (intent === "analizar") {
-    const [{ data: filas }, candidatos, reglas] = await Promise.all([
+    const [{ data: filas }, candidatos, reglas, umbrales] = await Promise.all([
       supabase.from("tareas").select("*").eq("lote_id", loteId).eq("empresa_id", empresaId),
       cargarCandidatos(supabase, empresaId),
       cargarReglas(supabase, empresaId, true),
+      cargarUmbrales(supabase, empresaId),
     ]);
 
     const tareas = (filas ?? []).map((t) => ({
@@ -198,7 +205,11 @@ export async function action({ request, context }: Route.ActionArgs) {
       departamentoEsRequisito: Boolean(t.departamento_es_requisito),
     }));
 
-    const resultados = asignarLote(tareas, candidatos, reglas);
+    const resultados = asignarLote(tareas, candidatos, reglas, new Date(), umbrales);
+    // Antes de mirar tarea por tarea: ¿alcanzan las horas del equipo para el
+    // trabajo del día? Cuando no alcanzan, ningún reparto lo arregla y decirlo
+    // primero vale más que cualquier detalle (06-tukson-mejoras.md §1.2).
+    const capacidad = evaluarCapacidad(tareas, candidatos);
     const catalogos = await cargarCatalogos(supabase, empresaId);
     const nombreAptitud = (id: string) => catalogos.aptitudes.get(id) ?? "aptitud";
 
@@ -237,15 +248,23 @@ export async function action({ request, context }: Route.ActionArgs) {
         estado: "analizado",
         resumen: JSON.stringify({
           ...resumirReparto(resultados),
+          capacidad,
+          avisoCapacidad: avisoDeCapacidad(capacidad),
           sinCandidatos: resultados
             .filter((r) => !r.elegido)
             .map((r) => ({
               tareaId: r.tarea.id,
               titulo: r.tarea.titulo,
-              motivo: motivoSinCandidatos(
-                r.descartes,
-                (id) => catalogos.tiposCertificado.get(id) ?? "el certificado requerido",
-                formatearFecha,
+              clase: r.motivo?.clase ?? "sin_candidatos",
+              // Cada motivo pide algo distinto de quien lee: contratar,
+              // esperar a mañana o revisar los datos de la gente.
+              motivo: explicarMotivo(
+                r.motivo ?? { clase: "sin_candidatos" },
+                motivoSinCandidatos(
+                  r.descartes,
+                  (id) => catalogos.tiposCertificado.get(id) ?? "el certificado requerido",
+                  formatearFecha,
+                ),
               ),
             })),
         }),
@@ -822,9 +841,13 @@ function Propuesta({
 
       {datos && datos.sinCandidatos.length > 0 && (
         <section className="flex flex-col gap-3">
-          <h2 className="text-tarjeta font-semibold text-texto">Tareas sin candidatos</h2>
+          <h2 className="text-tarjeta font-semibold text-texto">Tareas sin asignar</h2>
           {datos.sinCandidatos.map((t) => (
-            <Aviso key={t.tareaId} tono="advertencia" titulo={t.titulo}>
+            <Aviso
+              key={t.tareaId}
+              tono={t.clase === "sin_candidatos" ? "error" : "advertencia"}
+              titulo={`${t.titulo} — ${TITULO_SIN_ASIGNAR[t.clase ?? "sin_candidatos"]}`}
+            >
               {t.motivo}
             </Aviso>
           ))}
@@ -1033,24 +1056,57 @@ function ReglaPropuesta({ regla, errorFecha }: { regla: { id: string; enunciado:
 interface ResumenGuardado {
   tareasAsignadas: number;
   tareasSinCandidatos: number;
+  // Los lotes analizados antes de esta versión no traen estos campos.
+  tareasSinHoras?: number;
+  tareasBajoUmbral?: number;
+  avisoCapacidad?: string | null;
   personas: number;
   cargaMaxima: { nombre: string; minutos: number; capacidad: number } | null;
-  sinCandidatos: { tareaId: string; titulo: string; motivo: string }[];
+  sinCandidatos: {
+    tareaId: string;
+    titulo: string;
+    motivo: string;
+    clase?: "sin_candidatos" | "sin_horas" | "bajo_umbral";
+  }[];
 }
+
+// Los tres motivos piden cosas distintas de quien lee, así que no pueden
+// verse igual. Sin horas y bajo umbral son avisos: el trabajo se puede hacer,
+// falta decidir algo. Sin candidatos es un problema de habilitaciones.
+const TITULO_SIN_ASIGNAR: Record<string, string> = {
+  sin_candidatos: "Nadie puede hacerlas",
+  sin_horas: "No quedan horas en el día",
+  bajo_umbral: "Ningún candidato adecuado",
+};
 
 function ResumenReparto({ datos }: { datos: ResumenGuardado }) {
   const horas = (min: number) => (min / 60).toFixed(1).replace(".", ",").replace(",0", "");
 
+  // Cuando el día está sobrevendido esto va primero, antes que cualquier
+  // detalle del reparto: ningún algoritmo reparte más horas de las que hay, y
+  // lo que el responsable necesita saber es cuánta gente le falta
+  // (06-tukson-mejoras.md §1.2).
+  const faltaCapacidad = datos.avisoCapacidad ? (
+    <Aviso tono="advertencia" titulo="Falta capacidad para el trabajo de hoy">
+      {datos.avisoCapacidad}
+    </Aviso>
+  ) : null;
+
   if (datos.tareasAsignadas === 0) {
     return (
-      <EstadoVacio
-        titulo="Ninguna tarea pudo asignarse"
-        explicacion="Todas las tareas quedaron sin candidatos. Abajo está el motivo de cada una: casi siempre es un certificado vencido o un requisito demasiado estrecho."
-      />
+      <div className="flex flex-col gap-4">
+        {faltaCapacidad}
+        <EstadoVacio
+          titulo="Ninguna tarea pudo asignarse"
+          explicacion="Abajo está el motivo de cada una. Si dice que faltan horas, el problema es de capacidad; si dice que nadie puede hacerlas, casi siempre es un certificado vencido o un requisito demasiado estrecho."
+        />
+      </div>
     );
   }
 
   return (
+    <div className="flex flex-col gap-4">
+    {faltaCapacidad}
     <section className="tarjeta p-6">
       <p className="text-cuerpo text-texto">
         <strong className="font-semibold">{datos.tareasAsignadas}</strong>{" "}
@@ -1066,5 +1122,6 @@ function ResumenReparto({ datos }: { datos: ResumenGuardado }) {
         )}
       </p>
     </section>
+    </div>
   );
 }

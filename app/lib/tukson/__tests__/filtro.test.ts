@@ -6,6 +6,7 @@ const HOY = new Date("2026-08-22T12:00:00Z");
 
 const empleado = (over: Partial<Candidato> = {}): Candidato => ({
   id: "e1",
+  idInterno: "E1",
   nombre: "Juan",
   apellido: "Pérez",
   estado: "activo",
@@ -17,6 +18,7 @@ const empleado = (over: Partial<Candidato> = {}): Candidato => ({
   historial: [],
   capacidadMin: 480,
   cargaMin: 0,
+  asignacionesUltimos7Dias: 0,
   ...over,
 });
 
