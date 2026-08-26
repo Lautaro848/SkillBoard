@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { FILA_EJEMPLO } from "~/lib/plantilla-empleados.client";
 import { empleadoSchema } from "~/lib/validation/empleados";
 
@@ -99,5 +100,23 @@ describe("email con acentos", () => {
     const r = conEmail("andres.nunez.empresa.com");
     expect(r.success).toBe(false);
     expect(r.error?.issues[0].message).toBe("Ingresá un email válido");
+  });
+});
+
+describe("la regla del ID interno vive en dos lados", () => {
+  it("la de la base dice exactamente lo mismo que la de la aplicación", () => {
+    // La primera vez que se aflojó esta regla se cambió solo la aplicación. La
+    // base siguió con la vieja, así que el formulario aceptaba OP-0143 y el
+    // insert fallaba con un error de restricción: peor que antes, porque el
+    // error aparecía después de cargar los datos.
+    //
+    // Las dos expresiones tienen que ser la misma cadena. Si alguien afloja
+    // una, este test le recuerda la otra.
+    const enLaApp = readFileSync("app/lib/validation/empleados.ts", "utf8");
+    const enLaBase = readFileSync("supabase/migrations/0015_id_interno_con_separadores.sql", "utf8");
+
+    const EXPRESION = "^[A-Za-z0-9][A-Za-z0-9._/-]{1,18}[A-Za-z0-9]$";
+    expect(enLaApp).toContain(EXPRESION);
+    expect(enLaBase).toContain(EXPRESION);
   });
 });
